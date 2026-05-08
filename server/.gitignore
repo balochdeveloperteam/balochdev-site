@@ -1,0 +1,20 @@
+node_modules
+
+# Env files — never commit secrets
+.env
+.env.*
+!.env.example
+
+# Google service account key file
+keys/
+*.json.key
+google-sheets-sa.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/

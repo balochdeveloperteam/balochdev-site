@@ -1,0 +1,102 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../../lib/supabase';
+
+export default function AdminLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Admin login — BalochDev';
+    if (!supabase) {
+      setChecking(false);
+      return;
+    }
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      if (data.session) {
+        nav('/admin', { replace: true });
+      } else {
+        setChecking(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [nav]);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!supabase) {
+      setError('Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in client .env');
+      return;
+    }
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    nav('/admin', { replace: true });
+  };
+
+  if (checking) {
+    return (
+      <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
+        <div className="ndx-container" style={{ maxWidth: '400px' }}>
+          <p className="ndx-tech-blurb">Checking session…</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
+      <div className="ndx-container" style={{ maxWidth: '400px' }}>
+        <p className="ndx-eyebrow">Admin</p>
+        <h1 className="ndx-h1" style={{ fontSize: '2rem' }}>
+          Team login
+        </h1>
+        <p className="ndx-lead">Members only — uses Supabase Auth.</p>
+        <form onSubmit={onSubmit} style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+            style={{
+              padding: '0.85rem 1rem',
+              borderRadius: 10,
+              border: '1px solid var(--ndx-border)',
+              background: 'var(--ndx-surface)',
+              color: 'var(--ndx-text)',
+            }}
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            style={{
+              padding: '0.85rem 1rem',
+              borderRadius: 10,
+              border: '1px solid var(--ndx-border)',
+              background: 'var(--ndx-surface)',
+              color: 'var(--ndx-text)',
+            }}
+          />
+          {error && <p style={{ color: '#f87171', fontSize: '0.875rem' }}>{error}</p>}
+          <button type="submit" className="ndx-btn ndx-btn-primary">
+            Sign in
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}

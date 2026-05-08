@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+**/dist/
+**/build/
+
+# Environment files — NEVER commit secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Service account keys & credentials
+keys/
+*.pem
+*.key
+google-sheets-sa.json
+**/google-sheets-sa.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Vite cache
+.vite/
+**/.vite/
+
+# Misc
+coverage/
+.nyc_output/
+*.tsbuildinfo
