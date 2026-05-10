@@ -11,7 +11,11 @@ export default function ScrollToTop() {
   useLayoutEffect(() => {
     const lenis = typeof window !== "undefined" ? window.ndxLenis : null;
     if (lenis && typeof lenis.scrollTo === "function") {
-      lenis.scrollTo(0, { immediate: true });
+      try {
+        lenis.scrollTo(0, { immediate: true });
+      } catch {
+        window.scrollTo(0, 0);
+      }
     } else if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }

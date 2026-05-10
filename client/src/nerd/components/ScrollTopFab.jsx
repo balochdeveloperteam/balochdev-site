@@ -18,8 +18,12 @@ export default function ScrollTopFab() {
   const goTop = useCallback(() => {
     const lenis = typeof window !== "undefined" ? window.ndxLenis : null;
     if (lenis && typeof lenis.scrollTo === "function") {
-      lenis.scrollTo(0, { duration: 0.75 });
-      return;
+      try {
+        lenis.scrollTo(0, { duration: 0.75 });
+        return;
+      } catch {
+        /* Lenis may be mid-teardown (Strict Mode / HMR); fall through */
+      }
     }
     const prefersReduce =
       typeof window !== "undefined" &&

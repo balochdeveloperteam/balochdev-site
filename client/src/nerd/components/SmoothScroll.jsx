@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { getCachedLiteMotion } from '../utils/motionBudget';
 
@@ -8,23 +8,41 @@ function reduceMotion() {
 
 /** Inertial smooth scrolling (Lenis). Skipped when reduced-motion or lite-device tier (saves RAM / main-thread work). */
 export default function SmoothScroll() {
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (reduceMotion()) return;
     if (getCachedLiteMotion()) return;
 
-    const lenis = new Lenis({
-      lerp: 0.22,
-      smoothWheel: true,
-      anchors: true,
-      autoRaf: true,
-      wheelMultiplier: 1.12,
+    let lenis;
+    let cancelled = false;
+    const rafId = requestAnimationFrame(() => {
+      if (cancelled) return;
+      try {
+        lenis = new Lenis({
+          lerp: 0.22,
+          smoothWheel: true,
+          anchors: true,
+          autoRaf: true,
+          wheelMultiplier: 1.12,
+        });
+        window.ndxLenis = lenis;
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('[SmoothScroll] Lenis init failed', e);
+      }
     });
 
-    window.ndxLenis = lenis;
-
     return () => {
-      delete window.ndxLenis;
-      lenis.destroy();
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+      if (lenis && window.ndxLenis === lenis) {
+        delete window.ndxLenis;
+      }
+      if (lenis) {
+        try {
+          lenis.destroy();
+        } catch (e) {
+          if (import.meta.env.DEV) console.warn('[SmoothScroll] Lenis destroy failed', e);
+        }
+      }
     };
   }, []);
 
