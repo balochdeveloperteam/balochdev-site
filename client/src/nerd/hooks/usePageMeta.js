@@ -22,10 +22,17 @@ function setMetaProperty(property, content) {
  *   ogDescription?: string,
  *   ogImage?: string,
  *   ogUrl?: string,
+ *   keywords?: string | string[],
  * }} opts
  */
-export function usePageMeta({ title, description, path, jsonLd, ogTitle, ogDescription, ogImage, ogUrl }) {
+export function usePageMeta({ title, description, path, jsonLd, ogTitle, ogDescription, ogImage, ogUrl, keywords }) {
   const jsonKey = jsonLd == null ? '' : JSON.stringify(jsonLd);
+  const keywordsContent =
+    keywords == null || keywords === ''
+      ? ''
+      : Array.isArray(keywords)
+        ? keywords.filter(Boolean).join(', ')
+        : String(keywords);
 
   useEffect(() => {
     document.title = title;
@@ -37,6 +44,18 @@ export function usePageMeta({ title, description, path, jsonLd, ogTitle, ogDescr
       document.head.appendChild(meta);
     }
     if (description) meta.setAttribute('content', description);
+
+    let kwMeta = document.querySelector('meta[name="keywords"]');
+    if (keywordsContent) {
+      if (!kwMeta) {
+        kwMeta = document.createElement('meta');
+        kwMeta.setAttribute('name', 'keywords');
+        document.head.appendChild(kwMeta);
+      }
+      kwMeta.setAttribute('content', keywordsContent);
+    } else if (kwMeta) {
+      kwMeta.removeAttribute('content');
+    }
 
     let link = document.querySelector('link[rel="canonical"]');
     if (path) {
@@ -70,5 +89,5 @@ export function usePageMeta({ title, description, path, jsonLd, ogTitle, ogDescr
     return () => {
       document.getElementById(id)?.remove();
     };
-  }, [title, description, path, jsonKey, ogTitle, ogDescription, ogImage, ogUrl]);
+  }, [title, description, path, jsonKey, ogTitle, ogDescription, ogImage, ogUrl, keywordsContent]);
 }

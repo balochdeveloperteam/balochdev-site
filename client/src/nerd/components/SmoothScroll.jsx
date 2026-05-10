@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import Lenis from 'lenis';
+import { getCachedLiteMotion } from '../utils/motionBudget';
 
 function reduceMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Inertial smooth scrolling (Lenis). Respects prefers-reduced-motion. */
+/** Inertial smooth scrolling (Lenis). Skipped when reduced-motion or lite-device tier (saves RAM / main-thread work). */
 export default function SmoothScroll() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (reduceMotion()) return;
+    if (getCachedLiteMotion()) return;
 
     const lenis = new Lenis({
       lerp: 0.22,
@@ -18,7 +20,10 @@ export default function SmoothScroll() {
       wheelMultiplier: 1.12,
     });
 
+    window.ndxLenis = lenis;
+
     return () => {
+      delete window.ndxLenis;
       lenis.destroy();
     };
   }, []);

@@ -51,6 +51,8 @@ import {
   TbSparkles,
 } from "react-icons/tb";
 import PartnerBrandsGrid from "../components/PartnerBrandsGrid";
+import RichSectionIntro from "../components/RichSectionIntro";
+import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 
 type ServiceItem = {
   number: string;
@@ -337,15 +339,6 @@ const engagementModels = [
   { number: "01", timeline: "2 – 16 weeks", title: "Fixed-scope build", desc: "Defined scope, timeline, and delivery. Best for MVPs, websites, Android apps, and clear feature builds.", best: "MVPs, rebuilds, launch projects" },
   { number: "02", timeline: "monthly", title: "Embedded team", desc: "A small product pod joins your workflow for ongoing design, development, AI and automation work.", best: "Growing products, ongoing capacity" },
   { number: "03", timeline: "weekly", title: "AI strategy advisory", desc: "Architecture, AI vendor choice, workflow design, automation planning, and technical direction.", best: "Teams starting with AI" },
-];
-
-const selectedWork = [
-  { tag: "AI", title: "AI Call Center", desc: "Autonomous agents for inbound and outbound customer calls." },
-  { tag: "Web", title: "FutureSpark", desc: "AI-enabled business platform with strong UX and launch-ready pages." },
-  { tag: "Mobile", title: "Android CRM", desc: "Mobile-first operations platform with dashboard and data workflows." },
-  { tag: "Automation", title: "Lead Engine", desc: "Automated lead capture, enrichment, notification and CRM update flows." },
-  { tag: "SaaS", title: "Admin Portal", desc: "Multi-role dashboard with auth, analytics and client management." },
-  { tag: "RAG", title: "Knowledge Bot", desc: "Document-connected assistant for internal teams and customers." },
 ];
 
 const terms = [
@@ -721,20 +714,6 @@ function ServiceCard({ service }: { service: ServiceItem }) {
         <span className="ndx-tech-arrow">→</span>
       </div>
     </motion.article>
-  );
-}
-
-function RichSectionIntro({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
-  return (
-    <div className="ndx-rich-split-head">
-      <div className="ndx-rich-split-head__lead">
-        <p className="ndx-tech-meta">{eyebrow}</p>
-        <h2 className="ndx-h2 ndx-rich-split-head__title">{title}</h2>
-      </div>
-      <div className="ndx-rich-split-head__copy">
-        <div className="ndx-group-sub ndx-rich-split-head__text">{children}</div>
-      </div>
-    </div>
   );
 }
 

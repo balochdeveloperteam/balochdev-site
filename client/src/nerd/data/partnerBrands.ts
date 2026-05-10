@@ -6,69 +6,72 @@ export type PartnerBrand = {
   alt: string;
 };
 
-/** Logos + official links — order is display order */
+/**
+ * Logos + official links — order is display order.
+ * Raster/SVG files live under `client/public/partners/` so tiles load from the app origin (no cross-domain latency).
+ */
 export const PARTNER_BRANDS: PartnerBrand[] = [
   {
     id: "balochistaniyat",
     name: "Balochistaniyat",
     href: "https://balochistaniyat.balochiacademy.org/index.php/journal",
-    src: "https://balochistaniyat.balochiacademy.org/public/journals/1/pageHeaderLogoImage_en_US.png",
+    src: "/partners/balochistaniyat.png",
     alt: "Balochistaniyat — research journal of Balochi Academy",
   },
   {
     id: "ebooks",
     name: "Balochi Academy E-BOOKS",
     href: "https://ebook.balochiacademy.org/",
-    src: "https://ebook.balochiacademy.org/storage/media/lV4pySDzwFWnXcZi7HBAEdwZBtFOeEfO1XMHLGpc.png",
+    src: "/partners/ebooks.png",
     alt: "Balochi Academy e-books library",
   },
   {
     id: "academy",
     name: "Balochi Academy",
     href: "https://academy.balochiacademy.org/",
-    src: "https://academy.balochiacademy.org/images/ba-logo.jpg",
+    src: "/partners/academy.jpg",
     alt: "Balochi Academy Quetta",
   },
   {
     id: "dictionary",
     name: "Balochi Dictionary",
     href: "https://thebalochi.com/balochidictionary/",
-    src: "https://thebalochi.com/balochidictionary/images/icon-192x192.png",
+    src: "/partners/dictionary.png",
     alt: "Balochi Dictionary — thebalochi.com",
   },
   {
     id: "taheer",
     name: "Taheer Team",
     href: "https://www.youtube.com/@taheerteam",
-    src: "https://yt3.googleusercontent.com/ubwaSD6_s-K3Mt99CtCsSalPjJSMVtbzbA30MLag8-uHlmKhnM7dx2y4NbDYs7fbNnVuhgag=s176-c-k-c0x00ffffff-no-rj",
+    src: "/partners/taheer.jpg",
     alt: "Taheer Team",
   },
   {
     id: "deepseek",
     name: "DeepSeek",
     href: "https://www.deepseek.com/",
-    src: "https://cdn.simpleicons.org/deepseek/4D6BFE",
+    src: "/partners/deepseek.svg",
     alt: "DeepSeek",
   },
   {
     id: "gemini",
     name: "Google Gemini",
     href: "https://gemini.google.com/",
-    src: "https://cdn.simpleicons.org/googlegemini/8E75FF",
+    src: "/partners/gemini.svg",
     alt: "Google Gemini",
   },
   {
     id: "suno",
     name: "Suno AI",
     href: "https://suno.com/",
-    src: "https://www.google.com/s2/favicons?domain=suno.com&sz=128",
+    src: "/partners/suno.png",
     alt: "Suno AI",
   },
   {
     id: "iinta",
     name: "iinta.ca",
     href: "https://iinta.ca/",
-    src: "https://iinta.ca/cdn/shop/files/iinta_logo_410x_1_120x@2x.png?v=1640781818",
+    src: "/partners/iinta.png",
     alt: "iinta — what are you into?",
   },
 ];

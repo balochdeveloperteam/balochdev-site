@@ -2,14 +2,17 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ShellHeader from './nerd/components/ShellHeader';
 import ShellFooter from './nerd/components/ShellFooter';
 import VerticalBookCTA from './nerd/components/VerticalBookCTA';
+import ScrollTopFab from './nerd/components/ScrollTopFab';
 import SmoothScroll from './nerd/components/SmoothScroll';
 import CursorGlow from './nerd/components/CursorGlow';
 import RouteNProgress from './nerd/components/RouteNProgress';
+import ScrollToTop from './nerd/components/ScrollToTop';
 import BootSplash from './nerd/components/BootSplash';
 import GlobalScrollReveal from './nerd/components/GlobalScrollReveal';
 import NHome from './nerd/pages/NHome';
 import NServices from './nerd/pages/NServices';
 import NTechnologies from './nerd/pages/NTechnologies';
+import TechnologyAiLanding from './nerd/pages/TechnologyAiLanding';
 import NApps from './nerd/pages/NApps';
 import NIndustries from './nerd/pages/NIndustries';
 import NPortfolio from './nerd/pages/NPortfolio';
@@ -33,6 +36,7 @@ import NNotFound from './nerd/pages/NNotFound';
 function AppRoutes() {
   return (
     <>
+      <ScrollToTop />
       <RouteNProgress />
       <div className="ndx-app-stack">
         <ShellHeader />
@@ -42,6 +46,7 @@ function AppRoutes() {
             <Route path="/services" element={<NServices />} />
             <Route path="/services/:slug" element={<NServicePage />} />
             <Route path="/resources/:slug" element={<NResourcePage />} />
+            <Route path="/technologies/:category/:slug" element={<TechnologyAiLanding />} />
             <Route path="/technologies" element={<NTechnologies />} />
             <Route path="/apps" element={<NApps />} />
             <Route path="/industries" element={<NIndustries />} />
@@ -78,6 +83,7 @@ function App() {
         <BootSplash />
         <AppRoutes />
         <VerticalBookCTA />
+        <ScrollTopFab />
       </div>
     </Router>
   );

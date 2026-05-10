@@ -23,6 +23,14 @@ export const technologyGroups = [
           'Claude for long-context reasoning, document-heavy workflows, and safety-conscious assistants beside customer data.',
       },
       {
+        iconKey: 'claude_code',
+        name: 'Claude Code',
+        role: 'AI coding',
+        since: '2025',
+        blurb:
+          'Anthropic’s agentic coding workflow — we embed it in branches, CI, and review habits so speed gains land as mergeable work.',
+      },
+      {
         iconKey: 'microsoft',
         name: 'Microsoft AI · Azure OpenAI',
         role: 'Enterprise AI',
@@ -672,5 +680,29 @@ export const faqItems = [
   {
     q: 'How do you deploy?',
     a: 'Typically Vercel or Cloudflare for edge-ready frontends, Dockerized services on Railway/Render or customer VMs, with observability from day one.',
+  },
+  {
+    q: 'Do you build web applications with React and Next.js?',
+    a: 'Yes. We ship production React and Next.js apps with server components or SPA patterns where appropriate, TypeScript by default, and SEO-aware routing when marketing pages live in the same codebase.',
+  },
+  {
+    q: 'What backend stack do you use for APIs and databases?',
+    a: 'We commonly use Node (Nest/Express), Python (Django and scripts), GraphQL or REST, and Postgres via Supabase or managed Postgres — plus Redis, Firebase, or MongoDB when the data model fits.',
+  },
+  {
+    q: 'How do you add AI or ChatGPT-style features to a web application?',
+    a: 'We integrate frontier APIs such as OpenAI and Anthropic, structure prompts and guardrails, add retrieval (RAG) over your Postgres or vector store when needed, and keep latency and cost under control with caching and streaming.',
+  },
+  {
+    q: 'Which programming languages do your developers write in?',
+    a: 'Day to day: TypeScript and JavaScript for web, Dart for Flutter, Python for backends and automation, plus Kotlin, Java, PHP, and C# when a codebase or integration demands it.',
+  },
+  {
+    q: 'How do you help teams choose a technology stack for an MVP?',
+    a: 'We anchor on time-to-market, team skill, compliance, and 12-month scale — then recommend a narrow stack (usually listed on this page), explicit boundaries between services, and a migration path if we start with no-code.',
+  },
+  {
+    q: 'Do you provide DevOps, CI/CD, and cloud hosting?',
+    a: 'We wire repositories to CI/CD, environment previews, secrets handling, and production deploy targets (Vercel, Cloudflare, Railway, Kubernetes or VMs) so releases stay repeatable without one-off manual deploys.',
   },
 ];
