@@ -1208,6 +1208,173 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
   overflow: hidden;
 }
 
+/* Technologies hero — metrics strip full width below copy + orbit (not in either column) */
+.ndx-page-rich .ndx-rich-hero--tech-with-metrics {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "copy"
+    "viz"
+    "metrics";
+  gap: 1rem;
+  align-items: center;
+  min-height: unset;
+  padding: 1.15rem 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-hero__copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  width: 100%;
+}
+
+.ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-hero__viz {
+  grid-area: viz;
+  align-self: center;
+  overflow: visible;
+}
+
+.ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-hero__metrics {
+  grid-area: metrics;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ndx-border);
+  min-width: 0;
+  width: 100%;
+  align-self: stretch;
+}
+
+@media (min-width: 640px) {
+  .ndx-page-rich .ndx-rich-hero--tech-with-metrics {
+    gap: 1.1rem;
+    padding: 1.35rem 1.2rem;
+  }
+
+  .ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-hero__metrics {
+    padding-top: 0.85rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ndx-page-rich .ndx-rich-hero--tech-with-metrics {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-areas:
+      "copy viz"
+      "metrics metrics";
+    column-gap: 1.6rem;
+    row-gap: 1rem;
+    padding: 1.45rem 1.35rem;
+    align-items: center;
+  }
+
+  .ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-hero__metrics {
+    padding-top: 0.95rem;
+    align-self: stretch;
+  }
+}
+
+/* Transparent “table” strip: strong left edge + ruled columns (no filled gutter) */
+.ndx-tech-hero-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--ndx-border-strong);
+  border-right: 1px solid var(--ndx-border);
+  border-top: 1px solid var(--ndx-border);
+  border-bottom: 1px solid var(--ndx-border);
+  border-radius: 0.85rem;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .ndx-tech-hero-stats-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ndx-tech-hero-stats-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.ndx-tech-hero-stats-strip__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.45rem 0.3rem;
+  background: transparent;
+  border-right: 1px solid var(--ndx-border);
+  border-bottom: 1px solid var(--ndx-border);
+}
+
+@media (max-width: 639px) {
+  .ndx-tech-hero-stats-strip__cell:nth-child(2n) {
+    border-right: none;
+  }
+
+  .ndx-tech-hero-stats-strip__cell:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ndx-tech-hero-stats-strip__cell:nth-child(3n) {
+    border-right: none;
+  }
+
+  .ndx-tech-hero-stats-strip__cell:nth-last-child(-n + 3) {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ndx-tech-hero-stats-strip__cell {
+    border-bottom: none;
+  }
+
+  .ndx-tech-hero-stats-strip__cell:nth-child(6n) {
+    border-right: none;
+  }
+}
+
+.ndx-tech-hero-stats-strip__label {
+  font-family: var(--ndx-font-mono);
+  font-size: 0.52rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  color: var(--ndx-dim);
+  max-width: 100%;
+}
+
+.ndx-tech-hero-stats-strip__value {
+  font-family: var(--ndx-font-serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  line-height: 1.15;
+  color: var(--ndx-text);
+}
+
+@media (max-width: 399px) {
+  .ndx-tech-hero-stats-strip__label {
+    font-size: 0.48rem;
+    letter-spacing: 0.05em;
+  }
+}
+
 /* Services hero — equal radial gap S: hub rim → ring1 → ring2 → ring3 (R_c = rim + S, etc.) */
 /* Orbit step must track the *surface* width, not vw — vw caused huge rings in the grid column and horizontal page scroll. */
 .ndx-page-rich .ndx-hero-surface {
@@ -1342,6 +1509,106 @@ html[data-theme="dark"] .ndx-page-rich .ndx-hero-surface {
 .ndx-page-rich .ndx-hero-orbit-icon-tile:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--ndx-hero-wheel-dot) 75%, transparent);
   outline-offset: 2px;
+}
+
+/* Technologies hero — borderless orbit glyphs (Services tiles keep bordered variant) */
+.ndx-page-rich .ndx-hero-orbit-icon--ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--ndx-hero-wheel-icon);
+}
+
+.ndx-page-rich button.ndx-hero-orbit-icon--ghost-interactive {
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  border-radius: 0.35rem;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.ndx-page-rich button.ndx-hero-orbit-icon--ghost-interactive:hover {
+  filter: brightness(1.12);
+}
+
+.ndx-page-rich button.ndx-hero-orbit-icon--ghost-interactive[aria-pressed="true"] {
+  filter: brightness(1.18) drop-shadow(0 0 10px color-mix(in srgb, var(--ndx-hero-wheel-dot-glow) 55%, transparent));
+}
+
+.ndx-page-rich button.ndx-hero-orbit-icon--ghost-interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ndx-hero-wheel-dot) 72%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ndx-page-rich button.ndx-hero-orbit-icon--ghost-interactive {
+    transition: none;
+  }
+}
+
+.ndx-tech-discipline-intro .ndx-rich-split-head__lead .ndx-rich-split-head__text {
+  margin-top: 0.75rem;
+}
+
+.ndx-tech-discipline-visual-wrap {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .ndx-tech-discipline-visual-wrap {
+    justify-content: flex-end;
+  }
+}
+
+.ndx-tech-discipline-visual-wrap--automation {
+  align-items: center;
+}
+
+.ndx-tech-discipline-visual-wrap--section {
+  align-items: center;
+}
+
+.ndx-tech-discipline-visual {
+  width: 100%;
+  max-width: 320px;
+  height: clamp(120px, 18vw, 160px);
+  border-radius: var(--ndx-radius-lg);
+  border: 1px dashed color-mix(in srgb, #3b82f6 42%, var(--ndx-border));
+  background: color-mix(in srgb, #2563eb 22%, var(--ndx-bg-elev));
+}
+
+.ndx-tech-discipline-visual--automation {
+  max-width: 340px;
+  height: clamp(130px, 20vw, 170px);
+}
+
+.ndx-tech-automation-intro {
+  margin-bottom: 1.25rem;
+}
+
+.ndx-tech-section-intro {
+  margin-bottom: 1.25rem;
+}
+
+.ndx-tech-section-intro .ndx-rich-split-head__lead .ndx-rich-split-head__text {
+  margin-top: 0.5rem;
+}
+
+.ndx-tech-discipline-visual--section {
+  max-width: 320px;
+  height: clamp(120px, 18vw, 160px);
 }
 
 .ndx-page-rich .ndx-hero-orbit-label {
@@ -1516,6 +1783,36 @@ html[data-theme="dusk"] .ndx-page-rich .ndx-hero-surface {
   }
 }
 
+/* Technologies wheel — slightly larger hit targets + glyphs (after base .ndx-hero-surface breakpoints) */
+.ndx-page-rich .ndx-hero-surface.ndx-hero-surface--tech-wheel {
+  --ndx-hero-icon-box: 2.58rem;
+  overflow: visible;
+}
+
+@media (min-width: 640px) {
+  .ndx-page-rich .ndx-hero-surface.ndx-hero-surface--tech-wheel {
+    --ndx-hero-icon-box: 2.72rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ndx-page-rich .ndx-hero-surface.ndx-hero-surface--tech-wheel {
+    --ndx-hero-icon-box: 2.88rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .ndx-page-rich .ndx-hero-surface.ndx-hero-surface--tech-wheel {
+    --ndx-hero-icon-box: 3.08rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .ndx-page-rich .ndx-hero-surface.ndx-hero-surface--tech-wheel {
+    --ndx-hero-icon-box: 3.18rem;
+  }
+}
+
 /* Sub-1024: scale orbit spacing to the wheel box (cqw) after fixed rem fallbacks above — avoids vw blowing past narrow columns */
 @supports (width: 1cqw) {
   @media (max-width: 639px) {
@@ -1536,6 +1833,10 @@ html[data-theme="dusk"] .ndx-page-rich .ndx-hero-surface {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.5rem;
+}
+
+.ndx-page-rich .ndx-rich-hero--tech-with-metrics .ndx-rich-actions {
+  margin-top: 1.05rem;
 }
 
 .ndx-page-rich .ndx-rich-stats {
