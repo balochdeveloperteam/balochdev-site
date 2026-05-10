@@ -11,11 +11,11 @@ export default function SmoothScroll() {
     if (reduceMotion()) return;
 
     const lenis = new Lenis({
-      lerp: 0.09,
+      lerp: 0.22,
       smoothWheel: true,
       anchors: true,
       autoRaf: true,
-      wheelMultiplier: 0.95,
+      wheelMultiplier: 1.12,
     });
 
     return () => {

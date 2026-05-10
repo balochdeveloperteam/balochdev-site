@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import VantaNetBackground from '../components/home/VantaNetBackground';
+import PartnerBrandsGrid from '../components/PartnerBrandsGrid';
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -140,16 +141,6 @@ const REVIEWS = [
     who: 'Community org',
     co: 'Language & media',
   },
-];
-
-const PARTNERS = [
-  { name: 'Balochi Academy', line: 'Education partner' },
-  { name: 'Sangat Academy', line: 'Education partner' },
-  { name: 'Iinta.ca', line: 'Digital partner' },
-  { name: 'TaheerTeam', line: 'Balochistan' },
-  { name: 'DeepSeek', line: 'AI models' },
-  { name: 'Gemini', line: 'Google AI' },
-  { name: 'Microsoft', line: 'Cloud & productivity' },
 ];
 
 const MARQUEE_ROW1 = [
@@ -430,14 +421,11 @@ export default function NHome() {
         <div className="ndx-container ndx-home-partners__wrap">
           <p className="ndx-eyebrow ndx-home-partners__eyebrow">Partners</p>
           <h2 className="ndx-h2 ndx-home-partners__h2">Organizations & platforms we build with</h2>
-          <div className="ndx-home-partners__grid">
-            {PARTNERS.map((p) => (
-              <div key={p.name} className="ndx-home-partners__card">
-                <span className="ndx-home-partners__name">{p.name}</span>
-                <span className="ndx-home-partners__line">{p.line}</span>
-              </div>
-            ))}
-          </div>
+          <p className="ndx-group-sub" style={{ margin: '-0.5rem auto 0', maxWidth: '40rem' }}>
+            Hover a logo for its name; click through to the partner site. Same set as on{' '}
+            <Link to="/services">Services</Link>.
+          </p>
+          <PartnerBrandsGrid className="ndx-home-partners__logoGrid" />
         </div>
       </section>
 

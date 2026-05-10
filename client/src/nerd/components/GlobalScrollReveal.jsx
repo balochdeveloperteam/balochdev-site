@@ -31,9 +31,20 @@ export default function GlobalScrollReveal() {
         { threshold: 0.07, rootMargin: '0px 0px -24px 0px' }
       );
 
+      const markIfInView = (el) => {
+        const r = el.getBoundingClientRect();
+        const vh = window.innerHeight || 0;
+        const margin = 24;
+        if (r.top < vh - margin && r.bottom > margin) {
+          el.classList.add('ndx-reveal-section--visible');
+          return true;
+        }
+        return false;
+      };
+
       document.querySelectorAll('.ndx-section, .ndx-section-tight').forEach((el) => {
         el.classList.add('ndx-reveal-section');
-        io.observe(el);
+        if (!markIfInView(el)) io.observe(el);
       });
     };
 

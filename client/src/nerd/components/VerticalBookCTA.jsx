@@ -95,9 +95,15 @@ export default function VerticalBookCTA() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        title="Drag to move"
-        role="presentation"
-      />
+        title="Drag to move strip"
+        role="group"
+        aria-label="Drag handle — move booking strip up or down"
+      >
+        <span className="ndx-vcta__grip" aria-hidden="true">
+          <span className="bx bx-dots-vertical-rounded" />
+        </span>
+        <span className="visually-hidden">Drag to move</span>
+      </div>
 
       {open ? (
         <Link to="/contact" className="ndx-vcta__link">

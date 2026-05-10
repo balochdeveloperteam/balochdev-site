@@ -35,7 +35,6 @@ function AppRoutes() {
     <>
       <RouteNProgress />
       <div className="ndx-app-stack">
-        <VerticalBookCTA />
         <ShellHeader />
         <main className="ndx-main">
           <Routes>
@@ -78,6 +77,7 @@ function App() {
         <CursorGlow />
         <BootSplash />
         <AppRoutes />
+        <VerticalBookCTA />
       </div>
     </Router>
   );

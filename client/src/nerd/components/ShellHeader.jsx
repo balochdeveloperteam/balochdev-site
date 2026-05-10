@@ -53,10 +53,10 @@ export default function ShellHeader() {
                 type="button"
                 className="ndx-menu-toggle"
                 aria-expanded={open}
-                aria-label="Open menu"
+                aria-label={open ? 'Close menu' : 'Open menu'}
                 onClick={() => setOpen((v) => !v)}
               >
-                <span className="bx bx-menu" />
+                <span className={`bx ${open ? 'bx-x' : 'bx-menu'}`} />
               </button>
             </div>
           </div>
@@ -68,6 +68,14 @@ export default function ShellHeader() {
       </aside>
 
       <div className={`ndx-mobile-drawer ${open ? 'open' : ''}`} id="mobile-nav">
+        <button
+          type="button"
+          className="ndx-mobile-drawer__close"
+          onClick={() => setOpen(false)}
+          aria-label="Close menu"
+        >
+          <span className="bx bx-x" aria-hidden />
+        </button>
         {nav.map(({ to, label }) => (
           <NavLink key={to} to={to} onClick={() => setOpen(false)}>
             {label}
