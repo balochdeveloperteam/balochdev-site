@@ -24,6 +24,7 @@ import NContact from './nerd/pages/NContact';
 import NEstimate from './nerd/pages/NEstimate';
 import NProposal from './nerd/pages/NProposal';
 import NServicePage from './nerd/pages/NServicePage';
+import ServicePracticeLanding from './nerd/pages/ServicePracticeLanding';
 import NResourcePage from './nerd/pages/NResourcePage';
 import NPrivacy from './nerd/pages/legal/NPrivacy';
 import NTerms from './nerd/pages/legal/NTerms';
@@ -44,6 +45,7 @@ function AppRoutes() {
           <Routes>
             <Route path="/" element={<NHome />} />
             <Route path="/services" element={<NServices />} />
+            <Route path="/services/practice/:practiceId" element={<ServicePracticeLanding />} />
             <Route path="/services/:slug" element={<NServicePage />} />
             <Route path="/resources/:slug" element={<NResourcePage />} />
             <Route path="/technologies/:category/:slug" element={<TechnologyAiLanding />} />

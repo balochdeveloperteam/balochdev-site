@@ -4,7 +4,7 @@ export type SelectedWorkTeaser = {
   desc: string;
 };
 
-/** Portfolio teaser cards — shared by Services and Technologies pages */
+/** Portfolio teaser cards — shared by Services, Technologies, Apps, and service detail pages */
 export const selectedWorkTeasers: SelectedWorkTeaser[] = [
   { tag: "AI", title: "AI Call Center", desc: "Autonomous agents for inbound and outbound customer calls." },
   { tag: "Web", title: "FutureSpark", desc: "AI-enabled business platform with strong UX and launch-ready pages." },

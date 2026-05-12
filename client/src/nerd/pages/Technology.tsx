@@ -657,7 +657,13 @@ export default function TechnologiesPage() {
                     </p>
                   </div>
                 )}
-                <div className="ndx-rich-service-grid">
+                <div
+                  className={
+                    section.id === "languages"
+                      ? "ndx-rich-service-grid ndx-rich-service-grid--tech-glass-cards"
+                      : "ndx-rich-service-grid"
+                  }
+                >
                   {section.items.map((item) => (
                     <ToolCard
                       key={`${section.id}-${item.name}`}
@@ -713,7 +719,7 @@ export default function TechnologiesPage() {
           </div>
         </div>
 
-        <div id="recent-work" className="ndx-rich-block scroll-mt-24">
+        <div id="recent-work" className="ndx-rich-block ndx-glass-section ndx-glass-section--recent-work scroll-mt-24">
           <RichSectionIntro eyebrow="Recent work" title="What shipping looks like">
             Representative project shapes — case studies and credits live on the portfolio.
           </RichSectionIntro>
@@ -722,14 +728,14 @@ export default function TechnologiesPage() {
               Full portfolio →
             </Link>
           </div>
-          <div className="ndx-card-grid" style={{ marginTop: "1.5rem" }}>
+          <div className="ndx-card-grid ndx-card-grid--cols-3" style={{ marginTop: "1.5rem" }}>
             {selectedWorkTeasers.map((item, index) => (
               <Link key={item.title} to="/portfolio" className="ndx-card ndx-card-link" style={{ overflow: "hidden", padding: 0, display: "block" }}>
                 <div
                   style={{
                     position: "relative",
                     height: "11rem",
-                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 26%, transparent), color-mix(in srgb, var(--ndx-accent-2) 18%, transparent), color-mix(in srgb, var(--ndx-bg) 72%, transparent))`,
+                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 14%, transparent), color-mix(in srgb, var(--ndx-accent-2) 10%, transparent), color-mix(in srgb, var(--ndx-bg) 88%, transparent))`,
                   }}
                 >
                   <span className="ndx-pill" style={{ position: "absolute", left: "1.1rem", top: "1.1rem", color: "var(--ndx-accent)" }}>

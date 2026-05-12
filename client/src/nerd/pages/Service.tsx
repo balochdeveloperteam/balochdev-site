@@ -50,7 +50,6 @@ import {
   TbHeadset,
   TbSparkles,
 } from "react-icons/tb";
-import PartnerBrandsGrid from "../components/PartnerBrandsGrid";
 import RichSectionIntro from "../components/RichSectionIntro";
 import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 
@@ -61,6 +60,11 @@ type ServiceItem = {
   desc: string;
   tools: string;
   icon: IconType;
+  slug: string;
+  /** Typical calendar span for a focused first phase */
+  estimatedTimeline: string;
+  /** Plain-language budget band; “assumed” clarified in UI */
+  priceAssumption: string;
 };
 
 type Practice = {
@@ -95,45 +99,6 @@ const whyUsItems: { icon: IconType; title: string; text: string }[] = [
   },
 ];
 
-const reviewCards = [
-  {
-    quote: "Weekly demos kept decisions fast. We shipped a customer portal without redoing the whole backend.",
-    name: "Product lead",
-    role: "B2B services",
-    rating: 5,
-  },
-  {
-    quote: "They explained trade-offs in plain language and stuck to the timeline we agreed on.",
-    name: "Founder",
-    role: "Early-stage product",
-    rating: 5,
-  },
-  {
-    quote: "Our Shopify theme and checkout flow finally match the brand — and conversion picked up after launch.",
-    name: "Marketing director",
-    role: "E-commerce",
-    rating: 5,
-  },
-  {
-    quote: "The RAG assistant actually cites our policy docs. Support tickets for repeat questions dropped sharply.",
-    name: "Head of ops",
-    role: "Mid-size SaaS",
-    rating: 5,
-  },
-  {
-    quote: "They inherited a messy WordPress + WooCommerce setup and still hit the migration date we promised partners.",
-    name: "IT lead",
-    role: "Retail",
-    rating: 4,
-  },
-  {
-    quote: "Clear milestones and written scope — we always knew what was in the next release and what waited for v2.",
-    name: "Engineering manager",
-    role: "Fintech",
-    rating: 5,
-  },
-];
-
 const heroStats = [
   { label: "Founded", value: "2024" },
   { label: "Projects", value: "150+" },
@@ -156,6 +121,9 @@ const practices: Practice[] = [
         desc: "Custom LLM integrations, prompt pipelines, AI-first product features, and intelligent workflows built to ship, not just demo.",
         tools: "OpenAI · Claude · Gemini",
         icon: SiClaude,
+        slug: "ai-development",
+        estimatedTimeline: "3–8 wks",
+        priceAssumption: "~USD $4.5k+",
       },
       {
         number: "02",
@@ -164,6 +132,9 @@ const practices: Practice[] = [
         desc: "Tool-using agents with memory, actions, guardrails, human approval steps, and business system integrations.",
         tools: "LangGraph · MCP · Tools",
         icon: SiLangchain,
+        slug: "ai-agents",
+        estimatedTimeline: "4–12 wks",
+        priceAssumption: "~USD $8k+",
       },
       {
         number: "03",
@@ -172,6 +143,9 @@ const practices: Practice[] = [
         desc: "Retrieval systems connected to your documents, databases, and knowledge so the AI answers from your real information.",
         tools: "Vector DB · Search · Citations",
         icon: SiGooglegemini,
+        slug: "rag-llm",
+        estimatedTimeline: "3–8 wks",
+        priceAssumption: "~USD $5.5k+",
       },
       {
         number: "04",
@@ -180,6 +154,9 @@ const practices: Practice[] = [
         desc: "Support, sales, onboarding, FAQ, and internal assistant chatbots for websites, WhatsApp, Telegram, and dashboards.",
         tools: "OpenAI · CRM · Help docs",
         icon: SiOpenai,
+        slug: "chatbots",
+        estimatedTimeline: "2–6 wks",
+        priceAssumption: "~USD $3.2k+",
       },
       {
         number: "05",
@@ -188,6 +165,9 @@ const practices: Practice[] = [
         desc: "Inbound and outbound voice agents with call handling, customer data, notes, follow-ups, and human handoff logic.",
         tools: "Twilio · STT · TTS",
         icon: TbPhoneCall,
+        slug: "voice-ai",
+        estimatedTimeline: "6–14 wks",
+        priceAssumption: "~USD $12k+",
       },
     ],
   },
@@ -205,6 +185,9 @@ const practices: Practice[] = [
         desc: "Modern websites, dashboards, portals, landing pages, and full-stack platforms built for speed, SEO, and trust.",
         tools: "Next.js · React · TypeScript",
         icon: SiNextdotjs,
+        slug: "web",
+        estimatedTimeline: "2–6 wks",
+        priceAssumption: "~USD $2.8k+",
       },
       {
         number: "02",
@@ -213,6 +196,9 @@ const practices: Practice[] = [
         desc: "Business apps, community apps, booking systems, dashboards, and mobile tools designed for daily use.",
         tools: "Android · Firebase · APIs",
         icon: SiAndroid,
+        slug: "android-app-development",
+        estimatedTimeline: "5–12 wks",
+        priceAssumption: "~USD $6.5k+",
       },
       {
         number: "03",
@@ -221,6 +207,9 @@ const practices: Practice[] = [
         desc: "Auth, subscriptions, admin dashboards, customer portals, multi-role access, billing, and product analytics.",
         tools: "Supabase · Stripe · Next.js",
         icon: SiSupabase,
+        slug: "saas-development",
+        estimatedTimeline: "8–20 wks",
+        priceAssumption: "~USD $14k+",
       },
       {
         number: "04",
@@ -229,6 +218,9 @@ const practices: Practice[] = [
         desc: "A focused first product that proves your idea with real users before you spend months building the wrong thing.",
         tools: "Prototype · Build · Launch",
         icon: TbRocket,
+        slug: "mvp-development",
+        estimatedTimeline: "3–7 wks",
+        priceAssumption: "~USD $4k+",
       },
       {
         number: "05",
@@ -237,6 +229,9 @@ const practices: Practice[] = [
         desc: "Fast no-code systems with custom logic where needed, so your product is quick to launch and not boxed in.",
         tools: "Webflow · Bubble · n8n",
         icon: SiWebflow,
+        slug: "no-code-custom-code",
+        estimatedTimeline: "2–5 wks",
+        priceAssumption: "~USD $1.8k+",
       },
       {
         number: "06",
@@ -245,6 +240,9 @@ const practices: Practice[] = [
         desc: "Shopify and Shopify themes, Wix and WordPress / WooCommerce builds, product and catalog SEO, payments, shipping rules, and integrations — plus headless or custom storefronts when you outgrow templates.",
         tools: "Shopify · WordPress · Wix · WooCommerce",
         icon: SiShopify,
+        slug: "ecommerce",
+        estimatedTimeline: "2–8 wks",
+        priceAssumption: "~USD $3.5k+",
       },
     ],
   },
@@ -262,6 +260,9 @@ const practices: Practice[] = [
         desc: "Automations that connect forms, CRMs, sheets, email, Telegram, WhatsApp, websites, and AI actions.",
         tools: "n8n · Make · Zapier",
         icon: SiZapier,
+        slug: "workflow-automation",
+        estimatedTimeline: "1–5 wks",
+        priceAssumption: "~USD $1.5k+",
       },
       {
         number: "02",
@@ -270,6 +271,9 @@ const practices: Practice[] = [
         desc: "Custom APIs and middleware connecting payments, CRMs, dashboards, databases, AI models, and third-party tools.",
         tools: "Node · Python · Webhooks",
         icon: SiNodedotjs,
+        slug: "api-integrations",
+        estimatedTimeline: "2–8 wks",
+        priceAssumption: "~USD $2.8k+",
       },
       {
         number: "03",
@@ -278,6 +282,9 @@ const practices: Practice[] = [
         desc: "Monthly product support, bug fixes, monitoring, upgrades, optimization, and small feature improvements.",
         tools: "Sentry · Vercel · Docker",
         icon: SiDocker,
+        slug: "maintenance-support",
+        estimatedTimeline: "ongoing",
+        priceAssumption: "~USD $800+/mo",
       },
     ],
   },
@@ -295,6 +302,9 @@ const practices: Practice[] = [
         desc: "Research, wireframes, landing pages, dashboards, mobile app screens, and polished UI for real users.",
         tools: "Figma · UX · UI",
         icon: SiFigma,
+        slug: "ux-ui",
+        estimatedTimeline: "2–6 wks",
+        priceAssumption: "~USD $2.2k+",
       },
       {
         number: "02",
@@ -303,6 +313,9 @@ const practices: Practice[] = [
         desc: "Logo direction, colors, type, product tone, website visuals, and brand systems for startups and businesses.",
         tools: "Identity · Visuals · Voice",
         icon: FaPaintBrush,
+        slug: "branding",
+        estimatedTimeline: "2–4 wks",
+        priceAssumption: "~USD $1.8k+",
       },
       {
         number: "03",
@@ -311,6 +324,9 @@ const practices: Practice[] = [
         desc: "Design tokens, reusable components, UI rules, and interface systems that keep your product consistent as it grows.",
         tools: "Tokens · Components · Rules",
         icon: SiStorybook,
+        slug: "design-systems",
+        estimatedTimeline: "3–8 wks",
+        priceAssumption: "~USD $5k+",
       },
     ],
   },
@@ -336,9 +352,33 @@ const pairings = [
 ];
 
 const engagementModels = [
-  { number: "01", timeline: "2 – 16 weeks", title: "Fixed-scope build", desc: "Defined scope, timeline, and delivery. Best for MVPs, websites, Android apps, and clear feature builds.", best: "MVPs, rebuilds, launch projects" },
-  { number: "02", timeline: "monthly", title: "Embedded team", desc: "A small product pod joins your workflow for ongoing design, development, AI and automation work.", best: "Growing products, ongoing capacity" },
-  { number: "03", timeline: "weekly", title: "AI strategy advisory", desc: "Architecture, AI vendor choice, workflow design, automation planning, and technical direction.", best: "Teams starting with AI" },
+  {
+    number: "01",
+    timeline: "2 – 16 weeks",
+    title: "Fixed-scope build",
+    desc: "Defined scope, timeline, and delivery. Best for MVPs, websites, Android apps, and clear feature builds.",
+    best: "MVPs, rebuilds, launch projects",
+    assumedFrom: "~USD $2.5k+",
+    billingShape: "Milestone invoices against a written SOW",
+  },
+  {
+    number: "02",
+    timeline: "Monthly",
+    title: "Embedded team",
+    desc: "A small product pod joins your workflow for ongoing design, development, AI and automation work.",
+    best: "Growing products, ongoing capacity",
+    assumedFrom: "~USD $6k+ / mo",
+    billingShape: "Monthly retainer with agreed throughput",
+  },
+  {
+    number: "03",
+    timeline: "Weekly",
+    title: "AI strategy advisory",
+    desc: "Architecture, AI vendor choice, workflow design, automation planning, and technical direction.",
+    best: "Teams starting with AI",
+    assumedFrom: "~USD $1.2k+ / wk",
+    billingShape: "Time-boxed calls + written recommendations",
+  },
 ];
 
 const terms = [
@@ -664,7 +704,7 @@ function HeroSurface({ reduced }: { reduced: boolean }) {
 
 function PracticeLink({ practice }: { practice: Practice }) {
   return (
-    <a href={`#${practice.id}`} className="ndx-practice-link">
+    <Link to={`/services/practice/${practice.id}`} className="ndx-practice-link">
       <div>
         <div className="ndx-practice-link__meta">
           {practice.number} · {practice.count}
@@ -674,7 +714,7 @@ function PracticeLink({ practice }: { practice: Practice }) {
       <span className="ndx-practice-link__arrow" aria-hidden>
         →
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -697,21 +737,24 @@ function ServiceCard({ service }: { service: ServiceItem }) {
       <p className="ndx-tech-blurb" style={{ marginTop: "0.5rem" }}>
         {service.desc}
       </p>
-      <div
-        style={{
-          marginTop: "1rem",
-          paddingTop: "0.85rem",
-          borderTop: "1px solid var(--ndx-border)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "0.75rem",
-        }}
-      >
-        <span className="ndx-tech-meta" style={{ marginBottom: 0 }}>
-          {service.tools}
+      <p className="ndx-tech-meta" style={{ marginTop: "0.85rem", marginBottom: 0 }}>
+        {service.tools}
+      </p>
+      <div className="ndx-service-card-plan">
+        <span>
+          <strong>Est. timeline</strong> {service.estimatedTimeline}
         </span>
-        <span className="ndx-tech-arrow">→</span>
+        <span>
+          <strong>Assumed from</strong> {service.priceAssumption}
+        </span>
+      </div>
+      <div className="ndx-service-card-footer">
+        <span className="ndx-tech-meta" style={{ marginBottom: 0 }}>
+          Final numbers after a short brief
+        </span>
+        <Link to={`/services/${service.slug}`} className="ndx-service-card-cta">
+          View page<span aria-hidden> →</span>
+        </Link>
       </div>
     </motion.article>
   );
@@ -758,80 +801,6 @@ function PairingCard({ item }: { item: (typeof pairings)[number] }) {
         → {item.result}
       </div>
     </motion.article>
-  );
-}
-
-function ReviewsCarousel({
-  items,
-  reduced,
-}: {
-  items: (typeof reviewCards)[number][];
-  reduced: boolean;
-}) {
-  const [index, setIndex] = useState(0);
-  const n = items.length;
-  const prev = () => setIndex((i) => (i - 1 + n) % n);
-  const next = () => setIndex((i) => (i + 1) % n);
-
-  return (
-    <div className="ndx-reviews-carousel">
-      <div className="ndx-reviews-carousel__viewport">
-        <motion.div
-          className="ndx-reviews-carousel__track"
-          animate={{ x: `${-index * 100}%` }}
-          transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 280, damping: 32, mass: 0.85 }}
-          aria-live="polite"
-        >
-          {items.map((r, i) => (
-            <div key={i} className="ndx-reviews-carousel__slide">
-              <figure className="ndx-reviews-carousel__figure">
-                <p
-                  role="img"
-                  aria-label={`${r.rating} out of 5 stars`}
-                  style={{ color: "var(--ndx-accent)", letterSpacing: "0.08em", fontSize: "0.95rem", margin: 0 }}
-                >
-                  {"★".repeat(r.rating)}
-                  <span className="visually-hidden"> {r.rating} of 5</span>
-                </p>
-                <blockquote
-                  className="ndx-tech-blurb"
-                  style={{ margin: "0.75rem 0 0", fontStyle: "normal", fontSize: "1.05rem", lineHeight: 1.55 }}
-                >
-                  “{r.quote}”
-                </blockquote>
-                <figcaption style={{ marginTop: "1.1rem", fontSize: "0.875rem", color: "var(--ndx-muted)" }}>
-                  <strong style={{ color: "var(--ndx-text)" }}>{r.name}</strong>
-                  <span> · {r.role}</span>
-                </figcaption>
-              </figure>
-            </div>
-          ))}
-        </motion.div>
-      </div>
-      <div className="ndx-reviews-carousel__controls">
-        <button type="button" className="ndx-reviews-carousel__btn" onClick={prev} aria-label="Previous testimonial">
-          ‹
-        </button>
-        <span className="ndx-page-rich__reviews-meta">
-          {index + 1} / {n}
-        </span>
-        <button type="button" className="ndx-reviews-carousel__btn" onClick={next} aria-label="Next testimonial">
-          ›
-        </button>
-      </div>
-      <div className="ndx-reviews-carousel__dots" aria-label="Testimonial index">
-        {items.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            aria-label={`Show testimonial ${i + 1}`}
-            aria-current={i === index ? "true" : undefined}
-            className={i === index ? "ndx-reviews-carousel__dot ndx-reviews-carousel__dot--active" : "ndx-reviews-carousel__dot"}
-            onClick={() => setIndex(i)}
-          />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -992,6 +961,29 @@ export default function ServicesPage() {
                 Browse offerings
               </a>
             </motion.div>
+            <motion.table
+              className="ndx-rich-hero-offer"
+              initial={reduced ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.19 }}
+            >
+              <tbody>
+                <tr>
+                  <th scope="row">Assumed starting price</th>
+                  <td>
+                    <strong>From ~USD $2,500</strong>
+                    <span className="ndx-rich-hero-offer-note">Typical entry band for a scoped first phase. Final fees follow a short brief — nothing vague.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Delivery window</th>
+                  <td>
+                    <strong>2–4 weeks</strong> for tight slices
+                    <span className="ndx-rich-hero-offer-note">Many marketing sites, automations, and design passes land here; bigger products list their own timelines on each card.</span>
+                  </td>
+                </tr>
+              </tbody>
+            </motion.table>
             <motion.div
               className="ndx-rich-stats ndx-rich-stats--hero-metrics"
               initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -1043,8 +1035,8 @@ export default function ServicesPage() {
         </div>
 
         <div id="why-us" className="ndx-rich-block scroll-mt-24">
-          <RichSectionIntro eyebrow="Why us" title="Why teams work with us">
-            Straightforward delivery: one team, clear milestones, and a handoff you can maintain — not two different “pages” of promises.
+          <RichSectionIntro eyebrow="Trust & clarity" title="Why teams work with us">
+            Written scope and pricing bands before deep work, weekly visibility during the build, and a handoff you can run — so you are not buying a black box.
           </RichSectionIntro>
           <div className="ndx-card-grid" style={{ marginTop: "1.5rem" }}>
             {whyUsItems.map((row) => {
@@ -1090,27 +1082,29 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <div className="ndx-rich-block">
+        <div className="ndx-rich-block ndx-glass-section scroll-mt-24">
           <RichSectionIntro eyebrow="How we pair" title="A real build rarely uses one service.">
             Common pairings clients actually request. Mix and match — or let us propose the shape during discovery.
           </RichSectionIntro>
-          <div className="ndx-card-grid" style={{ marginTop: "1.5rem" }}>
+          <div className="ndx-card-grid ndx-card-grid--cols-3" style={{ marginTop: "1.5rem" }}>
             {pairings.map((item) => (
               <PairingCard key={item.number} item={item} />
             ))}
           </div>
         </div>
 
-        <div className="ndx-rich-block">
+        <div className="ndx-rich-block ndx-glass-section scroll-mt-24">
           <RichSectionIntro eyebrow="Engagement models" title="Three ways to work with us.">
-            Most builds start fixed-scope; retainers and advisory blocks when you need steady capacity or direction.
+            Most builds start fixed-scope; retainers and advisory blocks when you need steady capacity or direction. Assumed bands are ballparks — we confirm fees after a short brief.
           </RichSectionIntro>
-          <div className="ndx-card-grid" style={{ marginTop: "1.5rem" }}>
+          <div className="ndx-card-grid ndx-card-grid--cols-3" style={{ marginTop: "1.5rem" }}>
             {engagementModels.map((item) => (
               <motion.article key={item.number} className="ndx-card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem" }}>
-                  <span style={{ fontFamily: "var(--ndx-font-serif)", fontSize: "2.25rem", fontStyle: "italic", color: "var(--ndx-accent)" }}>{item.number}</span>
-                  <span className="ndx-pill">{item.timeline}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
+                  <span style={{ fontFamily: "var(--ndx-font-serif)", fontSize: "2.25rem", fontStyle: "italic", color: "var(--ndx-accent)", lineHeight: 1 }}>{item.number}</span>
+                  <span className="ndx-pill" style={{ flexShrink: 0 }}>
+                    {item.timeline}
+                  </span>
                 </div>
                 <h3 className="ndx-tech-name" style={{ fontSize: "1.2rem" }}>
                   {item.title}
@@ -1118,7 +1112,13 @@ export default function ServicesPage() {
                 <p className="ndx-tech-blurb" style={{ marginTop: "0.5rem" }}>
                   {item.desc}
                 </p>
-                <p className="ndx-tech-meta" style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid var(--ndx-border)" }}>
+                <p className="ndx-engagement-card__label" style={{ marginTop: "0.75rem", marginBottom: 0 }}>
+                  <strong>Assumed from</strong> {item.assumedFrom}
+                </p>
+                <p className="ndx-engagement-card__label" style={{ marginTop: "0.45rem" }}>
+                  <strong>Billing shape</strong> {item.billingShape}
+                </p>
+                <p className="ndx-tech-meta" style={{ marginTop: "0.65rem", paddingTop: "0.75rem", borderTop: "1px solid var(--ndx-border)", marginBottom: 0 }}>
                   Best for: <span style={{ color: "var(--ndx-accent)" }}>{item.best}</span>
                 </p>
               </motion.article>
@@ -1126,7 +1126,7 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <div id="recent-work" className="ndx-rich-block scroll-mt-24">
+        <div id="recent-work" className="ndx-rich-block ndx-glass-section ndx-glass-section--recent-work scroll-mt-24">
           <RichSectionIntro eyebrow="Recent work" title="What shipping looks like">
             Representative project shapes — case studies and credits live on the portfolio.
           </RichSectionIntro>
@@ -1135,14 +1135,14 @@ export default function ServicesPage() {
               Full portfolio →
             </Link>
           </div>
-          <div className="ndx-card-grid" style={{ marginTop: "1.5rem" }}>
+          <div className="ndx-card-grid ndx-card-grid--cols-3" style={{ marginTop: "1.5rem" }}>
             {selectedWork.map((item, index) => (
               <Link key={item.title} to="/portfolio" className="ndx-card ndx-card-link" style={{ overflow: "hidden", padding: 0, display: "block" }}>
                 <div
                   style={{
                     position: "relative",
                     height: "11rem",
-                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 26%, transparent), color-mix(in srgb, var(--ndx-accent-2) 18%, transparent), color-mix(in srgb, var(--ndx-bg) 72%, transparent))`,
+                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 14%, transparent), color-mix(in srgb, var(--ndx-accent-2) 10%, transparent), color-mix(in srgb, var(--ndx-bg) 88%, transparent))`,
                   }}
                 >
                   <span className="ndx-pill" style={{ position: "absolute", left: "1.1rem", top: "1.1rem", color: "var(--ndx-accent)" }}>
@@ -1173,48 +1173,24 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <div id="partners" className="ndx-rich-block scroll-mt-24">
-          <RichSectionIntro eyebrow="Collaborators" title="Organizations we’ve shipped with">
-            Language, publishing, AI platforms, and digital partners — hover a mark for its name; click to open the official site.
-          </RichSectionIntro>
-          <PartnerBrandsGrid />
-        </div>
-
         <PaymentsAndTrust />
 
-        <div id="reviews" className="ndx-rich-block scroll-mt-24">
-          <RichSectionIntro eyebrow="Trust" title="Client feedback">
-            Paraphrased themes after delivery — not paid endorsements or cherry-picked quotes.
-          </RichSectionIntro>
-          <ReviewsCarousel items={reviewCards} reduced={!!reduced} />
-        </div>
-
-        <div id="pricing-note" className="ndx-rich-block scroll-mt-24">
-          <RichSectionIntro eyebrow="Quotes" title="Budgets & timelines">
-            <>
-              We scope work after discovery: goals, integrations, compliance, and who owns maintenance afterward. You get milestones and fees in
-              writing — no vague “phase 2 someday.” For a tailored estimate, use{" "}
-              <Link to="/contact">contact</Link> or the <Link to="/estimate">AI estimate</Link> form.
-            </>
-          </RichSectionIntro>
-        </div>
-
-        <div id="faq" className="ndx-rich-block scroll-mt-24">
+        <div id="faq" className="ndx-rich-block ndx-glass-section scroll-mt-24">
           <RichSectionIntro eyebrow="FAQ" title="Working with BalochDev">
             Practical answers before you book a call — aligned with how we actually run projects.
           </RichSectionIntro>
-          <div style={{ marginTop: "1.25rem" }}>
+          <div className="ndx-faq-stack--in-glass" style={{ marginTop: "1.25rem" }}>
             {faqs.map((item, index) => (
               <FAQItem key={item.q} item={item} index={index} />
             ))}
           </div>
         </div>
 
-        <div className="ndx-rich-block">
+        <div className="ndx-rich-block ndx-glass-section scroll-mt-24">
           <RichSectionIntro eyebrow="Key terms" title="The vocabulary, briefly.">
             Plain definitions for terms that show up on scoping calls.
           </RichSectionIntro>
-          <div className="ndx-rich-terms-grid">
+          <div className="ndx-rich-terms-grid ndx-rich-terms-grid--in-glass">
             {terms.map((item) => (
               <div key={item.title} className="ndx-card">
                 <div style={{ color: "var(--ndx-accent)", marginBottom: "0.35rem", fontSize: "1.1rem" }}>&lt;/&gt;</div>

@@ -951,6 +951,91 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
   background: color-mix(in srgb, var(--ndx-bg-elev) 90%, var(--ndx-surface));
 }
 
+/* Technologies page — Principles: glass tint on each column only; section container stays plain */
+.ndx-page-rich--technologies .ndx-principle {
+  background: color-mix(in srgb, var(--ndx-surface) 24%, rgba(59, 130, 246, 0.07));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--ndx-border) 72%, rgba(59, 130, 246, 0.22));
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 8px 28px color-mix(in srgb, rgba(15, 23, 42, 0.05) 85%, transparent);
+}
+
+html[data-theme="dark"] .ndx-page-rich--technologies .ndx-principle {
+  background: color-mix(in srgb, var(--ndx-surface) 18%, rgba(45, 212, 191, 0.06));
+  border-color: color-mix(in srgb, var(--ndx-border) 65%, rgba(45, 212, 191, 0.2));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 32px color-mix(in srgb, rgba(0, 0, 0, 0.28) 70%, transparent);
+}
+
+/* Technologies — FAQ: same per-item glass as Principles (section stays plain) */
+.ndx-page-rich--technologies .ndx-faq-item {
+  background: color-mix(in srgb, var(--ndx-surface) 24%, rgba(59, 130, 246, 0.07));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--ndx-border) 72%, rgba(59, 130, 246, 0.22));
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 8px 28px color-mix(in srgb, rgba(15, 23, 42, 0.05) 85%, transparent);
+  margin-bottom: 0;
+}
+
+html[data-theme="dark"] .ndx-page-rich--technologies .ndx-faq-item {
+  background: color-mix(in srgb, var(--ndx-surface) 18%, rgba(45, 212, 191, 0.06));
+  border-color: color-mix(in srgb, var(--ndx-border) 65%, rgba(45, 212, 191, 0.2));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 32px color-mix(in srgb, rgba(0, 0, 0, 0.28) 70%, transparent);
+}
+
+/* Technologies — Languages discipline: glass on each tool card only */
+.ndx-page-rich--technologies .ndx-rich-service-grid--tech-glass-cards .ndx-tech-tool-card.ndx-card {
+  background: color-mix(in srgb, var(--ndx-surface) 24%, rgba(59, 130, 246, 0.07));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--ndx-border) 72%, rgba(59, 130, 246, 0.22));
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 8px 28px color-mix(in srgb, rgba(15, 23, 42, 0.05) 85%, transparent);
+}
+
+html[data-theme="dark"] .ndx-page-rich--technologies .ndx-rich-service-grid--tech-glass-cards .ndx-tech-tool-card.ndx-card {
+  background: color-mix(in srgb, var(--ndx-surface) 18%, rgba(45, 212, 191, 0.06));
+  border-color: color-mix(in srgb, var(--ndx-border) 65%, rgba(45, 212, 191, 0.2));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 32px color-mix(in srgb, rgba(0, 0, 0, 0.28) 70%, transparent);
+}
+
+.ndx-page-rich--technologies .ndx-rich-service-grid--tech-glass-cards a.ndx-tech-tool-card-link {
+  border-radius: 12px;
+}
+
+/* Services page — Trust & clarity (#why-us): same per-card glass as Technologies Principles */
+#why-us .ndx-card-grid > .ndx-card {
+  background: color-mix(in srgb, var(--ndx-surface) 24%, rgba(59, 130, 246, 0.07));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--ndx-border) 72%, rgba(59, 130, 246, 0.22));
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 8px 28px color-mix(in srgb, rgba(15, 23, 42, 0.05) 85%, transparent);
+}
+
+html[data-theme="dark"] #why-us .ndx-card-grid > .ndx-card {
+  background: color-mix(in srgb, var(--ndx-surface) 18%, rgba(45, 212, 191, 0.06));
+  border-color: color-mix(in srgb, var(--ndx-border) 65%, rgba(45, 212, 191, 0.2));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 32px color-mix(in srgb, rgba(0, 0, 0, 0.28) 70%, transparent);
+}
+
 .ndx-principle-num {
   font-family: var(--ndx-font-mono);
   font-size: 0.7rem;
@@ -1488,6 +1573,39 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
   --ndx-hero-wheel-glow-core: rgba(124, 58, 237, 0.26);
   --ndx-hero-wheel-glow-mid: rgba(167, 139, 250, 0.14);
   --ndx-hero-wheel-glow-edge: rgba(124, 58, 237, 0.09);
+}
+
+/* Services hero orbit — smaller icons + wider ring spacing on phones (reduces overlap while rotating) */
+@media (max-width: 639px) {
+  .ndx-page-rich .ndx-hero-surface {
+    --ndx-hero-icon-box: 1.68rem;
+    --ndx-hero-hub-size: 3.35rem;
+    --ndx-hero-orbit-half-tile: calc(var(--ndx-hero-icon-box) / 2);
+    --ndx-hero-orbit-step: max(2.55rem, calc(var(--ndx-hero-orbit-half-tile) + 0.62rem));
+    --ndx-hero-orbit-c: calc(var(--ndx-hero-hub-rim) + var(--ndx-hero-orbit-step));
+    --ndx-hero-orbit-b: calc(var(--ndx-hero-orbit-c) + var(--ndx-hero-orbit-step));
+    --ndx-hero-orbit-a: calc(var(--ndx-hero-orbit-b) + var(--ndx-hero-orbit-step));
+  }
+
+  .ndx-page-rich .ndx-hero-orbit-icon-tile svg {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px;
+    max-height: 14px;
+  }
+
+  .ndx-page-rich .ndx-hero-orbit-label {
+    max-width: 3.65rem !important;
+    font-size: 5.5px !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  .ndx-page-rich .ndx-hero-orbit-dot {
+    width: 3.5px !important;
+    height: 3.5px !important;
+    min-width: 3.5px;
+    min-height: 3.5px;
+  }
 }
 
 .ndx-page-rich .ndx-hero-orbit-track {
@@ -2381,6 +2499,166 @@ html[data-theme="dark"] .ndx-page-rich .ndx-hero-surface {
   color: var(--ndx-text);
 }
 
+.ndx-tech-landing__plain-list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  font-size: 0.9rem;
+  line-height: 1.52;
+  color: color-mix(in srgb, var(--ndx-text) 88%, var(--ndx-muted));
+}
+
+.ndx-tech-landing__plain-list li {
+  padding-left: 0.1rem;
+}
+
+/* Service detail: normalize vertical rhythm after Recent work glass block → FAQ */
+.ndx-tech-landing__recent-work-band {
+  margin-top: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.ndx-page-rich--apps .ndx-apps-recent-work {
+  margin-top: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+/* /apps: single hero offer table (pricing row + stat rows) */
+.ndx-page-rich--apps .ndx-apps-hero-offer-unified tbody tr:not(:first-child) th {
+  font-weight: 600;
+  color: var(--ndx-muted);
+  font-size: 0.82rem;
+}
+
+.ndx-page-rich--apps .ndx-apps-hero-offer-unified tbody tr:not(:first-child) td {
+  font-size: 0.95rem;
+}
+
+/* /apps page: hero phone graphic */
+.ndx-apps-hero-viz-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(420px, 55vh);
+  padding: 0.5rem 0.25rem;
+}
+
+.ndx-apps-hero-viz-inner {
+  width: 100%;
+  max-width: min(420px, 92vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.25rem;
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-surface) 50%, transparent);
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+.ndx-apps-hero-phone-svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+}
+
+/* /apps: one-row wayfinding */
+.ndx-apps-wayfinding {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-surface) 35%, transparent);
+}
+
+.ndx-apps-wayfinding-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ndx-muted);
+  flex-shrink: 0;
+}
+
+.ndx-apps-wayfinding-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ndx-apps-wayfinding-links a {
+  color: var(--ndx-accent);
+  text-decoration: none;
+}
+
+.ndx-apps-wayfinding-links a:hover {
+  text-decoration: underline;
+}
+
+.ndx-apps-wayfinding-sep {
+  color: var(--ndx-dim);
+  user-select: none;
+}
+
+/* /apps: wider card grids — fill row on large screens */
+.ndx-page-rich--apps .ndx-apps-what-grid {
+  display: grid;
+  gap: 1.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+
+@media (min-width: 1200px) {
+  .ndx-page-rich--apps .ndx-apps-what-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ndx-page-rich--apps .ndx-apps-phase-grid {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+@media (min-width: 1100px) {
+  .ndx-page-rich--apps .ndx-apps-phase-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ndx-page-rich--apps .ndx-apps-grid-why,
+.ndx-page-rich--apps .ndx-apps-grid-terms {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+@media (min-width: 1024px) {
+  .ndx-page-rich--apps .ndx-apps-grid-why,
+  .ndx-page-rich--apps .ndx-apps-grid-terms {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.ndx-page-rich--apps .ndx-apps-recent-grid {
+  display: grid;
+  gap: 1.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+@media (min-width: 1100px) {
+  .ndx-page-rich--apps .ndx-apps-recent-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .ndx-tech-landing__delivery-panel__footnote {
   margin: 0 !important;
   padding: 0.95rem 1.15rem 1.05rem;
@@ -2975,6 +3253,220 @@ html[data-theme="dusk"] .ndx-page-rich .ndx-hero-surface {
     padding-left: 0.85rem;
     margin-left: 0;
   }
+}
+
+/* Services hero — assumed scope / delivery strip (after CTAs) */
+.ndx-page-rich .ndx-rich-hero-offer {
+  margin-top: 1.25rem;
+  width: 100%;
+  max-width: 28rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-bg-elev) 78%, transparent);
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+.ndx-page-rich .ndx-rich-hero-offer th,
+.ndx-page-rich .ndx-rich-hero-offer td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--ndx-border);
+}
+
+.ndx-page-rich .ndx-rich-hero-offer tr:last-child th,
+.ndx-page-rich .ndx-rich-hero-offer tr:last-child td {
+  border-bottom: none;
+}
+
+.ndx-page-rich .ndx-rich-hero-offer th {
+  font-family: var(--ndx-font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+  font-weight: 600;
+  width: 42%;
+  background: color-mix(in srgb, var(--ndx-bg-elev) 55%, transparent);
+}
+
+.ndx-page-rich .ndx-rich-hero-offer td {
+  color: var(--ndx-text);
+  font-weight: 500;
+}
+
+.ndx-page-rich .ndx-rich-hero-offer td strong {
+  color: var(--ndx-accent);
+  font-weight: 600;
+}
+
+.ndx-page-rich .ndx-rich-hero-offer-note {
+  display: block;
+  margin-top: 0.28rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--ndx-muted);
+  line-height: 1.35;
+}
+
+/* Services — glass panels (secondary sections: pairings, engagement, portfolio teaser, FAQ, terms) */
+.ndx-page-rich .ndx-glass-section {
+  padding: 1.5rem 1.25rem 1.75rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ndx-border) 72%, rgba(59, 130, 246, 0.22));
+  background: color-mix(in srgb, var(--ndx-surface) 24%, rgba(59, 130, 246, 0.07));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 12px 40px color-mix(in srgb, rgba(15, 23, 42, 0.06) 85%, transparent);
+}
+
+@media (min-width: 768px) {
+  .ndx-page-rich .ndx-glass-section {
+    padding: 1.75rem 1.5rem 2rem;
+  }
+}
+
+html[data-theme="dark"] .ndx-page-rich .ndx-glass-section {
+  background: color-mix(in srgb, var(--ndx-surface) 18%, rgba(45, 212, 191, 0.06));
+  border-color: color-mix(in srgb, var(--ndx-border) 65%, rgba(45, 212, 191, 0.2));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 14px 42px color-mix(in srgb, rgba(0, 0, 0, 0.35) 70%, transparent);
+}
+
+.ndx-page-rich .ndx-glass-section .ndx-rich-split-head {
+  margin-bottom: 1.35rem;
+}
+
+.ndx-page-rich .ndx-glass-section--recent-work .ndx-card-grid {
+  margin-top: 1.15rem;
+}
+
+/* Explicit 3-column card grids on desktop */
+.ndx-page-rich .ndx-card-grid--cols-3 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .ndx-page-rich .ndx-card-grid--cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .ndx-page-rich .ndx-card-grid--cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+}
+
+.ndx-page-rich .ndx-glass-section .ndx-card {
+  background: color-mix(in srgb, var(--ndx-bg-elev) 42%, transparent);
+  border-color: color-mix(in srgb, var(--ndx-border) 88%, rgba(59, 130, 246, 0.12));
+}
+
+html[data-theme="dark"] .ndx-page-rich .ndx-glass-section .ndx-card {
+  background: color-mix(in srgb, var(--ndx-bg-elev) 38%, transparent);
+  border-color: color-mix(in srgb, var(--ndx-border) 88%, rgba(45, 212, 191, 0.1));
+}
+
+.ndx-page-rich .ndx-service-card-plan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.65rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ndx-border);
+  font-size: 0.72rem;
+  font-family: var(--ndx-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+}
+
+.ndx-page-rich .ndx-service-card-plan span {
+  color: var(--ndx-muted);
+}
+
+.ndx-page-rich .ndx-service-card-plan strong {
+  color: var(--ndx-accent);
+  font-weight: 600;
+}
+
+.ndx-page-rich .ndx-service-card-footer {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ndx-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.ndx-page-rich a.ndx-service-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--ndx-font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ndx-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease, gap 0.15s ease;
+}
+
+.ndx-page-rich a.ndx-service-card-cta:hover {
+  color: color-mix(in srgb, var(--ndx-accent) 80%, var(--ndx-text));
+  gap: 0.5rem;
+}
+
+.ndx-page-rich .ndx-engagement-card__label {
+  font-family: var(--ndx-font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+  margin-top: 0.85rem;
+  line-height: 1.4;
+}
+
+.ndx-page-rich .ndx-engagement-card__label strong {
+  color: var(--ndx-text);
+  font-weight: 600;
+}
+
+.ndx-page-rich .ndx-faq-stack--in-glass .ndx-faq-item {
+  background: color-mix(in srgb, var(--ndx-bg-elev) 35%, transparent);
+  border-color: color-mix(in srgb, var(--ndx-border) 90%, rgba(59, 130, 246, 0.08));
+}
+
+html[data-theme="dark"] .ndx-page-rich .ndx-faq-stack--in-glass .ndx-faq-item {
+  background: color-mix(in srgb, var(--ndx-bg-elev) 32%, transparent);
+  border-color: color-mix(in srgb, var(--ndx-border) 88%, rgba(45, 212, 191, 0.08));
+}
+
+.ndx-page-rich .ndx-rich-terms-grid--in-glass {
+  margin-top: 1.25rem;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .ndx-page-rich .ndx-rich-terms-grid--in-glass {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.ndx-page-rich .ndx-rich-terms-grid--in-glass .ndx-card {
+  background: color-mix(in srgb, var(--ndx-bg-elev) 28%, transparent);
 }
 
 /* Section intro: eyebrow + title left, body right */
