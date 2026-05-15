@@ -51,7 +51,7 @@ function AppRoutes() {
             <Route path="/technologies/:category/:slug" element={<TechnologyAiLanding />} />
             <Route path="/technologies" element={<NTechnologies />} />
             <Route path="/apps" element={<NApps />} />
-            <Route path="/industries" element={<NIndustries />} />
+            {/* <Route path="/industries" element={<NIndustries />} /> */}{/* hidden for now */}
             <Route path="/portfolio" element={<NPortfolio />} />
             <Route path="/projects/:slug" element={<NProjectPage />} />
             <Route path="/about" element={<NAbout />} />

@@ -7,7 +7,7 @@ const nav = [
   { to: '/services', label: 'Services' },
   { to: '/technologies', label: 'Technologies' },
   { to: '/apps', label: 'Apps' },
-  { to: '/industries', label: 'Industries' },
+  // { to: '/industries', label: 'Industries' }, // hidden for now
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/about', label: 'About' },
   { to: '/blog', label: 'Blog' },
