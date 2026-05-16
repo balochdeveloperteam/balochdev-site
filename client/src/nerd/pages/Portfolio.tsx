@@ -343,7 +343,7 @@ export default function PortfolioPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gap: "1.25rem", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+          <div style={{ display: "grid", gap: "1.25rem", gridTemplateColumns: "repeat(auto-fill, minmax(480px, 1fr))" }}>
             {filtered.map((p, i) => (
               <ProjectCard key={p.slug ?? p.title} p={p} i={i} reduced={reduced} />
             ))}

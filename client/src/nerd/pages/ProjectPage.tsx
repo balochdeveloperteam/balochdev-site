@@ -4,31 +4,62 @@ import { motion, useReducedMotion } from "framer-motion";
 import { usePageMeta } from "../hooks/usePageMeta";
 import projects from "../data/projects";
 
-/* ─── Nested-square SVG decoration ──────────────────────────────────────── */
+/* ─── Animated border square ─────────────────────────────────────────────── */
+/*
+ * A single large rounded square whose border appears to carry a wave of
+ * coloured light travelling clockwise — two strokes at different offsets
+ * and colours give the "wave" effect. The SVG viewBox is 16:9 to match
+ * the carousel so the border hugs it when the SVG is stretched to fill.
+ */
 
-function SquareDeco({ side }: { side: "left" | "right" }) {
-  const isLeft = side === "left";
+const VB_W = 800;
+const VB_H = 450;
+const RX = 28;          // border-radius of the square
+const SQ_X = 5;
+const SQ_Y = 5;
+const SQ_W = VB_W - 10;
+const SQ_H = VB_H - 10;
+// Perimeter of rounded rect (approx)
+const PERIM = Math.round(2 * (SQ_W - 2 * RX) + 2 * (SQ_H - 2 * RX) + 2 * Math.PI * RX);
+// PERIM ≈ 2*(790-56) + 2*(440-56) + 175.9 = 1468 + 768 + 176 ≈ 2412
+const DASH1 = 200;   // primary light length
+const DASH2 = 90;    // secondary (trailing) light length
+
+function AnimatedBorderSquare() {
   return (
-    <div
+    <svg
       aria-hidden
-      style={{
-        position: "absolute",
-        top: "50%",
-        [isLeft ? "left" : "right"]: -28,
-        transform: "translateY(-50%)",
-        zIndex: 0,
-        pointerEvents: "none",
-        opacity: 0.18,
-      }}
+      width="100%"
+      height="100%"
+      viewBox={`0 0 ${VB_W} ${VB_H}`}
+      fill="none"
+      preserveAspectRatio="none"
+      style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
     >
-      <svg width="110" height="110" viewBox="0 0 110 110" fill="none" style={{ color: "var(--ndx-accent)" }}>
-        <rect x="1"  y="1"  width="108" height="108" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="14" y="14" width="82"  height="82"  stroke="currentColor" strokeWidth="1" />
-        <rect x="27" y="27" width="56"  height="56"  stroke="currentColor" strokeWidth="0.9" />
-        <rect x="40" y="40" width="30"  height="30"  stroke="currentColor" strokeWidth="0.8" />
-        <rect x="53" y="53" width="4"   height="4"   fill="currentColor" />
-      </svg>
-    </div>
+      {/* Dim base outline — always visible so the square shape is clear */}
+      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
+        stroke="var(--ndx-accent)" strokeWidth="1" strokeOpacity="0.14" />
+
+      {/* Primary travelling light — accent colour */}
+      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
+        stroke="var(--ndx-accent)" strokeWidth="3" strokeLinecap="round"
+        strokeDasharray={`${DASH1} ${PERIM - DASH1}`} strokeOpacity="0.75"
+      >
+        <animate attributeName="stroke-dashoffset"
+          from={String(PERIM)} to="0"
+          dur="6s" repeatCount="indefinite" />
+      </rect>
+
+      {/* Trailing light — cyan/teal, half-period behind */}
+      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
+        stroke="#06b6d4" strokeWidth="1.8" strokeLinecap="round"
+        strokeDasharray={`${DASH2} ${PERIM - DASH2}`} strokeOpacity="0.55"
+      >
+        <animate attributeName="stroke-dashoffset"
+          from={String(PERIM)} to="0"
+          dur="6s" begin="-3s" repeatCount="indefinite" />
+      </rect>
+    </svg>
   );
 }
 
@@ -40,19 +71,21 @@ function Carousel({ images }: { images: string[] }) {
   const next = () => setIdx((i) => (i + 1) % images.length);
 
   return (
-    /* Outer wrapper — provides room for the square decorations */
-    <div style={{ position: "relative", padding: "0 18px" }}>
-      <SquareDeco side="left" />
-      <SquareDeco side="right" />
+    /*
+     * Outer wrapper carries the animated border square as its background.
+     * Padding shrinks the inner carousel so the animated border is visible
+     * as a frame around the image.
+     */
+    <div style={{ position: "relative", padding: "18px" }}>
+      <AnimatedBorderSquare />
 
-      {/* Carousel shell */}
+      {/* Carousel shell — no border (the animated square acts as the frame) */}
       <div
         style={{
           position: "relative",
           width: "100%",
           borderRadius: "var(--ndx-radius-lg)",
           overflow: "hidden",
-          border: "1px solid var(--ndx-border)",
           background: "transparent",
           aspectRatio: "16 / 9",
           zIndex: 1,
