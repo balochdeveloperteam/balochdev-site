@@ -26,6 +26,7 @@ const cols = [
   {
     title: 'Resources',
     links: [
+      { to: '/brand', label: 'Brand guidelines' },
       { to: '/resources/ai-enabled-tools', label: 'AI-enabled tools' },
       { to: '/resources/rag', label: 'RAG' },
       { to: '/resources/workflow-automation', label: 'Workflow automation' },

@@ -1,0 +1,92 @@
+{
+  "brandKitVersion": "1.1",
+  "updated": "2026-05-17",
+  "organization": {
+    "tradeName": "BalochDev",
+    "alternateNames": ["Baloch Dev", "balochdev"],
+    "domain": "https://balochdev.com",
+    "tagline": "AI-first web & mobile, Supabase backends, Balochi language tech.",
+    "emailTeam": "team@balochdev.com",
+    "emailSupport": "support@balochdev.com",
+    "canonicalHost": "https://balochdev.com",
+    "publicBrandPagePaths": ["https://balochdev.com/brand", "https://balochdev.com/brand/brand-kit.json"],
+    "note": "Public brand assets live under balochdev.com/brand/"
+  },
+  "logos": {
+    "hubAndSpokeMark": [
+      {
+        "id": "mark-light-background",
+        "file": "/brand/logo-black.svg",
+        "usage": "Default mark on Mist / light UI (Baloch Dev logo — ink)."
+      },
+      {
+        "id": "mark-dark-background",
+        "file": "/brand/logo-white.svg",
+        "usage": "Dark / charcoal backgrounds."
+      },
+      {
+        "id": "mark-dusk-background",
+        "file": "/brand/logo-orange.svg",
+        "usage": "Purple / dusk theme and gradients."
+      }
+    ],
+    "favicon": {
+      "file": "/brand/favicon.svg",
+      "usage": "Browser tab icon; coral hub-and-spoke mark."
+    },
+    "wordmark": {
+      "description": "The site renders “Baloch” / “Dev.” as styled text next to the SVG mark using Neue Machina (same face as headings/body tokens; Syne/Chakra as fallbacks). Prefer the SVG mark + this wordmark from balochdev.com for partner materials.",
+      "source": "/"
+    }
+  },
+  "cssDesignTokensReference": {
+    "file": "/src uses theme.css (build-time — see repository); production sites read tokens from deployed CSS variables.",
+    "themes": ["dark", "light", "dusk"],
+    "tokens": {
+      "light": {
+        "background": "#e8ecff",
+        "text": "#0b1340",
+        "accent": "#ff6b4a",
+        "accentSecondary": "#0b1340",
+        "surface": "#ffffff"
+      },
+      "dark": {
+        "background": "#181818",
+        "text": "#f4f4f5",
+        "accent": "#2dd4bf",
+        "accentSecondary": "#f59e0b",
+        "surface": "#222222"
+      },
+      "dusk": {
+        "background": "#2a1f4a",
+        "text": "#f5f3ff",
+        "accent": "#ff6b4a",
+        "accentSecondary": "#ff8a6e",
+        "surface": "rgba(255, 255, 255, 0.05)"
+      }
+    }
+  },
+  "typography": {
+    "brandHeading": "\"Neue Machina\", \"Syne\", \"Chakra Petch\", system-ui, sans-serif",
+    "body": "\"Neue Machina\", \"DM Sans\", system-ui, sans-serif",
+    "editorial": "\"Newsreader\", Georgia, serif",
+    "code": "\"JetBrains Mono\", ui-monospace, monospace",
+    "googleFontsHref": "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700&family=Syne:wght@400;500;600;700;800&display=swap",
+    "selfHostedBrandFont": "/fonts/Neue_Machina_Font_Family/neue-machina-regular-400.otf (@font-face format opentype; WOFF2 optional for smaller files)",
+    "note": "Licensed .otf works in browsers via @font-face; convert matching weights to .woff2 for production if desired — see theme.css."
+  },
+  "iconSets": ["Boxicons 2.x (CDN on site)", "react-icons where used in-app"],
+  "usage": {
+    "do": [
+      "Use official SVGs from this folder or canonical URLs under https://balochdev.com/brand/",
+      "Keep clear space equal to roughly half the mark’s width around the logo",
+      "Pair mark with sufficiently contrasting backgrounds using the recommended theme pairing"
+    ],
+    "avoid": [
+      "Stretching or skewing the mark",
+      "Recoloring the hub-and-spoke network except via the supplied variants",
+      "Implying endorsement without agreement"
+    ],
+    "licensingNote": "Trademark and usage questions: contact team@balochdev.com."
+  }
+}

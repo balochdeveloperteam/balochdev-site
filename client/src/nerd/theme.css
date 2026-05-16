@@ -1,11 +1,18 @@
-/* Google fonts — Syne ≈ bold geometric brand; Chakra Petch as fallback */
+/* Google fonts — fallbacks behind self-hosted Neue Machina (Syne + Chakra, DM Sans, etc.) */
 @import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Syne:wght@400;500;600;700;800&display=swap");
 
+@font-face {
+  font-family: "Neue Machina";
+  src:
+    url("/fonts/Neue_Machina_Font_Family/neue-machina-regular-400.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /*
- * Pangram Pangram "Neue Machina Inktrap" is commercial — we do not ship it.
- * To use it: place real .woff2 files in client/public/fonts/ and add @font-face
- * rules here, then put "Neue Machina Inktrap" first in --ndx-font-brand.
- * Broken placeholder .woff2 files cause OTS / "invalid sfntVersion" errors.
+ * Neue Machina (.otf above) is self-hosted from public/fonts/.
+ * Browsers support OpenType in @font-face; WOFF2 is optional but smaller — convert for production if you get .woff2 files.
  */
 
 /* Shared layout + base */
@@ -16,10 +23,10 @@ html {
   --ndx-icon: #0b1340;
   --ndx-radius: 12px;
   --ndx-radius-lg: 20px;
-  --ndx-font-sans: "DM Sans", system-ui, sans-serif;
+  --ndx-font-sans: "Neue Machina", "DM Sans", system-ui, sans-serif;
   --ndx-font-serif: "Newsreader", Georgia, serif;
   --ndx-font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --ndx-font-brand: "Syne", "Chakra Petch", system-ui, sans-serif;
+  --ndx-font-brand: "Neue Machina", "Syne", "Chakra Petch", system-ui, sans-serif;
   --ndx-header-h: 64px;
   /* Content width — bumped for large desktops; overridden below on wide screens */
   --ndx-max: 1280px;
@@ -3846,6 +3853,12 @@ html[data-theme="dark"] .ndx-page-rich .ndx-faq-stack--in-glass .ndx-faq-item {
   min-width: 0;
   text-decoration: none;
   color: var(--ndx-text);
+  /* Wordmark beside the SVG mark uses the brand stack → Neue Machina first (matches logo type spec). */
+  font-family: var(--ndx-font-brand);
+}
+
+.ndx-brand-logo strong {
+  font-family: inherit;
 }
 
 .ndx-brand-logo__mark-wrap {
