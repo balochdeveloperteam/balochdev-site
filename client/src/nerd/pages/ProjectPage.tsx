@@ -45,7 +45,7 @@ function Carousel({ images }: { images: string[] }) {
       <SquareDeco side="left" />
       <SquareDeco side="right" />
 
-      {/* Carousel shell — light background so multiply blend-mode hides white */}
+      {/* Carousel shell */}
       <div
         style={{
           position: "relative",
@@ -53,14 +53,7 @@ function Carousel({ images }: { images: string[] }) {
           borderRadius: "var(--ndx-radius-lg)",
           overflow: "hidden",
           border: "1px solid var(--ndx-border)",
-          /*
-           * A light neutral background is intentional:
-           * combined with mix-blend-mode: multiply on the <img>,
-           * any white areas in the screenshot become transparent
-           * against this background — no Photoshop needed.
-           * In dark theme this creates a clean "device frame" look.
-           */
-          background: "#eef2ff",
+          background: "transparent",
           aspectRatio: "16 / 9",
           zIndex: 1,
         }}
@@ -84,14 +77,8 @@ function Carousel({ images }: { images: string[] }) {
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "contain",
+                objectFit: "cover",
                 display: "block",
-                /*
-                 * multiply blend: white (1,1,1) × container = container colour
-                 * so white backgrounds of mockup screenshots vanish,
-                 * while the actual UI colours render normally.
-                 */
-                mixBlendMode: "multiply",
               }}
             />
           </div>
@@ -340,11 +327,11 @@ export default function ProjectPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : 0.08 }}
             >
-              <div style={{ width: "100%", borderRadius: "var(--ndx-radius-lg)", overflow: "hidden", border: "1px solid var(--ndx-border)", background: "#eef2ff" }}>
+              <div style={{ width: "100%", borderRadius: "var(--ndx-radius-lg)", overflow: "hidden", border: "1px solid var(--ndx-border)", background: "transparent" }}>
                 <img
                   src={project.cover}
                   alt={project.title}
-                  style={{ width: "100%", height: "auto", display: "block", objectFit: "contain", mixBlendMode: "multiply" }}
+                  style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
                 />
               </div>
             </motion.div>

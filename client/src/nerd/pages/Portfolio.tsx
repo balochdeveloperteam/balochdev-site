@@ -91,7 +91,7 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
           position: "relative",
           flexShrink: 0,
           background: p.cover
-            ? "#eef2ff"
+            ? "transparent"
             : "linear-gradient(135deg, rgba(100,116,139,0.08) 0%, rgba(100,116,139,0.04) 100%)",
         }}
       >
@@ -103,9 +103,8 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
               display: "block",
-              mixBlendMode: "multiply",
               transition: "transform 0.4s ease",
             }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)")}
