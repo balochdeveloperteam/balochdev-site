@@ -551,30 +551,26 @@ export default function ProjectPage() {
         )}
 
         {/* ── Team ─────────────────────────────────────────────────────── */}
-        <div className="ndx-rich-block">
-          <p className="ndx-rich-pill ndx-rich-pill--minimal" style={{ marginBottom: "1rem" }}>
-            <span className="ndx-rich-pill-dot" aria-hidden />
-            Team
-          </p>
-          <h2 className="ndx-h2" style={{ maxWidth: "32rem", marginBottom: "0.5rem" }}>Who <em>built it.</em></h2>
-          <p style={{ fontSize: "0.875rem", color: "var(--ndx-muted)", maxWidth: "40rem", marginBottom: "1.35rem", lineHeight: 1.65 }}>
-            Senior contributors only — the people in the kickoff call are the same people writing code.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
-            {[
-              { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
-              { name: "Shees Baloch", role: "Mobile & Backend Developer" },
-              { name: "Jaber Ali", role: "Full Stack Developer" },
-              { name: "Sohail Baloch", role: "Frontend Developer" },
-              { name: "Shams Baloch", role: "UI / UX Design" },
-            ].map((m) => (
-              <div key={m.name} className="ndx-card" style={{ padding: "0.85rem 1rem" }}>
-                <p style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--ndx-text)", marginBottom: "0.25rem" }}>{m.name}</p>
-                <p style={{ fontSize: "0.78rem", color: "var(--ndx-muted)" }}>{m.role}</p>
-              </div>
-            ))}
+        {project.team && project.team.length > 0 && (
+          <div className="ndx-rich-block">
+            <p className="ndx-rich-pill ndx-rich-pill--minimal" style={{ marginBottom: "1rem" }}>
+              <span className="ndx-rich-pill-dot" aria-hidden />
+              Team
+            </p>
+            <h2 className="ndx-h2" style={{ maxWidth: "32rem", marginBottom: "0.5rem" }}>Who <em>built it.</em></h2>
+            <p style={{ fontSize: "0.875rem", color: "var(--ndx-muted)", maxWidth: "40rem", marginBottom: "1.35rem", lineHeight: 1.65 }}>
+              Senior contributors only — the people in the kickoff call are the same people writing code.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
+              {project.team.map((m) => (
+                <div key={m.name} className="ndx-card" style={{ padding: "0.85rem 1rem" }}>
+                  <p style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--ndx-text)", marginBottom: "0.25rem" }}>{m.name}</p>
+                  <p style={{ fontSize: "0.78rem", color: "var(--ndx-muted)" }}>{m.role}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Related ──────────────────────────────────────────────────── */}
         <div className="ndx-rich-block">

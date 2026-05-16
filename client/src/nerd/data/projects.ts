@@ -1,6 +1,15 @@
 import mango1 from "../../assets/projects/ManGo/1.png";
 import mango2 from "../../assets/projects/ManGo/2.png";
 import mango3 from "../../assets/projects/ManGo/3.png";
+import toy1 from "../../assets/projects/TheoryOfYou/4-j.png";
+import toy2 from "../../assets/projects/TheoryOfYou/5-j.png";
+import toy3 from "../../assets/projects/TheoryOfYou/6-j.png";
+import toy4 from "../../assets/projects/TheoryOfYou/7-j.png";
+
+export interface ProjectTeamMember {
+  name: string;
+  role: string;
+}
 
 export interface Project {
   slug: string | null;
@@ -21,6 +30,7 @@ export interface Project {
   features?: string[];
   results?: string[];
   seoDescription?: string;
+  team?: ProjectTeamMember[];
 }
 
 const projects: Project[] = [
@@ -101,6 +111,95 @@ const projects: Project[] = [
       "All orders automatically recorded in Google Sheets — printing and accounting available immediately",
       "AI chatbot handles routine customer queries 24 / 7, freeing staff for higher-value tasks",
       "Telegram bot ensures no order is missed regardless of which device the team is using",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shees Baloch", role: "Mobile & Backend Developer" },
+      { name: "Jaber Ali", role: "Full Stack Developer" },
+      { name: "Sohail Baloch", role: "Frontend Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
+  },
+  {
+    slug: "theory-of-you",
+    title: "Theory of You",
+    tagline:
+      "AI Foundations — a full-stack online academy that makes artificial intelligence education practical, structured, and accessible to beginner developers and creators worldwide.",
+    category: "client",
+    industry: "EdTech · Online Learning",
+    year: "2025",
+    duration: "2 months",
+    cover: toy1,
+    images: [toy1, toy2, toy3, toy4],
+    stack: [
+      "React 18",
+      "Next.js 14",
+      "TypeScript",
+      "Tailwind CSS",
+      "Node.js",
+      "Express.js",
+      "PostgreSQL",
+      "Supabase",
+      "Supabase Auth",
+      "Stripe",
+      "Cloudflare",
+      "Cloudflare R2",
+      "Redis",
+      "REST API",
+      "JWT",
+      "SSR / SEO",
+    ],
+    featured: true,
+    live: true,
+    seoDescription:
+      "Theory of You — AI Foundations: a full-stack online learning platform built by BalochDev. Features structured multi-week AI/ML curriculum, project-based learning, Stripe payments, student dashboards, progress tracking, certificate generation, and SEO-optimised course pages. Built with Next.js, Supabase, PostgreSQL, Stripe, and Cloudflare.",
+    challenge:
+      "Beginners wanting to enter the world of artificial intelligence and machine learning had no clear, practical path. Everywhere online they were flooded with hype, disconnected tutorials, random tool lists, and overwhelming jargon. Most available courses were either too theoretical, too expensive, or too passive — students watched content but never built anything real. Many learners gave up before they even started, unsure where to begin, which technologies actually mattered, how ML workflows operated, or how to produce portfolio work that could demonstrate real skill. The client needed a platform that flipped this entirely: one built around doing rather than watching.",
+    solution: [
+      "Architected a full-stack Next.js 14 platform with server-side rendering throughout — every course page, lesson, and landing page is SSR for maximum SEO performance and fast first-load times without sacrificing interactivity.",
+      "Designed and built a structured course system: instructors define multi-week curricula with chapters, lessons, and milestone projects. Students progress through a gated sequence, unlocking each section as they complete prior work.",
+      "Implemented project-based learning modules where every course section culminates in a real, runnable AI project — not a quiz. Learners build portfolio items they can share publicly from day one.",
+      "Built a student dashboard showing live progress, completed projects, accumulated skills, and course certificates — all in a single view, designed to reinforce confidence rather than overwhelm.",
+      "Integrated Stripe for secure course purchases and subscription plans, including free-trial access to introductory content with zero friction for first-time learners.",
+      "Implemented Supabase Auth with JWT sessions for secure, stateless user authentication across the platform, with role-based access distinguishing students, instructors, and administrators.",
+      "Built a PostgreSQL database schema (via Supabase) optimised for course content hierarchy, user enrolment state, and progress tracking — with Redis caching for lesson delivery at low latency.",
+      "Stored all course media (video, images, downloadable resources) on Cloudflare R2 with edge delivery via Cloudflare CDN, ensuring fast load times globally regardless of learner location.",
+      "Designed and built an instructor content management panel where course creators can write lessons in a rich-text editor, attach code notebooks, upload media, and publish/unpublish content without touching code.",
+      "Built a comprehensive admin dashboard covering enrolments, revenue tracking, active learner counts, course completion rates, and content moderation — all updated in real time.",
+      "Implemented automatic certificate generation on course completion — PDF certificates with the student's name, course title, and completion date, downloadable and shareable.",
+    ],
+    features: [
+      "Structured multi-week AI/ML curriculum",
+      "Project-based learning — build real things",
+      "Student dashboard + progress tracking",
+      "Portfolio project builder",
+      "Stripe payments — one-time & subscription",
+      "Free-trial access to starter content",
+      "Supabase Auth + JWT + RBAC",
+      "Cloudflare R2 media storage + CDN delivery",
+      "Redis-cached lesson delivery",
+      "Instructor content management panel",
+      "Rich-text lesson editor",
+      "Certificate generation on completion",
+      "Admin analytics dashboard",
+      "SSR-optimised course & landing pages",
+      "SEO-structured course metadata",
+      "Mobile-responsive across all screens",
+    ],
+    results: [
+      "Platform launched and accepting real enrolments within 2 months",
+      "SSR + Cloudflare CDN delivering sub-second course page loads globally",
+      "Stripe integration live — one-time purchases and subscription tiers operational",
+      "PostgreSQL + Redis architecture handling concurrent learner sessions without degradation",
+      "Certificate generation fully automated — no manual intervention required",
+      "SEO-optimised pages ranking for beginner AI / ML search terms",
+      "Instructor panel enabling content updates without any developer involvement",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Jaber Ali", role: "Full Stack Developer" },
+      { name: "Sohail Baloch", role: "Frontend Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
     ],
   },
   {
