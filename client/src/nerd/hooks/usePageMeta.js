@@ -78,11 +78,11 @@ export function usePageMeta({ title, description, path, jsonLd, ogTitle, ogDescr
 
     const id = 'balochdev-page-jsonld';
     document.getElementById(id)?.remove();
-    if (jsonLd) {
+    if (jsonKey) {
       const s = document.createElement('script');
       s.type = 'application/ld+json';
       s.id = id;
-      s.textContent = JSON.stringify(jsonLd);
+      s.textContent = jsonKey;
       document.head.appendChild(s);
     }
 
