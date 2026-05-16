@@ -2547,7 +2547,7 @@ html[data-theme="dark"] .ndx-page-rich .ndx-hero-surface {
 
 .ndx-apps-hero-viz-inner {
   width: 100%;
-  max-width: min(560px, 96vw);
+  max-width: min(720px, 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2555,7 +2555,7 @@ html[data-theme="dark"] .ndx-page-rich .ndx-hero-surface {
 
 .ndx-apps-hero-phone-svg {
   width: 100%;
-  max-width: 520px;
+  max-width: 680px;
   height: auto;
   display: block;
 }
