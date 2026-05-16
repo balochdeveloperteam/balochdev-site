@@ -25,7 +25,32 @@ const PERIM = Math.round(2 * (SQ_W - 2 * RX) + 2 * (SQ_H - 2 * RX) + 2 * Math.PI
 const DASH1 = 200;   // primary light length
 const DASH2 = 90;    // secondary (trailing) light length
 
+/*
+ * Animation strategy — "move, ease, pause, move":
+ *   keyTimes  0 ─────────────── 0.72 ──── 1
+ *   values    PERIM ────────→   0    ────  0   (stays at 0 = pause)
+ *   easing    cubic ease-in-out on the travel segment, instant hold at end
+ *
+ * The light accelerates slowly from rest, reaches full speed mid-path,
+ * then gently brakes to a stop, holds for ~28% of the cycle, then restarts.
+ * Both lights share identical easing — orange is bold, blue is thin.
+ */
+const TRAVEL_STOP = "0.72"; // 72 % of cycle is travel, 28 % is pause
+
 function AnimatedBorderSquare() {
+  const sharedAnimate = (dur: string, begin: string) => (
+    <animate
+      attributeName="stroke-dashoffset"
+      values={`${PERIM};0;0`}
+      keyTimes={`0;${TRAVEL_STOP};1`}
+      keySplines="0.42 0.0 0.58 1.0;0 0 1 1"
+      calcMode="spline"
+      dur={dur}
+      begin={begin}
+      repeatCount="indefinite"
+    />
+  );
+
   return (
     <svg
       aria-hidden
@@ -36,28 +61,30 @@ function AnimatedBorderSquare() {
       preserveAspectRatio="none"
       style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
     >
-      {/* Dim base outline — always visible so the square shape is clear */}
+      {/* Dim static base — shows the full rounded square outline at all times */}
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="var(--ndx-accent)" strokeWidth="1" strokeOpacity="0.14" />
+        stroke="#f97316" strokeWidth="0.8" strokeOpacity="0.12" />
 
-      {/* Primary travelling light — accent colour */}
+      {/* Orange light — bold, thick beam */}
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="var(--ndx-accent)" strokeWidth="3" strokeLinecap="round"
-        strokeDasharray={`${DASH1} ${PERIM - DASH1}`} strokeOpacity="0.75"
+        stroke="#f97316"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeDasharray={`${DASH1} ${PERIM - DASH1}`}
+        strokeOpacity="0.88"
       >
-        <animate attributeName="stroke-dashoffset"
-          from={String(PERIM)} to="0"
-          dur="6s" repeatCount="indefinite" />
+        {sharedAnimate("9s", "0s")}
       </rect>
 
-      {/* Trailing light — cyan/teal, half-period behind */}
+      {/* Blue light — thin, trailing beam, half-cycle offset */}
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="#06b6d4" strokeWidth="1.8" strokeLinecap="round"
-        strokeDasharray={`${DASH2} ${PERIM - DASH2}`} strokeOpacity="0.55"
+        stroke="#3b82f6"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeDasharray={`${DASH2} ${PERIM - DASH2}`}
+        strokeOpacity="0.72"
       >
-        <animate attributeName="stroke-dashoffset"
-          from={String(PERIM)} to="0"
-          dur="6s" begin="-3s" repeatCount="indefinite" />
+        {sharedAnimate("9s", "-4.5s")}
       </rect>
     </svg>
   );
