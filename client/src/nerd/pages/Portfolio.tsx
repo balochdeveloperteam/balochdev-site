@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { usePageMeta } from "../hooks/usePageMeta";
 import projects, { type Project } from "../data/projects";
+import portfolioVideo from "../../assets/BalochDevLogo/portfolio.mp4";
 
 /* ─── Static data ────────────────────────────────────────────────────────── */
 
@@ -256,6 +257,7 @@ export default function PortfolioPage() {
 
         {/* ── Hero panel ───────────────────────────────────────────────── */}
         <div className="ndx-rich-hero">
+          {/* Left — copy */}
           <div className="ndx-rich-hero__copy">
             <motion.h1 className="ndx-h1" initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : 0.55 }}>
               Work we're <em>proud of.</em>
@@ -269,52 +271,70 @@ export default function PortfolioPage() {
             </motion.div>
           </div>
 
-          {/* Right — stats grid */}
-          <motion.div className="ndx-rich-hero__viz" style={{ alignItems: "stretch" }} initial={reduced ? false : { opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : 0.1 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", width: "100%" }}>
-              {[
-                { v: projects.filter((p) => p.live).length + "+", l: "Live projects",    s: "In production today" },
-                { v: "1.5mo",                                      l: "Avg. delivery",   s: "MVP to production" },
-                { v: "3+",                                         l: "Industries",       s: "Hospitality · EdTech · Logistics" },
-                { v: "100%",                                       l: "Client ownership", s: "Code in your repo from day one" },
-              ].map((s) => (
-                <div key={s.l} className="ndx-card" style={{ padding: "1.1rem 0.9rem", textAlign: "center" }}>
-                  <p style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--ndx-accent)", lineHeight: 1, marginBottom: "0.25rem", fontFamily: "var(--ndx-font-sans)" }}>{s.v}</p>
-                  <p style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--ndx-text)", marginBottom: "0.15rem" }}>{s.l}</p>
-                  <p style={{ fontSize: "0.68rem", color: "var(--ndx-muted)", lineHeight: 1.4 }}>{s.s}</p>
-                </div>
-              ))}
-            </div>
+          {/* Right — video */}
+          <motion.div
+            className="ndx-rich-hero__viz"
+            initial={reduced ? false : { opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : 0.1 }}
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              disablePictureInPicture
+              style={{
+                width: "100%",
+                height: "100%",
+                maxHeight: "min(85vh, 760px)",
+                objectFit: "cover",
+                borderRadius: "var(--ndx-radius-lg)",
+                display: "block",
+                pointerEvents: "none",
+              }}
+            >
+              <source src={portfolioVideo} type="video/mp4" />
+            </video>
           </motion.div>
-        </div>
 
-        {/* ── Social proof bar ─────────────────────────────────────────── */}
-        <div
-          style={{
-            marginTop: "2rem",
-            padding: "1rem 1.35rem",
-            borderRadius: "var(--ndx-radius-lg)",
-            border: "1px solid var(--ndx-border)",
-            background: "color-mix(in srgb, var(--ndx-accent) 4%, var(--ndx-bg-elev))",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "1.5rem",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {[
-            { label: "On-time delivery", value: "100%" },
-            { label: "Client code ownership", value: "Day one" },
-            { label: "Post-launch support", value: "Included" },
-            { label: "Avg. build timeline (MVP)", value: "4–6 weeks" },
-            { label: "Infrastructure cost optimised", value: "Always" },
-          ].map((item) => (
-            <div key={item.label} style={{ textAlign: "center", minWidth: 100 }}>
-              <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--ndx-accent)", fontFamily: "var(--ndx-font-sans)", marginBottom: "0.15rem" }}>{item.value}</p>
-              <p style={{ fontSize: "0.72rem", color: "var(--ndx-muted)", letterSpacing: "0.03em" }}>{item.label}</p>
-            </div>
-          ))}
+          {/* Bottom stats row — spans both columns */}
+          <motion.div
+            style={{
+              gridColumn: "1 / -1",
+              borderTop: "1px solid var(--ndx-border)",
+              paddingTop: "1.25rem",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0",
+            }}
+            initial={reduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : 0.22 }}
+          >
+            {[
+              { v: projects.filter((p) => p.live).length + "+", l: "Live projects",    s: "In production today" },
+              { v: "1.5mo",                                      l: "Avg. delivery",   s: "MVP to production" },
+              { v: "3+",                                         l: "Industries",       s: "Hospitality · EdTech · Logistics" },
+              { v: "100%",                                       l: "Client ownership", s: "Code in your repo from day one" },
+            ].map((stat, i, arr) => (
+              <div
+                key={stat.l}
+                style={{
+                  flex: "1 1 140px",
+                  textAlign: "center",
+                  padding: "0 1rem 0.25rem",
+                  borderRight: i < arr.length - 1 ? "1px solid var(--ndx-border)" : "none",
+                }}
+              >
+                <p style={{ fontSize: "1.85rem", fontWeight: 800, color: "var(--ndx-accent)", lineHeight: 1, marginBottom: "0.2rem", fontFamily: "var(--ndx-font-sans)" }}>
+                  {stat.v}
+                </p>
+                <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--ndx-text)", marginBottom: "0.15rem" }}>{stat.l}</p>
+                <p style={{ fontSize: "0.7rem", color: "var(--ndx-muted)", lineHeight: 1.4 }}>{stat.s}</p>
+              </div>
+            ))}
+          </motion.div>
         </div>
 
         {/* ── Filter + project grid ────────────────────────────────────── */}
