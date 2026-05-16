@@ -1,10 +1,10 @@
-import mango1 from "../../assets/projects/ManGo/1.png";
-import mango2 from "../../assets/projects/ManGo/2.png";
-import mango3 from "../../assets/projects/ManGo/3.png";
-import toy1 from "../../assets/projects/TheoryOfYou/4-j.png";
-import toy2 from "../../assets/projects/TheoryOfYou/5-j.png";
-import toy3 from "../../assets/projects/TheoryOfYou/6-j.png";
-import toy4 from "../../assets/projects/TheoryOfYou/7-j.png";
+import mango1 from "../../assets/Projects/ManGo/1.png";
+import mango2 from "../../assets/Projects/ManGo/2.png";
+import mango3 from "../../assets/Projects/ManGo/3.png";
+import toy1 from "../../assets/Projects/TheoryOfYou/4-j.png";
+import toy2 from "../../assets/Projects/TheoryOfYou/5-j.png";
+import toy3 from "../../assets/Projects/TheoryOfYou/6-j.png";
+import toy4 from "../../assets/Projects/TheoryOfYou/7-j.png";
 
 export interface ProjectTeamMember {
   name: string;
