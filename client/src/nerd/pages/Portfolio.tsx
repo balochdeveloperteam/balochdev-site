@@ -124,35 +124,34 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
           </div>
         )}
 
-        {/* Category badge */}
-        <span style={{
-          position: "absolute", top: "0.65rem", left: "0.65rem",
-          fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
-          background: "color-mix(in srgb, var(--ndx-bg) 85%, transparent)",
-          backdropFilter: "blur(8px)", border: "1px solid var(--ndx-border)",
-          borderRadius: 999, padding: "0.2rem 0.6rem",
-          color: "var(--ndx-accent)", fontFamily: "var(--ndx-font-mono)",
-        }}>
-          {catLabel[p.category]}
-        </span>
-
-        {p.live && (
-          <span style={{
-            position: "absolute", top: "0.65rem", right: "0.65rem",
-            fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-            background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.35)",
-            borderRadius: 999, padding: "0.2rem 0.6rem", color: "#22c55e",
-            fontFamily: "var(--ndx-font-mono)", display: "flex", alignItems: "center", gap: "0.3rem",
-          }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", flexShrink: 0 }} />
-            Live
-          </span>
-        )}
       </div>
 
       {/* Body */}
-      <div style={{ padding: "1rem 1.1rem 1.2rem", flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.55rem" }}>
+      <div style={{ padding: "0.85rem 1.1rem 1.2rem", flex: 1, display: "flex", flexDirection: "column" }}>
+
+        {/* Badges row — below the image, no overlap */}
+        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.6rem", alignItems: "center" }}>
+          <span style={{
+            fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+            border: "1px solid var(--ndx-border)", borderRadius: 999,
+            padding: "0.2rem 0.6rem", color: "var(--ndx-accent)", fontFamily: "var(--ndx-font-mono)",
+          }}>
+            {catLabel[p.category]}
+          </span>
+          {p.live && (
+            <span style={{
+              fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+              background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.35)",
+              borderRadius: 999, padding: "0.2rem 0.6rem", color: "#22c55e",
+              fontFamily: "var(--ndx-font-mono)", display: "flex", alignItems: "center", gap: "0.3rem",
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", flexShrink: 0 }} />
+              Live
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.4rem" }}>
           <span style={{ fontSize: "0.68rem", color: "var(--ndx-muted)", fontFamily: "var(--ndx-font-mono)", letterSpacing: "0.04em" }}>
             {p.industry}
           </span>

@@ -65,10 +65,10 @@ function AnimatedBorderSquare() {
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
         stroke="#f97316" strokeWidth="0.8" strokeOpacity="0.12" />
 
-      {/* Orange light — bold, thick beam */}
+      {/* Orange light — primary beam */}
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
         stroke="#f97316"
-        strokeWidth="3.5"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeDasharray={`${DASH1} ${PERIM - DASH1}`}
         strokeOpacity="0.88"
@@ -76,13 +76,13 @@ function AnimatedBorderSquare() {
         {sharedAnimate("9s", "0s")}
       </rect>
 
-      {/* Blue light — thin, trailing beam, half-cycle offset */}
+      {/* Blue light — trailing beam, half-cycle offset */}
       <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
         stroke="#3b82f6"
-        strokeWidth="1.6"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeDasharray={`${DASH2} ${PERIM - DASH2}`}
-        strokeOpacity="0.72"
+        strokeOpacity="0.82"
       >
         {sharedAnimate("9s", "-4.5s")}
       </rect>
@@ -99,14 +99,59 @@ function Carousel({ images }: { images: string[] }) {
 
   return (
     /*
-     * Outer wrapper carries the animated border square as its background.
-     * Padding shrinks the inner carousel so the animated border is visible
-     * as a frame around the image.
+     * Outer wrapper: padding of 18px top/bottom, 56px left/right.
+     * The extra horizontal padding creates a zone where the prev/next
+     * buttons live — completely outside the image area.
+     * The animated border fills inset:0 (the full outer wrapper).
      */
-    <div style={{ position: "relative", padding: "18px" }}>
+    <div style={{ position: "relative", padding: "18px 56px" }}>
       <AnimatedBorderSquare />
 
-      {/* Carousel shell — no border (the animated square acts as the frame) */}
+      {/* Prev / Next — outside the image, in the horizontal padding zone */}
+      {images.length > 1 &&
+        ([
+          { fn: prev, side: "left" as const, label: "Previous", icon: "‹" },
+          { fn: next, side: "right" as const, label: "Next", icon: "›" },
+        ] as const).map(({ fn, side, label, icon }) => (
+          <button
+            key={side}
+            type="button"
+            onClick={fn}
+            aria-label={`${label} screenshot`}
+            style={{
+              position: "absolute",
+              [side]: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              border: "1px solid var(--ndx-border)",
+              background: "var(--ndx-bg-elev)",
+              color: "var(--ndx-text)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.2rem",
+              zIndex: 3,
+              lineHeight: 1,
+              transition: "background 0.18s, transform 0.18s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--ndx-bg)";
+              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-50%) scale(1.08)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--ndx-bg-elev)";
+              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-50%) scale(1)";
+            }}
+          >
+            {icon}
+          </button>
+        ))}
+
+      {/* Carousel shell — image only, no overlapping buttons */}
       <div
         style={{
           position: "relative",
@@ -134,63 +179,10 @@ function Carousel({ images }: { images: string[] }) {
               src={src}
               alt={`Screenshot ${i + 1}`}
               loading={i === 0 ? "eager" : "lazy"}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-              }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
           </div>
         ))}
-
-        {/* Prev / Next arrows */}
-        {images.length > 1 && (
-          <>
-            {[
-              { fn: prev, side: "left", label: "Previous", icon: "‹" },
-              { fn: next, side: "right", label: "Next", icon: "›" },
-            ].map(({ fn, side, label, icon }) => (
-              <button
-                key={side}
-                type="button"
-                onClick={fn}
-                aria-label={`${label} screenshot`}
-                style={{
-                  position: "absolute",
-                  [side]: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 38,
-                  height: 38,
-                  borderRadius: "50%",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.7)",
-                  backdropFilter: "blur(6px)",
-                  color: "#1e293b",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.25rem",
-                  zIndex: 3,
-                  lineHeight: 1,
-                  transition: "background 0.18s, transform 0.18s",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.95)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = `translateY(-50%) scale(1.07)`;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.7)";
-                  (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-50%) scale(1)";
-                }}
-              >
-                {icon}
-              </button>
-            ))}
-          </>
-        )}
 
         {/* Dot indicators */}
         {images.length > 1 && (
