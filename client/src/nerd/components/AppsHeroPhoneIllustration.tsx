@@ -12,8 +12,6 @@ export default function AppsHeroPhoneIllustration() {
       style={{
         width: "100%",
         height: "auto",
-        maxHeight: "480px",
-        objectFit: "contain",
         display: "block",
       }}
     />

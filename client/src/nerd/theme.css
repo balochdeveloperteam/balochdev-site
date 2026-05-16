@@ -2547,19 +2547,15 @@ html[data-theme="dark"] .ndx-page-rich .ndx-hero-surface {
 
 .ndx-apps-hero-viz-inner {
   width: 100%;
-  max-width: min(420px, 92vw);
+  max-width: min(560px, 96vw);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 1.25rem;
-  border: 1px solid var(--ndx-border);
-  background: color-mix(in srgb, var(--ndx-surface) 50%, transparent);
-  padding: 1.25rem 1rem 1.5rem;
 }
 
 .ndx-apps-hero-phone-svg {
   width: 100%;
-  max-width: 340px;
+  max-width: 520px;
   height: auto;
   display: block;
 }
