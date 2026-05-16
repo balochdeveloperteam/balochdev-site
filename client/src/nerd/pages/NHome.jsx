@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import VantaNetBackground from '../components/home/VantaNetBackground';
 import PartnerBrandsGrid from '../components/PartnerBrandsGrid';
+import Seo from '../seo/Seo';
+import { organizationJsonLd } from '../seo/siteSeo';
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -201,16 +203,21 @@ function MarqueeRow({ reverse, icons, labels }) {
 export default function NHome() {
   const reducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => {
-    document.title = 'BalochDev — AI-first software & Balochi language technology';
-  }, []);
-
   const r1Labels = ['React', 'TypeScript', 'Node', 'Python', 'Flutter', 'Docker', 'Postgres', 'Mongo', 'WebGPU', 'Tailwind'];
   const r2Labels = ['RAG', 'Agents', 'Code', 'Edge', 'Data', 'Bots', 'Plugins', 'Analytics', 'DevOps', 'UI'];
   const r3Labels = ['Vue', 'GCP', 'Linux', 'Flow', 'Graph', 'React', 'HTML5', 'CSS', 'JS', 'Git'];
 
   return (
     <div className="ndx-home">
+      <Seo
+        title="BalochDev — AI-first software & Balochi language technology"
+        description={
+          'We design and ship AI-native products, multilingual experiences, and cloud-ready platforms. ' +
+          'One team, clear communication, production patterns borrowed from the best global products.'
+        }
+        canonicalPath="/"
+        jsonLd={organizationJsonLd}
+      />
       <section className="ndx-home-hero">
         <div className="ndx-home-vanta-scale">
           <div className="ndx-home-vanta-scale__inner">

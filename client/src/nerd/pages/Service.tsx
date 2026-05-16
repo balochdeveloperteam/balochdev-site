@@ -2,8 +2,9 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import type { IconType } from "react-icons";
-import { usePageMeta } from "../hooks/usePageMeta";
 import { useDataTheme } from "../hooks/useDataTheme";
+import Seo from "../seo/Seo";
+import { SITE_URL } from "../seo/siteSeo";
 import logoBlack from "../../assets/BalochDevLogo/logo_black.svg";
 import logoWhite from "../../assets/BalochDevLogo/logo_white.svg";
 import logoOrange from "../../assets/BalochDevLogo/logo_orange.svg";
@@ -872,8 +873,11 @@ function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }
 
 export default function ServicesPage() {
   const reduced = useReducedMotion();
+  const servicesTitle = "BalochDev — Web, mobile & AI product development";
+  const servicesDesc =
+    "Seventeen scoped offerings: AI agents, RAG, voice, web, Android, SaaS, e-commerce, automation, integrations, UX/UI. Weekly demos, clear handoff, maintenance options.";
+
   const jsonLd = useMemo(() => {
-    const baseUrl = "https://balochdev.com";
     let position = 0;
     const itemListElements = practices.flatMap((practice) =>
       practice.services.map((svc) => {
@@ -885,7 +889,7 @@ export default function ServicesPage() {
             "@type": "Service",
             name: svc.title,
             description: svc.desc,
-            provider: { "@type": "Organization", name: "BalochDev", url: baseUrl },
+            provider: { "@type": "Organization", name: "BalochDev", url: SITE_URL },
           },
         };
       }),
@@ -895,15 +899,15 @@ export default function ServicesPage() {
       "@graph": [
         {
           "@type": "WebPage",
-          "@id": `${baseUrl}/services#webpage`,
+          "@id": `${SITE_URL}/services#webpage`,
           name: "BalochDev — Web, mobile & AI product development",
           description:
             "Seventeen delivery areas across AI, build, automation, and design: web, Android, SaaS, e-commerce, agents, RAG, workflows, integrations, and UX. Discovery, milestones, handoff.",
-          url: `${baseUrl}/services`,
+          url: `${SITE_URL}/services`,
         },
         {
           "@type": "ItemList",
-          "@id": `${baseUrl}/services#itemlist`,
+          "@id": `${SITE_URL}/services#itemlist`,
           name: "BalochDev delivery areas",
           itemListElement: itemListElements,
         },
@@ -911,21 +915,10 @@ export default function ServicesPage() {
     };
   }, []);
 
-  usePageMeta({
-    title: "BalochDev — Web, mobile & AI product development",
-    description:
-      "Seventeen scoped offerings: AI agents, RAG, voice, web, Android, SaaS, e-commerce, automation, integrations, UX/UI. Weekly demos, clear handoff, maintenance options.",
-    path: "/services",
-    jsonLd,
-    ogTitle: "BalochDev — Web, mobile & AI product development",
-    ogDescription:
-      "Seventeen scoped offerings: AI agents, RAG, voice, web, Android, SaaS, e-commerce, automation, integrations, UX/UI. Weekly demos, clear handoff, maintenance options.",
-    ogImage: "https://placehold.co/1200x630/6366f1/ffffff/png?text=BalochDev+Services",
-    ogUrl: "https://balochdev.com/services",
-  });
-
   return (
     <section className="ndx-section ndx-page-rich" style={{ paddingTop: "1.65rem" }}>
+      <Seo title={servicesTitle} description={servicesDesc} canonicalPath="/services" jsonLd={jsonLd} />
+
       <div className="ndx-container">
         <motion.div
           className="ndx-rich-pill ndx-rich-pill--minimal"

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 import { apiUrl } from '../../lib/api';
+import Seo from '../seo/Seo';
 
 export default function NBlogPost() {
   const { slug } = useParams();
@@ -14,9 +15,12 @@ export default function NBlogPost() {
       .catch(() => setPost(null));
   }, [slug]);
 
-  useEffect(() => {
-    if (post?.title) document.title = `${post.title} — BalochDev`;
-  }, [post]);
+  const metaDescription =
+    post && typeof post.excerpt === 'string' && post.excerpt.trim()
+      ? post.excerpt.replace(/<[^>]*>/g, '').trim().slice(0, 280)
+      : post
+        ? `Notes from BalochDev on ${post.title}.`
+        : '';
 
   if (!post) {
     return (
@@ -35,6 +39,12 @@ export default function NBlogPost() {
 
   return (
     <article className="ndx-section" style={{ paddingTop: '3rem' }}>
+      <Seo
+        title={`${post.title} — BalochDev`}
+        description={metaDescription}
+        canonicalPath={`/blog/${slug}`}
+        type="article"
+      />
       <div className="ndx-container" style={{ maxWidth: '720px' }}>
         <p className="ndx-eyebrow">Blog</p>
         <h1 className="ndx-h1" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}>
