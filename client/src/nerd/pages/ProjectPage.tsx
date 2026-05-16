@@ -564,6 +564,7 @@ export default function ProjectPage() {
             {[
               { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
               { name: "Shees Baloch", role: "Mobile & Backend Developer" },
+              { name: "Jaber Ali", role: "Full Stack Developer" },
               { name: "Sohail Baloch", role: "Frontend Developer" },
               { name: "Shams Baloch", role: "UI / UX Design" },
             ].map((m) => (
