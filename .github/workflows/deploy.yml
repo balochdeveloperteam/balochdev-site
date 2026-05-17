@@ -58,7 +58,7 @@ jobs:
 
       # If this exits non‑zero (including prerender/playwright failures), deployment never runs.
       - name: Production build + prerender
-        run: npm run prerender
+        run: npm run prerender && npm run seo:files
 
       - name: Verify dist artifact
         run: test -f dist/index.html
