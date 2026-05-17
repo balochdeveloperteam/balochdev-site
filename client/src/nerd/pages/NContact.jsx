@@ -1,7 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import Seo from '../seo/Seo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../seo/seoFromData';
+
 import { apiUrl } from '../../lib/api';
+
+const CONTACT_SEO = STATIC_PUBLIC_PAGES_SEO['/contact'];
 
 const inputStyle = {
   padding: '0.85rem 1rem',
@@ -16,12 +22,11 @@ export default function NContact() {
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
 
-  useEffect(() => {
-    document.title = 'Contact us — BalochDev';
-  }, []);
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(CONTACT_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(CONTACT_SEO.metaDescription), []);
 
   const onSubmit = async (e) => {
-    e.preventDefault();
     setErr(null);
     const fd = new FormData(e.target);
     try {
@@ -46,7 +51,9 @@ export default function NContact() {
   };
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo title={seoTitle} description={seoDescription} canonicalPath={CONTACT_SEO.canonicalPath} />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '560px' }}>
         <p className="ndx-eyebrow">Contact</p>
         <h1 className="ndx-h1">
@@ -93,5 +100,6 @@ export default function NContact() {
         )}
       </div>
     </section>
+    </>
   );
 }

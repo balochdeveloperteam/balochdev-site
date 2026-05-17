@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Seo from '../seo/Seo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../seo/seoFromData';
 import { apiUrl } from '../../lib/api';
+
+const PROPOSAL_SEO = STATIC_PUBLIC_PAGES_SEO['/proposal'];
 
 const inputStyle = {
   padding: '0.85rem 1rem',
@@ -15,12 +20,11 @@ export default function NProposal() {
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
 
-  useEffect(() => {
-    document.title = 'Project proposal — BalochDev';
-  }, []);
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(PROPOSAL_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(PROPOSAL_SEO.metaDescription), []);
 
   const onSubmit = async (e) => {
-    e.preventDefault();
     setErr(null);
     const fd = new FormData(e.target);
     try {
@@ -47,7 +51,9 @@ export default function NProposal() {
   };
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo title={seoTitle} description={seoDescription} canonicalPath={PROPOSAL_SEO.canonicalPath} />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '640px' }}>
         <p className="ndx-eyebrow">Proposal</p>
         <h1 className="ndx-h1">
@@ -101,5 +107,6 @@ export default function NProposal() {
         )}
       </div>
     </section>
+    </>
   );
 }

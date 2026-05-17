@@ -1,13 +1,19 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import Seo from '../../seo/Seo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../../seo/seoFromData';
+
+const REFUND_SEO = STATIC_PUBLIC_PAGES_SEO['/refund'];
+
 export default function NRefund() {
-  useEffect(() => {
-    document.title = 'Refund policy — BalochDev';
-  }, []);
+  const title = metaTitleFromPublicBrief(REFUND_SEO.metaTitle);
+  const description = capDescription(REFUND_SEO.metaDescription);
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo title={title} description={description} canonicalPath={REFUND_SEO.canonicalPath} />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '720px' }}>
         <p className="ndx-eyebrow">Legal</p>
         <h1 className="ndx-h1">Refund policy</h1>
@@ -44,5 +50,6 @@ export default function NRefund() {
         </Link>
       </div>
     </section>
+    </>
   );
 }

@@ -13,7 +13,10 @@ import {
   TbPackages,
   TbPalette,
 } from "react-icons/tb";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { SITE_URL } from "../seo/siteSeo";
+import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
+import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import { useDataTheme } from "../hooks/useDataTheme";
 import { useLiteMotionProfile } from "../hooks/useLiteMotionProfile";
 import logoBlack from "../../assets/BalochDevLogo/logo_black.svg";
@@ -30,6 +33,8 @@ import { stackToolLandingPath } from "../data/stackLandings";
 import { selectedWorkTeasers } from "../data/selectedWorkTeasers";
 import PartnerBrandsGrid from "../components/PartnerBrandsGrid";
 import RichSectionIntro from "../components/RichSectionIntro";
+
+const TECH_INDEX_SEO = STATIC_PUBLIC_PAGES_SEO["/technologies"];
 
 type TechItem = {
   iconKey: string;
@@ -460,21 +465,24 @@ export default function TechnologiesPage() {
     ];
   }, [groups, totalTools, disciplineCount]);
 
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(TECH_INDEX_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(TECH_INDEX_SEO.metaDescription), []);
+
   const jsonLd = useMemo(
     () => ({
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "WebPage",
-          "@id": "https://balochdev.com/technologies#webpage",
-          name: "Technologies — BalochDev",
-          description:
-            "BalochDev technology stack: AI models including OpenAI, Anthropic, Gemini, Groq, and Grok — paired with React, Next.js, Flutter, Supabase, Postgres, automation (n8n, Make, Apps Script), and deploy targets such as Vercel and Cloudflare.",
-          url: "https://balochdev.com/technologies",
+          "@id": `${SITE_URL}/technologies#webpage`,
+          name: seoTitle,
+          description: seoDescription,
+          url: `${SITE_URL}${TECH_INDEX_SEO.canonicalPath}`,
         },
         {
           "@type": "FAQPage",
-          "@id": "https://balochdev.com/technologies#faq",
+          "@id": `${SITE_URL}/technologies#faq`,
           mainEntity: faqItems.map((item) => ({
             "@type": "Question",
             name: item.q,
@@ -486,30 +494,18 @@ export default function TechnologiesPage() {
         },
       ],
     }),
-    [faqItems],
+    [faqItems, seoTitle, seoDescription],
   );
 
-  usePageMeta({
-    title: "Technologies — BalochDev",
-    description:
-      "BalochDev stack: frontier AI APIs, React and Next.js, Flutter, Supabase and Firebase, automation, and production deploy patterns — curated for real client work.",
-    path: "/technologies",
-    keywords: [
-      "web development stack",
-      "React developers",
-      "Next.js agency",
-      "AI integration",
-      "OpenAI API",
-      "Supabase Postgres",
-      "Flutter app development",
-      "DevOps CI/CD",
-      "technology consulting",
-    ],
-    jsonLd,
-  });
-
   return (
-    <section className="ndx-section ndx-page-rich ndx-page-rich--technologies">
+    <>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={TECH_INDEX_SEO.canonicalPath}
+        jsonLd={jsonLd}
+      />
+      <section className="ndx-section ndx-page-rich ndx-page-rich--technologies">
       <div className="ndx-container">
         <motion.div
           className="ndx-rich-pill ndx-rich-pill--minimal"
@@ -820,5 +816,6 @@ export default function TechnologiesPage() {
         </div>
       </div>
     </section>
+    </>
   );
 }

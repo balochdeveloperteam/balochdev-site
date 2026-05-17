@@ -1,7 +1,12 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { aboutPageJsonLd } from "../seo/siteSeo";
+import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
+import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
+
+const ABOUT_SEO = STATIC_PUBLIC_PAGES_SEO["/about"];
 
 /* ─── Data ──────────────────────────────────────────────────────────────── */
 
@@ -234,33 +239,24 @@ function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }
 export default function AboutPage() {
   const reduced = useReducedMotion();
 
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(ABOUT_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(ABOUT_SEO.metaDescription), []);
+
   const jsonLd = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      name: "About BalochDev",
-      description:
-        "BalochDev is a product and services team advancing Balochi language technology alongside international web, mobile, and AI delivery.",
-      url: "https://balochdev.com/about",
-      mainEntity: {
-        "@type": "Organization",
-        name: "BalochDev",
-        description: "AI-first software studio and Balochi language technology partner.",
-      },
-    }),
-    [],
+    () => aboutPageJsonLd({ headline: seoTitle, description: seoDescription }),
+    [seoTitle, seoDescription],
   );
 
-  usePageMeta({
-    title: "About us — BalochDev",
-    description:
-      "BalochDev: product and services team advancing Balochi language tech alongside international web, mobile, and AI delivery — weekly demos, clear milestones, secure hosting.",
-    path: "/about",
-    jsonLd,
-  });
-
   return (
-    <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3rem" }}>
+    <>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={ABOUT_SEO.canonicalPath}
+        jsonLd={jsonLd}
+      />
+      <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3rem" }}>
       <div className="ndx-container">
 
         {/* ── Eyebrow pill ─────────────────────────────────────────────── */}
@@ -677,5 +673,6 @@ export default function AboutPage() {
 
       </div>
     </section>
+    </>
   );
 }

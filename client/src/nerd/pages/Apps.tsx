@@ -11,32 +11,19 @@ import {
   TbShieldCheck,
   TbBolt,
 } from "react-icons/tb";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { ORGANIZATION_GRAPH_ID, SITE_URL } from "../seo/siteSeo";
+import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
+import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import RichSectionIntro from "../components/RichSectionIntro";
 import AppsHeroPhoneIllustration from "../components/AppsHeroPhoneIllustration";
 import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 import { stackToolLandingPath } from "../data/stackLandings";
 
-const BASE_URL = "https://balochdev.com";
+const APPS_INDEX_SEO = STATIC_PUBLIC_PAGES_SEO["/apps"];
 
 const PATH_FLUTTER = stackToolLandingPath("frontend", "flutter") ?? "/technologies";
 const PATH_RN = stackToolLandingPath("frontend", "react_native") ?? "/technologies";
-
-const KEYWORDS = [
-  "mobile app development services",
-  "Android app development Kotlin",
-  "iOS app development Swift SwiftUI",
-  "Flutter app development company",
-  "React Native development agency",
-  "cross platform mobile app developers",
-  "affordable mobile app development",
-  "cheap app development service",
-  "hire Kotlin Android developers",
-  "Jetpack Compose app development",
-  "App Store Play Store release",
-  "mobile MVP development",
-  "BalochDev mobile apps",
-];
 
 const heroStats = [
   { label: "Founded", value: "2024" },
@@ -266,8 +253,12 @@ function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }
 export default function AppsPage() {
   const reduced = useReducedMotion();
 
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(APPS_INDEX_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(APPS_INDEX_SEO.metaDescription), []);
+
   const jsonLd = useMemo(() => {
-    const pageUrl = `${BASE_URL}/apps`;
+    const pageUrl = `${SITE_URL}${APPS_INDEX_SEO.canonicalPath}`;
     return {
       "@context": "https://schema.org",
       "@graph": [
@@ -275,20 +266,19 @@ export default function AppsPage() {
           "@type": "WebPage",
           "@id": `${pageUrl}#webpage`,
           url: pageUrl,
-          name: "Mobile app development — Android, iOS, Flutter, React Native | BalochDev",
-          description:
-            "Mobile app development: Kotlin, Swift, Flutter, React Native, store releases, and APIs — scoped milestones from BalochDev.",
-          isPartOf: { "@type": "WebSite", url: BASE_URL },
+          name: seoTitle,
+          description: seoDescription,
+          isPartOf: { "@type": "WebSite", url: SITE_URL },
         },
         {
           "@type": "ProfessionalService",
           "@id": `${pageUrl}#service`,
-          name: "BalochDev mobile app development",
-          description: "Android, iOS, Flutter, and React Native apps with store submissions and backend integration.",
+          name: seoTitle.replace(/\s\|\sBalochDev$/u, '').trim(),
+          description: seoDescription,
           url: pageUrl,
           serviceType: "Mobile application development",
           areaServed: "Worldwide",
-          provider: { "@type": "Organization", name: "BalochDev", url: BASE_URL },
+          provider: { "@id": ORGANIZATION_GRAPH_ID },
         },
         {
           "@type": "FAQPage",
@@ -300,23 +290,17 @@ export default function AppsPage() {
         },
       ],
     };
-  }, []);
-
-  usePageMeta({
-    title: "Mobile app development — Android, iOS, Flutter & React Native | BalochDev",
-    description:
-      "Hire BalochDev for mobile apps: Kotlin & Jetpack Compose, Swift & SwiftUI, Flutter, React Native, Play and App Store releases, and APIs your clients rely on. Clear phases and pricing bands.",
-    path: "/apps",
-    keywords: KEYWORDS,
-    jsonLd,
-    ogTitle: "BalochDev — mobile app development (Android, iOS, Flutter, RN)",
-    ogDescription:
-      "Ship native or cross-platform mobile products with a team that handles stores, APIs, and post-launch care.",
-    ogUrl: `${BASE_URL}/apps`,
-  });
+  }, [seoTitle, seoDescription]);
 
   return (
-    <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "2.5rem" }}>
+    <>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={APPS_INDEX_SEO.canonicalPath}
+        jsonLd={jsonLd}
+      />
+      <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "2.5rem" }}>
       <div className="ndx-container">
         <motion.div
           className="ndx-rich-pill ndx-rich-pill--minimal"
@@ -669,5 +653,6 @@ export default function AppsPage() {
         </div>
       </div>
     </section>
+    </>
   );
 }

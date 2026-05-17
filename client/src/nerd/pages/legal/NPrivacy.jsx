@@ -1,13 +1,19 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import Seo from '../../seo/Seo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../../seo/seoFromData';
+
+const PRIVACY_SEO = STATIC_PUBLIC_PAGES_SEO['/privacy'];
+
 export default function NPrivacy() {
-  useEffect(() => {
-    document.title = 'Privacy policy — BalochDev';
-  }, []);
+  const title = metaTitleFromPublicBrief(PRIVACY_SEO.metaTitle);
+  const description = capDescription(PRIVACY_SEO.metaDescription);
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo title={title} description={description} canonicalPath={PRIVACY_SEO.canonicalPath} />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '720px' }}>
         <p className="ndx-eyebrow">Legal</p>
         <h1 className="ndx-h1">Privacy policy</h1>
@@ -45,5 +51,6 @@ export default function NPrivacy() {
         </Link>
       </div>
     </section>
+    </>
   );
 }

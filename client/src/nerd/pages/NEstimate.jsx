@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Seo from '../seo/Seo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../seo/seoFromData';
 import { apiUrl } from '../../lib/api';
+
+const ESTIMATE_SEO = STATIC_PUBLIC_PAGES_SEO['/estimate'];
 
 const inputStyle = {
   padding: '0.85rem 1rem',
@@ -15,12 +20,11 @@ export default function NEstimate() {
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
 
-  useEffect(() => {
-    document.title = 'AI estimate — BalochDev';
-  }, []);
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(ESTIMATE_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(ESTIMATE_SEO.metaDescription), []);
 
   const onSubmit = async (e) => {
-    e.preventDefault();
     setErr(null);
     const fd = new FormData(e.target);
     try {
@@ -47,7 +51,9 @@ export default function NEstimate() {
   };
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo title={seoTitle} description={seoDescription} canonicalPath={ESTIMATE_SEO.canonicalPath} />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '560px' }}>
         <p className="ndx-eyebrow">AI estimate</p>
         <h1 className="ndx-h1">
@@ -100,5 +106,6 @@ export default function NEstimate() {
         )}
       </div>
     </section>
+    </>
   );
 }

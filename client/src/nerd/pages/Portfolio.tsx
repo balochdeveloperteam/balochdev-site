@@ -1,7 +1,10 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { ORGANIZATION_GRAPH_ID, SITE_URL } from "../seo/siteSeo";
+import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
+import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import projects, { type Project } from "../data/projects";
 import portfolioVideo from "../../assets/BalochDevLogo/portfolio.mp4";
 
@@ -13,6 +16,8 @@ const filters = [
   { id: "partner",   label: "Partner" },
   { id: "balochdev", label: "BalochDev" },
 ] as const;
+
+const PORT_SEO = STATIC_PUBLIC_PAGES_SEO["/portfolio"];
 
 const catLabel: Record<Project["category"], string> = {
   client:    "Client delivery",
@@ -219,29 +224,31 @@ export default function PortfolioPage() {
     [active],
   );
 
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(PORT_SEO.metaTitle), []);
+
+  const seoDescription = useMemo(() => capDescription(PORT_SEO.metaDescription), []);
+
   const jsonLd = useMemo(
     () => ({
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      name: "Portfolio — BalochDev",
-      description:
-        "BalochDev project portfolio: client delivery, partner language technology initiatives, and internal BalochDev products. Real case studies with real results.",
-      url: "https://balochdev.com/portfolio",
-      author: { "@type": "Organization", name: "BalochDev" },
+      name: seoTitle,
+      description: seoDescription,
+      url: `${SITE_URL}${PORT_SEO.canonicalPath}`,
+      author: { "@id": ORGANIZATION_GRAPH_ID },
     }),
-    [],
+    [seoTitle, seoDescription],
   );
 
-  usePageMeta({
-    title: "Portfolio — BalochDev",
-    description:
-      "Explore BalochDev's shipped projects: restaurant management systems, mobile apps, e-commerce platforms, and Balochi language technology. Real case studies with measurable outcomes.",
-    path: "/portfolio",
-    jsonLd,
-  });
-
   return (
-    <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3rem" }}>
+    <>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={PORT_SEO.canonicalPath}
+        jsonLd={jsonLd}
+      />
+      <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3rem" }}>
       <div className="ndx-container">
 
         {/* ── Eyebrow ─────────────────────────────────────────────────── */}
@@ -512,5 +519,6 @@ export default function PortfolioPage() {
 
       </div>
     </section>
+    </>
   );
 }

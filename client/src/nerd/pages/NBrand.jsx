@@ -1,11 +1,17 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-/** Official public origin — used in copy and schema.org data (SPA-safe, not tied to local preview). */
-const CANON_ORIGIN = 'https://balochdev.com'.replace(/\/+$/, '');
-const BASE = import.meta.env.BASE_URL || '/';
+import Seo from '../seo/Seo';
+import { SITE_URL } from '../seo/siteSeo';
+import { STATIC_PUBLIC_PAGES_SEO } from '../seo/staticPublicPagesSeo.js';
+import { capDescription, metaTitleFromPublicBrief } from '../seo/seoFromData';
+
+const BRAND_META = STATIC_PUBLIC_PAGES_SEO['/brand'];
 
 /** Same-origin paths for downloads and in-app links. */
+const BASE = import.meta.env.BASE_URL || '/';
+
+/** Absolute URLs cited on this page for partners, citations, and tools. Production: balochdev.com. */
 function relBrand(u) {
   return `${BASE}brand/${u.replace(/^\//, '')}`;
 }
@@ -14,11 +20,11 @@ function relBrand(u) {
 function absoluteBrand(u) {
   const path = `/brand/${u.replace(/^\//, '')}`;
   const basePath = BASE === '/' ? '' : BASE.replace(/\/?$/, '');
-  return `${CANON_ORIGIN}${basePath}${path}`;
+  return `${SITE_URL}${basePath}${path}`;
 }
 
 const BRAND_ABS = {
-  page: `${CANON_ORIGIN}/brand`,
+  page: `${SITE_URL}/brand`,
   kitJson: absoluteBrand('brand-kit.json'),
   logoBlack: absoluteBrand('logo-black.svg'),
   logoWhite: absoluteBrand('logo-white.svg'),
@@ -27,56 +33,24 @@ const BRAND_ABS = {
 };
 
 export default function NBrand() {
-  useEffect(() => {
-    const JSON_LD = {
+  const seoTitle = useMemo(() => metaTitleFromPublicBrief(BRAND_META.metaTitle), []);
+  const seoDescription = useMemo(() => capDescription(BRAND_META.metaDescription), []);
+
+  const brandJsonLd = useMemo(
+    () => ({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'BalochDev',
       alternateName: ['Baloch Dev', 'balochdev'],
-      url: `${CANON_ORIGIN}/`,
+      url: `${SITE_URL}/`,
       description:
         'BalochDev — AI-first software and Balochi language technology. Official visuals and attribution: balochdev.com.',
       logo: [BRAND_ABS.logoBlack, BRAND_ABS.logoWhite, BRAND_ABS.logoOrange, BRAND_ABS.favicon],
       email: 'team@balochdev.com',
       sameAs: [],
-    };
-
-    document.title = 'Brand guidelines — BalochDev';
-    const metaDescription =
-      'Official BalochDev brand guidelines — logo SVGs, colour palette, typography, and brand-kit.json at balochdev.com.';
-    const metaEl = document.querySelector('meta[name="description"]');
-    let prevDesc;
-    if (metaEl) {
-      prevDesc = metaEl.getAttribute('content');
-      metaEl.setAttribute('content', metaDescription);
-    }
-
-    const canonical = BRAND_ABS.page;
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-brand-jsonld', '1');
-    script.textContent = JSON.stringify(JSON_LD);
-    document.head.appendChild(script);
-
-    let linkCanon = document.querySelector('link[rel="canonical"]');
-    let createdCanon;
-    if (!linkCanon) {
-      linkCanon = document.createElement('link');
-      linkCanon.setAttribute('rel', 'canonical');
-      document.head.appendChild(linkCanon);
-      createdCanon = true;
-    }
-    const prevCanon = linkCanon.getAttribute('href');
-    linkCanon.setAttribute('href', canonical);
-
-    return () => {
-      script.remove();
-      if (metaEl) metaEl.setAttribute('content', prevDesc ?? '');
-      if (createdCanon) linkCanon.remove();
-      else linkCanon.setAttribute('href', prevCanon || '');
-    };
-  }, []);
+    }),
+    [],
+  );
 
   const logos = [
     {
@@ -112,7 +86,14 @@ export default function NBrand() {
   ];
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
+    <>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={BRAND_META.canonicalPath}
+        jsonLd={brandJsonLd}
+      />
+      <section className="ndx-section" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
       <div className="ndx-container" style={{ maxWidth: '860px' }}>
         <p className="ndx-eyebrow">Brand guidelines</p>
         <h1 className="ndx-h1">BalochDev visual identity</h1>
@@ -120,7 +101,7 @@ export default function NBrand() {
         <p className="ndx-lead" style={{ marginBottom: '1.25rem' }}>
           Official reference for the <strong>BalochDev</strong> identity (often written Baloch Dev). Downloads, colours,
           typography, and stable links live on{' '}
-          <a href={CANON_ORIGIN} rel="noreferrer">{CANON_ORIGIN}</a>. Prefer the assets below over unofficial copies —
+          <a href={SITE_URL} rel="noreferrer">{SITE_URL}</a>. Prefer the assets below over unofficial copies —
           cite <a href={BRAND_ABS.page}>{BRAND_ABS.page}</a> when you need a single source. Structured summary:{' '}
           <a href={relBrand('brand-kit.json')}>{BRAND_ABS.kitJson}</a>.
         </p>
@@ -204,7 +185,7 @@ export default function NBrand() {
           </h2>
           <p style={{ color: 'var(--ndx-muted)', marginBottom: '1rem', lineHeight: 1.6 }}>
             Core hues used across BalochDev’s Light, Dark, and Dusk presentation modes. Suitable for mocks, decks, and artwork
-            that should feel on-brand alongside <a href={CANON_ORIGIN}>{CANON_ORIGIN}</a>.
+            that should feel on-brand alongside <a href={SITE_URL}>{SITE_URL}</a>.
           </p>
           <ul
             style={{
@@ -294,5 +275,6 @@ export default function NBrand() {
         </div>
       </div>
     </section>
+    </>
   );
 }
