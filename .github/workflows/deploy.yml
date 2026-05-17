@@ -1,0 +1,82 @@
+# Production: prerender client/dist on ubuntu-latest + upload static output to Pages.
+# Cloudflare Pages does not run npm build; Git integration build must be disconnected.
+
+name: Deploy Pages (prerender)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: cf-pages-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: client
+
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Cache Playwright browser bundle
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('client/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium (with system deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Enumerate routes
+        run: npm run routes:enumerate
+
+      # If this exits non‑zero (including prerender/playwright failures), deployment never runs.
+      - name: Production build + prerender
+        run: npm run prerender
+
+      - name: Verify dist artifact
+        run: test -f dist/index.html
+
+      - name: Require CLOUDFLARE_PAGES_PROJECT_NAME variable
+        run: |
+          if [ -z "${CLOUDFLARE_PAGES_PROJECT_NAME}" ]; then
+            echo "::error::Set Actions variable CLOUDFLARE_PAGES_PROJECT_NAME (repository Settings → Secrets and variables → Actions → Variables) to match your Pages project name."
+            exit 1
+          fi
+        env:
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+
+      # Runs only after all prior steps succeeded (no deploy if prerender failed).
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: client
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main
