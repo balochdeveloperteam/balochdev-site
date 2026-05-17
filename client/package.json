@@ -9,7 +9,8 @@
     "prerender": "vite build && node scripts/prerender-spa.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "routes:enumerate": "node scripts/enumerate-routes.mjs"
+    "routes:enumerate": "node scripts/enumerate-routes.mjs",
+    "seo:files": "node scripts/generate-seo-files.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
