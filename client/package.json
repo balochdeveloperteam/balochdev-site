@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "prerender": "vite build && node scripts/prerender-spa.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "routes:enumerate": "node scripts/enumerate-routes.mjs"
@@ -35,6 +36,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "playwright": "^1.56.1",
     "typescript": "^6.0.3",
     "vite": "^6.2.0"
   }
