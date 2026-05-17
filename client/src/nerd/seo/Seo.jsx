@@ -1,7 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import { DEFAULT_OG_IMAGE, SITE_URL } from './siteSeo';
 
-/** Build absolute image URL from site root or preserve full URLs. */
+/**
+ * Canonical and og:url always use SITE_URL + path (currently https://balochdev.com).
+ * OG/Twitter images: absolute DEFAULT_OG_IMAGE unless ogImage overrides (full URL or site-relative path).
+ *
+ * Builds absolute OG image URLs from SITE_URL + path or preserves absolute http(s) URLs.
+ */
 function resolveOgImage(img) {
   if (!img) return DEFAULT_OG_IMAGE;
   if (img.startsWith('https://') || img.startsWith('http://')) return img;
