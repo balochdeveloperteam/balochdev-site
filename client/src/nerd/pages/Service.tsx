@@ -873,9 +873,9 @@ function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }
 
 export default function ServicesPage() {
   const reduced = useReducedMotion();
-  const servicesTitle = "BalochDev — Web, mobile & AI product development";
+  const servicesTitle = "Services — AI, RAG, Web & App Development | BalochDev";
   const servicesDesc =
-    "Seventeen scoped offerings: AI agents, RAG, voice, web, Android, SaaS, e-commerce, automation, integrations, UX/UI. Weekly demos, clear handoff, maintenance options.";
+    "Full-stack development services: AI agents, RAG pipelines, LLM chatbots, web apps, Android, SaaS and automation. Scoped delivery, weekly demos, clear handoff for international clients.";
 
   const jsonLd = useMemo(() => {
     let position = 0;
@@ -900,9 +900,8 @@ export default function ServicesPage() {
         {
           "@type": "WebPage",
           "@id": `${SITE_URL}/services#webpage`,
-          name: "BalochDev — Web, mobile & AI product development",
-          description:
-            "Seventeen delivery areas across AI, build, automation, and design: web, Android, SaaS, e-commerce, agents, RAG, workflows, integrations, and UX. Discovery, milestones, handoff.",
+          name: servicesTitle,
+          description: servicesDesc,
           url: `${SITE_URL}/services`,
         },
         {
@@ -913,7 +912,7 @@ export default function ServicesPage() {
         },
       ],
     };
-  }, []);
+  }, [servicesTitle, servicesDesc]);
 
   return (
     <section className="ndx-section ndx-page-rich" style={{ paddingTop: "1.65rem" }}>

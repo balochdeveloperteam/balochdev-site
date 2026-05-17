@@ -210,11 +210,8 @@ export default function NHome() {
   return (
     <div className="ndx-home">
       <Seo
-        title="BalochDev — AI-first software & Balochi language technology"
-        description={
-          'We design and ship AI-native products, multilingual experiences, and cloud-ready platforms. ' +
-          'One team, clear communication, production patterns borrowed from the best global products.'
-        }
+        title="BalochDev — AI, Web & Mobile Development Studio"
+        description="BalochDev builds AI-native products, web and mobile apps, RAG systems and chatbots for global clients — plus open Balochi language technology. One focused team, production-grade delivery."
         canonicalPath="/"
         jsonLd={organizationJsonLd}
       />

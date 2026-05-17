@@ -17,9 +17,9 @@ export default function NBlogPost() {
 
   const metaDescription =
     post && typeof post.excerpt === 'string' && post.excerpt.trim()
-      ? post.excerpt.replace(/<[^>]*>/g, '').trim().slice(0, 280)
+      ? post.excerpt.replace(/<[^>]*>/g, '').trim().slice(0, 155)
       : post
-        ? `Notes from BalochDev on ${post.title}.`
+        ? `Notes from BalochDev on ${post.title} — AI, development and Balochi language tech.`
         : '';
 
   if (!post) {
