@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { usePageMeta } from "../hooks/usePageMeta";
 import projects from "../data/projects";
+import Seo from "../seo/Seo";
+import { SITE_URL } from "../seo/siteSeo";
+import { capDescription, capTitle } from "../seo/seoFromData";
 
 /* ─── Animated border square ─────────────────────────────────────────────── */
 /*
@@ -250,29 +252,37 @@ export default function ProjectPage() {
 
   const project = useMemo(() => projects.find((p) => p.slug === slug) ?? null, [slug]);
 
-  const jsonLd = useMemo(() => {
-    if (!project) return null;
-    return {
+  const seoHead = useMemo(() => {
+    if (!project || !project.slug) return null;
+    const named = project as (typeof project) & { name?: string };
+    const recordName = typeof named.name === "string" ? named.name.trim() : "";
+    const displayName = recordName || (typeof project.title === "string" ? project.title.trim() : "");
+    if (!displayName) return null;
+    const title = capTitle(`${displayName} — Project | BalochDev`, 60);
+    const descRaw =
+      (typeof project.seoDescription === "string" && project.seoDescription.trim()) ||
+      (typeof project.tagline === "string" && project.tagline.trim()) ||
+      "";
+    if (!descRaw) return null;
+    const description = capDescription(descRaw, 155);
+    const canonicalPath = `/projects/${project.slug}`;
+    const jsonLd = {
       "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: `${project.title} — BalochDev`,
-      description: project.seoDescription ?? project.tagline,
-      url: `https://balochdev.com/projects/${project.slug}`,
-      author: { "@type": "Organization", name: "BalochDev" },
+      "@type": "CreativeWork",
+      name: displayName,
+      url: `${SITE_URL}${canonicalPath}`,
+      description,
     };
+    return { title, description, canonicalPath, jsonLd };
   }, [project]);
-
-  usePageMeta({
-    title: project ? `${project.title} — BalochDev` : "Project — BalochDev",
-    description: project?.seoDescription ?? project?.tagline ?? "Project case study by BalochDev.",
-    path: `/projects/${slug}`,
-    jsonLd: jsonLd ?? undefined,
-  });
 
   if (!project) return <Navigate to="/portfolio" replace />;
 
   return (
     <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3.5rem" }}>
+      {seoHead ? (
+        <Seo title={seoHead.title} description={seoHead.description} canonicalPath={seoHead.canonicalPath} jsonLd={seoHead.jsonLd} />
+      ) : null}
       <div className="ndx-container">
 
         {/* ── Back ─────────────────────────────────────────────────────── */}

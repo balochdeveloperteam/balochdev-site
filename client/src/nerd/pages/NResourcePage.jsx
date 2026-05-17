@@ -1,14 +1,25 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { RESOURCE_PAGES } from '../data/resourcePages';
+import Seo from '../seo/Seo';
+import { capDescription, capTitle } from '../seo/seoFromData';
 
 export default function NResourcePage() {
   const { slug } = useParams();
   const page = slug ? RESOURCE_PAGES[slug] : null;
 
-  useEffect(() => {
-    document.title = page ? `${page.title} — BalochDev` : 'Resource — BalochDev';
-  }, [page]);
+  const seoHead = useMemo(() => {
+    if (!page || !slug) return null;
+    const titleRaw = typeof page.title === 'string' ? page.title.trim() : '';
+    if (!titleRaw) return null;
+    const title = capTitle(`${titleRaw} | BalochDev`, 60);
+    const descRaw =
+      (typeof page.blurb === 'string' && page.blurb.trim()) || titleRaw;
+    if (!descRaw) return null;
+    const description = capDescription(descRaw, 155);
+    const canonicalPath = `/resources/${slug}`;
+    return { title, description, canonicalPath };
+  }, [page, slug]);
 
   if (!page) {
     return (
@@ -25,6 +36,9 @@ export default function NResourcePage() {
 
   return (
     <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+      {seoHead ? (
+        <Seo title={seoHead.title} description={seoHead.description} canonicalPath={seoHead.canonicalPath} />
+      ) : null}
       <div className="ndx-container" style={{ maxWidth: '720px' }}>
         <p className="ndx-eyebrow">Resources</p>
         <h1 className="ndx-h1">{page.title}</h1>
