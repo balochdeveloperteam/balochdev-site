@@ -30,8 +30,10 @@ import {
   TbSparkles,
   TbAutomation,
 } from "react-icons/tb";
-import { usePageMeta } from "../hooks/usePageMeta";
 import RichSectionIntro from "../components/RichSectionIntro";
+import Seo from "../seo/Seo";
+import { SITE_URL } from "../seo/siteSeo";
+import { capDescription, capTitle, h1FromMetaTitle } from "../seo/seoFromData";
 import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 import {
   getServiceDetailLanding,
@@ -139,80 +141,34 @@ export default function ServiceDetailPage() {
   const practice = page ? getServicePracticeLanding(page.practiceId) : null;
   const HeroIcon = page ? SERVICE_DETAIL_HERO_ICONS[page.slug] : TbSparkles;
 
-  const path = page && slug ? `/services/${slug}` : "/services";
+  const canonicalPath = page && slug ? `/services/${slug}` : "/services";
 
-  const jsonLd = useMemo(() => {
-    if (!page || !practice) return undefined;
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const pageUrl = origin ? `${origin}${path}` : path;
-    const servicesUrl = origin ? `${origin}/services` : "/services";
-    const practiceUrl = origin ? `${origin}/services/practice/${page.practiceId}` : `/services/practice/${page.practiceId}`;
-    const breadcrumbId = `${pageUrl}#breadcrumb`;
-    const webpageId = `${pageUrl}#webpage`;
-    const serviceId = `${pageUrl}#service`;
-    return {
+  const seoHead = useMemo(() => {
+    if (!page || !slug) return null;
+    const named = page as ServiceDetailLandingConfig & { name?: string };
+    const recordName = typeof named.name === "string" ? named.name.trim() : "";
+    const metaRaw = typeof page.metaTitle === "string" ? page.metaTitle.trim() : "";
+    const titleSource = metaRaw || (recordName ? `${recordName} | BalochDev` : "");
+    if (!titleSource) return null;
+    const title = capTitle(titleSource, 60);
+    const descRaw = (typeof page.description === "string" && page.description.trim()) || "";
+    if (!descRaw) return null;
+    const description = capDescription(descRaw, 155);
+    const serviceName =
+      recordName ||
+      (metaRaw ? h1FromMetaTitle(metaRaw) : "") ||
+      (typeof page.seoTitle === "string" ? page.seoTitle.trim() : "") ||
+      "";
+    if (!serviceName) return null;
+    const jsonLd = {
       "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebPage",
-          "@id": webpageId,
-          url: pageUrl,
-          name: page.metaTitle,
-          headline: page.seoTitle,
-          description: page.description,
-          isPartOf: { "@type": "WebSite", url: origin || undefined },
-          breadcrumb: { "@id": breadcrumbId },
-          publisher: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-          about: { "@type": "Thing", name: h1FromMeta(page.metaTitle) },
-        },
-        {
-          "@type": "BreadcrumbList",
-          "@id": breadcrumbId,
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Services", item: servicesUrl },
-            { "@type": "ListItem", position: 2, name: practice.title, item: practiceUrl },
-            { "@type": "ListItem", position: 3, name: h1FromMeta(page.metaTitle), item: pageUrl },
-          ],
-        },
-        {
-          "@type": "ProfessionalService",
-          "@id": serviceId,
-          name: `${h1FromMeta(page.metaTitle)} — BalochDev`,
-          description: page.description,
-          url: pageUrl,
-          serviceType: h1FromMeta(page.metaTitle),
-          areaServed: "Worldwide",
-          provider: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-        },
-        {
-          "@type": "FAQPage",
-          mainEntity: page.faq.map((item) => ({
-            "@type": "Question",
-            name: item.q,
-            acceptedAnswer: { "@type": "Answer", text: item.a },
-          })),
-        },
-      ],
+      "@type": "Service",
+      name: serviceName,
+      url: `${SITE_URL}${canonicalPath}`,
+      provider: { "@type": "Organization", name: "BalochDev", url: SITE_URL },
     };
-  }, [page, practice, path]);
-
-  usePageMeta({
-    title: page?.metaTitle ?? "Services — BalochDev",
-    description: page?.description,
-    path,
-    keywords: page?.keywords,
-    ogTitle: page?.metaTitle,
-    ogDescription: page?.description,
-    jsonLd,
-  });
+    return { title, description, canonicalPath, jsonLd };
+  }, [page, slug, canonicalPath]);
 
   const chips = useMemo(() => page?.keywords.slice(0, 10) ?? [], [page]);
 
@@ -234,6 +190,14 @@ export default function ServiceDetailPage() {
 
   return (
     <section className="ndx-section ndx-page-rich ndx-tech-landing" style={{ paddingTop: "1.35rem", paddingBottom: "2.5rem" }}>
+      {seoHead ? (
+        <Seo
+          title={seoHead.title}
+          description={seoHead.description}
+          canonicalPath={seoHead.canonicalPath}
+          jsonLd={seoHead.jsonLd}
+        />
+      ) : null}
       <div className="ndx-container">
         <nav className="ndx-tech-landing__crumb" aria-label="Breadcrumb">
           <Link to="/services">Services</Link>

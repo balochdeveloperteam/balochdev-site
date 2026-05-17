@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { IconType } from "react-icons";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { capDescription, capTitle } from "../seo/seoFromData";
 import { getStackLandingPage, isValidStackCategory, STACK_CATEGORY_LABELS } from "../data/stackLandings";
 import { TECH_ICON_MAP } from "../data/technologyIcons";
 import {
@@ -229,94 +230,21 @@ export default function TechnologyAiLanding() {
   const page = categoryOk && category && slug ? getStackLandingPage(category, slug) : null;
   const Icon = page?.iconKey ? (TECH_ICON_MAP[page.iconKey] ?? null) : null;
 
-  const path = category && slug ? `/technologies/${category}/${slug}` : "/technologies";
-
-  const jsonLd = useMemo(() => {
-    if (!page || !categoryLabel) return undefined;
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const pageUrl = origin ? `${origin}${path}` : path;
-    const techIdxUrl = origin ? `${origin}/technologies` : "/technologies";
-    const breadcrumbId = `${pageUrl}#breadcrumb`;
-    const webpageId = `${pageUrl}#webpage`;
-    const serviceId = `${pageUrl}#service`;
-    return {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebPage",
-          "@id": webpageId,
-          url: pageUrl,
-          name: page.metaTitle,
-          headline: page.seoTitle,
-          description: page.description,
-          isPartOf: { "@type": "WebSite", url: origin || undefined },
-          breadcrumb: { "@id": breadcrumbId },
-          publisher: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-          about: { "@type": "Thing", name: page.title },
-        },
-        {
-          "@type": "BreadcrumbList",
-          "@id": breadcrumbId,
-          itemListElement: [
-            {
-              "@type": "ListItem",
-              position: 1,
-              name: "Technologies",
-              item: techIdxUrl,
-            },
-            {
-              "@type": "ListItem",
-              position: 2,
-              name: categoryLabel,
-              item: techIdxUrl,
-            },
-            {
-              "@type": "ListItem",
-              position: 3,
-              name: page.title,
-              item: pageUrl,
-            },
-          ],
-        },
-        {
-          "@type": "ProfessionalService",
-          "@id": serviceId,
-          name: `${page.title} — BalochDev`,
-          description: page.description,
-          url: pageUrl,
-          serviceType: page.title,
-          areaServed: "Worldwide",
-          provider: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-        },
-        {
-          "@type": "FAQPage",
-          mainEntity: page.faq.map((item) => ({
-            "@type": "Question",
-            name: item.q,
-            acceptedAnswer: { "@type": "Answer", text: item.a },
-          })),
-        },
-      ],
-    };
-  }, [page, path, categoryLabel]);
-
-  usePageMeta({
-    title: page?.metaTitle ?? "Technology — BalochDev",
-    description: page?.description,
-    path,
-    keywords: page?.keywords,
-    ogTitle: page?.metaTitle,
-    ogDescription: page?.description,
-    jsonLd,
-  });
+  const seoHead = useMemo(() => {
+    if (!page || !slug || !category || !categoryLabel) return null;
+    const named = page as typeof page & { name?: string };
+    const recordName = typeof named.name === "string" ? named.name.trim() : "";
+    const metaRaw = typeof page.metaTitle === "string" ? page.metaTitle.trim() : "";
+    const headPart = recordName || (typeof page.title === "string" ? page.title.trim() : "");
+    const titleSource = metaRaw || (headPart && categoryLabel ? `${headPart} ${categoryLabel} | BalochDev` : "");
+    if (!titleSource) return null;
+    const title = capTitle(titleSource, 60);
+    const descRaw = (typeof page.description === "string" && page.description.trim()) || "";
+    if (!descRaw) return null;
+    const description = capDescription(descRaw, 155);
+    const canonicalPath = `/technologies/${category}/${slug}`;
+    return { title, description, canonicalPath };
+  }, [page, slug, category, categoryLabel]);
 
   const chips = useMemo(() => page?.keywords.slice(0, 8) ?? [], [page]);
 
@@ -341,6 +269,7 @@ export default function TechnologyAiLanding() {
 
   return (
     <section className="ndx-section ndx-page-rich ndx-tech-landing" style={{ paddingTop: "1.35rem", paddingBottom: "2.5rem" }}>
+      {seoHead ? <Seo title={seoHead.title} description={seoHead.description} canonicalPath={seoHead.canonicalPath} /> : null}
       <div className="ndx-container">
         <nav className="ndx-tech-landing__crumb" aria-label="Breadcrumb">
           <Link to="/technologies">Technologies</Link>

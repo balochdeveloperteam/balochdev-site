@@ -14,7 +14,9 @@ import {
   TbMessageChatbot,
   TbShieldCheck,
 } from "react-icons/tb";
-import { usePageMeta } from "../hooks/usePageMeta";
+import Seo from "../seo/Seo";
+import { SITE_URL } from "../seo/siteSeo";
+import { capDescription, capTitle } from "../seo/seoFromData";
 import {
   getServicePracticeLanding,
   isValidServicePracticeId,
@@ -101,78 +103,31 @@ export default function ServicePracticeLanding() {
   const page = idOk && practiceId ? getServicePracticeLanding(practiceId) : null;
   const PracticeIcon = page ? PRACTICE_HERO_ICONS[page.id] : TbSparkles;
 
-  const path = page && practiceId ? `/services/practice/${practiceId}` : "/services";
+  const canonicalPath = page && practiceId ? `/services/practice/${practiceId}` : "/services";
 
-  const jsonLd = useMemo(() => {
-    if (!page) return undefined;
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const pageUrl = origin ? `${origin}${path}` : path;
-    const servicesUrl = origin ? `${origin}/services` : "/services";
-    const breadcrumbId = `${pageUrl}#breadcrumb`;
-    const webpageId = `${pageUrl}#webpage`;
-    const serviceId = `${pageUrl}#service`;
-    return {
+  const seoHead = useMemo(() => {
+    if (!page || !practiceId) return null;
+    const named = page as ServicePracticeLandingConfig & { name?: string };
+    const recordName = typeof named.name === "string" ? named.name.trim() : "";
+    const metaRaw = typeof page.metaTitle === "string" ? page.metaTitle.trim() : "";
+    const titleBase = page.title.trim();
+    const titleSource = metaRaw || (titleBase ? `${titleBase} | BalochDev` : "");
+    if (!titleSource) return null;
+    const title = capTitle(titleSource, 60);
+    const descRaw = (typeof page.description === "string" && page.description.trim()) || "";
+    if (!descRaw) return null;
+    const description = capDescription(descRaw, 155);
+    const serviceName = recordName || titleBase;
+    if (!serviceName) return null;
+    const jsonLd = {
       "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebPage",
-          "@id": webpageId,
-          url: pageUrl,
-          name: page.metaTitle,
-          headline: page.seoTitle,
-          description: page.description,
-          isPartOf: { "@type": "WebSite", url: origin || undefined },
-          breadcrumb: { "@id": breadcrumbId },
-          publisher: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-          about: { "@type": "Thing", name: page.title },
-        },
-        {
-          "@type": "BreadcrumbList",
-          "@id": breadcrumbId,
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Services", item: servicesUrl },
-            { "@type": "ListItem", position: 2, name: page.title, item: pageUrl },
-          ],
-        },
-        {
-          "@type": "ProfessionalService",
-          "@id": serviceId,
-          name: `${page.title} — BalochDev`,
-          description: page.description,
-          url: pageUrl,
-          serviceType: page.title,
-          areaServed: "Worldwide",
-          provider: {
-            "@type": "Organization",
-            name: "BalochDev",
-            url: origin || undefined,
-          },
-        },
-        {
-          "@type": "FAQPage",
-          mainEntity: page.faq.map((item) => ({
-            "@type": "Question",
-            name: item.q,
-            acceptedAnswer: { "@type": "Answer", text: item.a },
-          })),
-        },
-      ],
+      "@type": "Service",
+      name: serviceName,
+      url: `${SITE_URL}${canonicalPath}`,
+      provider: { "@type": "Organization", name: "BalochDev", url: SITE_URL },
     };
-  }, [page, path]);
-
-  usePageMeta({
-    title: page?.metaTitle ?? "Services — BalochDev",
-    description: page?.description,
-    path,
-    keywords: page?.keywords,
-    ogTitle: page?.metaTitle,
-    ogDescription: page?.description,
-    jsonLd,
-  });
+    return { title, description, canonicalPath, jsonLd };
+  }, [page, practiceId, canonicalPath]);
 
   const chips = useMemo(() => page?.keywords.slice(0, 8) ?? [], [page]);
 
@@ -194,6 +149,9 @@ export default function ServicePracticeLanding() {
 
   return (
     <section className="ndx-section ndx-page-rich ndx-tech-landing" style={{ paddingTop: "1.35rem", paddingBottom: "2.5rem" }}>
+      {seoHead ? (
+        <Seo title={seoHead.title} description={seoHead.description} canonicalPath={seoHead.canonicalPath} jsonLd={seoHead.jsonLd} />
+      ) : null}
       <div className="ndx-container">
         <nav className="ndx-tech-landing__crumb" aria-label="Breadcrumb">
           <Link to="/services">Services</Link>
