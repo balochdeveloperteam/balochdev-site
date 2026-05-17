@@ -4,15 +4,85 @@ import { useParams, Link } from 'react-router-dom';
 import { apiUrl } from '../../lib/api';
 import Seo from '../seo/Seo';
 
+const BOOTSTRAP_ID = 'balochdev-blog-bootstrap';
+
+function readBlogBootstrap(slug) {
+  const el = document.getElementById(BOOTSTRAP_ID);
+  if (!el?.textContent?.trim()) return null;
+  let parsed;
+  try {
+    parsed = JSON.parse(el.textContent);
+  } catch {
+    return null;
+  }
+  if (!parsed || parsed.slug !== slug || !parsed.post) return null;
+
+  const p = parsed.post;
+  const title = typeof p.title === 'string' ? p.title.trim() : '';
+  if (!title) return null;
+
+  return {
+    ...p,
+    title,
+    excerpt: typeof p.excerpt === 'string' ? p.excerpt : undefined,
+    body_html: typeof p.body_html === 'string' ? p.body_html : '',
+  };
+}
+
 export default function NBlogPost() {
   const { slug } = useParams();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState(() => (slug ? readBlogBootstrap(slug) : null));
 
   useEffect(() => {
+    if (!slug) return undefined;
+
+    let cancelled = false;
     fetch(apiUrl(`/api/blog/${slug}`))
-      .then((r) => r.json())
-      .then((data) => setPost(data.post))
-      .catch(() => setPost(null));
+      .then(async (response) => {
+        if (!response.ok || cancelled) return;
+
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          return;
+        }
+        const incoming = data?.post;
+        if (
+          cancelled ||
+          !incoming ||
+          typeof incoming.title !== 'string' ||
+          !incoming.title.trim()
+        ) {
+          return;
+        }
+
+        const title = incoming.title.trim();
+        const body =
+          typeof incoming.body_html === 'string'
+            ? incoming.body_html
+            : undefined;
+
+        setPost((prev) => ({
+          ...incoming,
+          title,
+          body_html:
+            body !== undefined
+              ? body
+              : (prev && typeof prev.body_html === 'string'
+                  ? prev.body_html
+                  : ''),
+          excerpt:
+            typeof incoming.excerpt === 'string'
+              ? incoming.excerpt
+              : prev?.excerpt,
+        }));
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
   const metaDescription =

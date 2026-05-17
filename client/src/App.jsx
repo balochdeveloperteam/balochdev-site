@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import ShellHeader from './nerd/components/ShellHeader';
 import ShellFooter from './nerd/components/ShellFooter';
 import VerticalBookCTA from './nerd/components/VerticalBookCTA';
@@ -35,6 +35,11 @@ import AdminLogin from './nerd/pages/admin/AdminLogin';
 import AdminDashboard from './nerd/pages/admin/AdminDashboard';
 import NNotFound from './nerd/pages/NNotFound';
 
+function NBlogPostRoute() {
+  const { slug } = useParams();
+  return <NBlogPost key={slug ?? ''} />;
+}
+
 function AppRoutes() {
   return (
     <>
@@ -58,7 +63,7 @@ function AppRoutes() {
             <Route path="/projects/:slug" element={<NProjectPage />} />
             <Route path="/about" element={<NAbout />} />
             <Route path="/blog" element={<NBlog />} />
-            <Route path="/blog/:slug" element={<NBlogPost />} />
+            <Route path="/blog/:slug" element={<NBlogPostRoute />} />
             <Route path="/contact" element={<NContact />} />
             <Route path="/estimate" element={<NEstimate />} />
             <Route path="/proposal" element={<NProposal />} />
