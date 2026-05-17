@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../../../lib/api';
 import { supabase } from '../../../lib/supabase';
+import Seo from '../../seo/Seo';
+import { PRIVATE_ROUTES } from '../../seo/siteSeo';
+
+const ADMIN_META_DESC = 'BalochDev team dashboard — not indexed.';
 
 export default function AdminDashboard() {
   const nav = useNavigate();
@@ -13,7 +17,6 @@ export default function AdminDashboard() {
   const [body, setBody] = useState('');
 
   useEffect(() => {
-    document.title = 'Admin — BalochDev';
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -65,16 +68,31 @@ export default function AdminDashboard() {
 
   if (!supabase) {
     return (
-      <section className="ndx-section">
-        <div className="ndx-container">
-          <p>Configure Supabase env vars in client `.env`.</p>
-        </div>
-      </section>
+      <>
+        <Seo
+          title="Admin | BalochDev"
+          description={ADMIN_META_DESC}
+          canonicalPath={PRIVATE_ROUTES.ADMIN_ROOT}
+          noindex
+        />
+        <section className="ndx-section">
+          <div className="ndx-container">
+            <p>Configure Supabase env vars in client `.env`.</p>
+          </div>
+        </section>
+      </>
     );
   }
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem' }}>
+    <>
+      <Seo
+        title="Admin | BalochDev"
+        description={ADMIN_META_DESC}
+        canonicalPath={PRIVATE_ROUTES.ADMIN_ROOT}
+        noindex
+      />
+      <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h1 className="ndx-h2">Dashboard</h1>
@@ -119,5 +137,6 @@ export default function AdminDashboard() {
         }
       `}</style>
     </section>
+    </>
   );
 }

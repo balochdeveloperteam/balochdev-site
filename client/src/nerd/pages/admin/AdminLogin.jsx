@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
+import Seo from '../../seo/Seo';
+import { PRIVATE_ROUTES } from '../../seo/siteSeo';
+
+const ADMIN_META_DESC = 'BalochDev team sign-in — not indexed.';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -10,7 +14,6 @@ export default function AdminLogin() {
   const nav = useNavigate();
 
   useEffect(() => {
-    document.title = 'Admin login — BalochDev';
     if (!supabase) {
       setChecking(false);
       return;
@@ -46,16 +49,31 @@ export default function AdminLogin() {
 
   if (checking) {
     return (
-      <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
-        <div className="ndx-container" style={{ maxWidth: '400px' }}>
-          <p className="ndx-tech-blurb">Checking session…</p>
-        </div>
-      </section>
+      <>
+        <Seo
+          title="Sign in | BalochDev"
+          description={ADMIN_META_DESC}
+          canonicalPath={PRIVATE_ROUTES.ADMIN_LOGIN}
+          noindex
+        />
+        <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
+          <div className="ndx-container" style={{ maxWidth: '400px' }}>
+            <p className="ndx-tech-blurb">Checking session…</p>
+          </div>
+        </section>
+      </>
     );
   }
 
   return (
-    <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
+    <>
+      <Seo
+        title="Sign in | BalochDev"
+        description={ADMIN_META_DESC}
+        canonicalPath={PRIVATE_ROUTES.ADMIN_LOGIN}
+        noindex
+      />
+      <section className="ndx-section" style={{ paddingTop: '3rem', minHeight: '70vh' }}>
       <div className="ndx-container" style={{ maxWidth: '400px' }}>
         <p className="ndx-eyebrow">Admin</p>
         <h1 className="ndx-h1" style={{ fontSize: '2rem' }}>
@@ -98,5 +116,6 @@ export default function AdminLogin() {
         </form>
       </div>
     </section>
+    </>
   );
 }

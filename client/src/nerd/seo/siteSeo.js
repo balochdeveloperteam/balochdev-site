@@ -1,6 +1,27 @@
 /** Canonical origin (no www): canonical link, og:url, and JSON-LD base URLs. */
 export const SITE_URL = 'https://balochdev.com';
 
+/**
+ * Non-public routes: no sitemap entries; disallow in robots.txt when generation is added.
+ *
+ * Non-indexed surface (everything under `ADMIN_ROOT`) must remain private:
+ * - `/admin`
+ * - `/admin/login`
+ * - `/admin/*` (nested admin routes later)
+ *
+ * Consumers: omit matching URLs from sitemap builders; robots `Disallow: /admin`.
+ */
+export const PRIVATE_ROUTES = Object.freeze({
+  ADMIN_ROOT: '/admin',
+  ADMIN_LOGIN: '/admin/login',
+});
+
+/** `true` when `pathname` must never appear in a public crawl/sitemap listing. */
+export function isPrivateSitePath(pathname) {
+  const p = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  return p === PRIVATE_ROUTES.ADMIN_ROOT || p.startsWith(`${PRIVATE_ROUTES.ADMIN_ROOT}/`);
+}
+
 /** Stable graph id referenced by nested JSON-LD (AboutPage, CollectionPage authors, etc.). */
 export const ORGANIZATION_GRAPH_ID = `${SITE_URL}#organization`;
 
