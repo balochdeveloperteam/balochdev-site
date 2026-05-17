@@ -22,9 +22,17 @@ function stripTrailingSeparators(text: string): string {
   return r;
 }
 
-const TITLE_SUFFIX_PIPE_SPACED = ' | BalochDev';
-const TITLE_SUFFIX_EM_SPACED = ` \u2014 BalochDev`;
+/**
+ * Canonical emitted brand tail for `<title>` (atomic in capTitle — never shorten to "| Ba…").
+ * CMS copy may arrive as "… | BalochDev" or "… — BalochDev"; we always normalize emits to this pipe form.
+ */
+const TITLE_BRAND_SUFFIX = ' | BalochDev';
+
+/** Accepted source suffix for stripping topic only (normalized output still uses TITLE_BRAND_SUFFIX). */
+const TITLE_SOURCE_SUFFIX_EM_DASH = ` \u2014 BalochDev`;
 const TITLE_UNSUFFIXED_TOPIC_MAX = 57;
+
+const BY_BRAND_SUFFIX = /\s+by\s+BalochDev$/iu;
 const ELLIPSIS = '\u2026';
 const DESCRIPTION_BODY_MAX = 152;
 
@@ -68,7 +76,8 @@ function capPlainTitle(normalizedTopic: string, max: number): string {
  * ```
  * console.assert(capTitle('Short topic | BalochDev') === 'Short topic | BalochDev'); // branded short
  * const long = `${'phrase '.repeat(12)}never mid brand | BalochDev`;
- * console.assert(capTitle(long).endsWith('| BalochDev') && capTitle(long).length <= 60); // full suffix survives
+ * console.assert(capTitle(long).endsWith('| BalochDev') && capTitle(long).length <= 60); // full atomic suffix survives
+ * console.assert(capTitle('Legacy \u2014 BalochDev').endsWith('| BalochDev')); // em-dash CMS join normalizes to " | BalochDev"
  * const overflow = `${'mega '.repeat(30)}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`; // simulate >57 without suffix path
  * const u = capTitle(overflow); console.assert(/\u2026$/.test(u) && !/\|\s*B/.test(u)); // suffix dropped / no partial BalochDev
  * const d = capDescription(('word '.repeat(80)) + '|'); console.assert(/\u2026$/.test(d) && d.length <= 155 && !/[|.—,]\u2026$/.test(d));
@@ -78,30 +87,55 @@ export function capTitle(s: string, max = 60): string {
   const normalized = stripHtml(s).trim();
   if (!normalized) return '';
 
-  const suffix = normalized.endsWith(TITLE_SUFFIX_PIPE_SPACED)
-    ? TITLE_SUFFIX_PIPE_SPACED
-    : normalized.endsWith(TITLE_SUFFIX_EM_SPACED)
-      ? TITLE_SUFFIX_EM_SPACED
+  const sourceSuffix = normalized.endsWith(TITLE_BRAND_SUFFIX)
+    ? TITLE_BRAND_SUFFIX
+    : normalized.endsWith(TITLE_SOURCE_SUFFIX_EM_DASH)
+      ? TITLE_SOURCE_SUFFIX_EM_DASH
       : '';
 
-  if (suffix) {
-    let topic = stripTrailingSeparators(normalized.slice(0, normalized.length - suffix.length));
-    const roomForTopic = max - suffix.length;
-    /** If canonical suffix physically cannot coexist with topic in `max`, drop suffix semantics entirely (atomic rule). */
-    if (suffix.length > max || roomForTopic < 1) return capPlainTitle(topic, max);
-    /** Empty topic leaf (e.g. bare suffix) keeps full suffix unchanged if it fits. */
-    if (!topic.length) return suffix.length <= max ? suffix : stripTrailingSeparators(suffix.slice(0, max));
-    /** Topic + atomic suffix fits already. */
-    if (topic.length + suffix.length <= max) return stripTrailingSeparators(`${topic}${suffix}`);
+  if (sourceSuffix) {
+    /** Always emit TITLE_BRAND_SUFFIX so topic and brand never abut without " | ". */
+    const brand = TITLE_BRAND_SUFFIX;
+    let topic = stripTrailingSeparators(
+      normalized.slice(0, normalized.length - sourceSuffix.length),
+    );
+    const roomForTopic = max - brand.length;
+    /** If brand physically cannot coexist with topic in `max`, drop branded suffix entirely (atomic rule). */
+    if (brand.length > max || roomForTopic < 1) return capPlainTitle(topic, max);
+    /** Empty topic (bare brand in source): keep canonical brand literal if it fits. */
+    if (!topic.length) return brand.length <= max ? brand : stripTrailingSeparators(brand.slice(0, max));
+    /** Whole line fits ≤ max. */
+    if (topic.length + brand.length <= max) return stripTrailingSeparators(`${topic}${brand}`);
 
     const fitted = shortenBeforeBoundaryExclusive(topic, roomForTopic);
-    if (fitted) return stripTrailingSeparators(`${fitted}${suffix}`);
+    if (fitted) return stripTrailingSeparators(`${fitted}${brand}`);
 
-    /** No word-boundary truncation can fit atomic suffix → drop branded suffix altogether. */
+    /** No word-boundary fit for topic + atomic brand → unbranded ellipsis title. */
     return capPlainTitle(topic, max);
   }
 
   return capPlainTitle(normalized, max);
+}
+
+/**
+ * Hand-authored `<title>` copy from static pages: aligns `… — BalochDev` / `… by BalochDev` with `capTitle` pipe emits;
+ * avoids appending another `| BalochDev` when the phrase already mentions BalochDev (e.g. About / Contact).
+ */
+export function metaTitleFromPublicBrief(verbatimTitle: string, max = 60): string {
+  const t = stripHtml(verbatimTitle).trim();
+  if (!t) return t;
+
+  const emTail = TITLE_SOURCE_SUFFIX_EM_DASH;
+  const pipeTail = TITLE_BRAND_SUFFIX;
+
+  if (t.endsWith(pipeTail) || t.endsWith(emTail)) return capTitle(t, max);
+
+  if (BY_BRAND_SUFFIX.test(t)) {
+    const base = stripTrailingSeparators(t.replace(BY_BRAND_SUFFIX, '').trimEnd());
+    return capTitle(`${base}${emTail}`, max);
+  }
+
+  return capPlainTitle(t, max);
 }
 
 export function capDescription(s: string, max = 155): string {
