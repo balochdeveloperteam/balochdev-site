@@ -122,6 +122,7 @@ function assertNoPrivateRoutes(sortedAbsUrls) {
   const forbiddenAbs = [
     abs(SITE_URL, PRIVATE_ROUTES.ADMIN_ROOT),
     abs(SITE_URL, PRIVATE_ROUTES.ADMIN_LOGIN),
+    abs(SITE_URL, PRIVATE_ROUTES.TEAM_ROOT),
   ].filter(Boolean);
   for (const fx of forbiddenAbs) {
     if (sortedAbsUrls.includes(fx)) violations.push(`${fx} (PRIVATE_ROUTES)`);
@@ -133,7 +134,7 @@ function assertNoPrivateRoutes(sortedAbsUrls) {
     );
   }
 
-  console.info('[routes:enumerate] Assertion OK — no admin paths or wildcards.');
+  console.info('[routes:enumerate] Assertion OK — no private admin/team paths or wildcards.');
 }
 
 async function main() {

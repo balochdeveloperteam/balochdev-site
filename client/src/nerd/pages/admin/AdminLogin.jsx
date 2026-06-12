@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import Seo from '../../seo/Seo';
 import { PRIVATE_ROUTES } from '../../seo/siteSeo';
@@ -12,6 +12,8 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(true);
   const nav = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from || '/admin';
 
   useEffect(() => {
     if (!supabase) {
@@ -22,7 +24,7 @@ export default function AdminLogin() {
     supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
       if (data.session) {
-        nav('/admin', { replace: true });
+        nav(redirectTo, { replace: true });
       } else {
         setChecking(false);
       }
@@ -30,7 +32,7 @@ export default function AdminLogin() {
     return () => {
       cancelled = true;
     };
-  }, [nav]);
+  }, [nav, redirectTo]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +46,7 @@ export default function AdminLogin() {
       setError(err.message);
       return;
     }
-    nav('/admin', { replace: true });
+    nav(redirectTo, { replace: true });
   };
 
   if (checking) {

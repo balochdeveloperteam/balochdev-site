@@ -33,6 +33,12 @@ import NRefund from './nerd/pages/legal/NRefund';
 import NFulfilment from './nerd/pages/legal/NFulfilment';
 import AdminLogin from './nerd/pages/admin/AdminLogin';
 import AdminDashboard from './nerd/pages/admin/AdminDashboard';
+import TeamGuard from './nerd/pages/team/TeamGuard';
+import TeamLayout from './nerd/pages/team/TeamLayout';
+import TeamDashboard from './nerd/pages/team/TeamDashboard';
+import TeamMembers from './nerd/pages/team/TeamMembers';
+import TeamMyRole from './nerd/pages/team/TeamMyRole';
+import TeamPolicies from './nerd/pages/team/TeamPolicies';
 import NNotFound from './nerd/pages/NNotFound';
 
 function NBlogPostRoute() {
@@ -73,6 +79,14 @@ function AppRoutes() {
             <Route path="/fulfilment" element={<NFulfilment />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/team" element={<TeamGuard />}>
+              <Route element={<TeamLayout />}>
+                <Route index element={<TeamDashboard />} />
+                <Route path="members" element={<TeamMembers />} />
+                <Route path="my-role" element={<TeamMyRole />} />
+                <Route path="policies" element={<TeamPolicies />} />
+              </Route>
+            </Route>
             <Route path="*" element={<NNotFound />} />
           </Routes>
           <GlobalScrollReveal />

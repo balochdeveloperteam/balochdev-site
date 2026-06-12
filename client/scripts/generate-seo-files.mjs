@@ -134,34 +134,27 @@ async function fetchBlogSlugLastmods() {
   return slugToYM;
 }
 
-/** Match `/admin` and `/admin/...`, not benign paths that merely contain `/admin/` as a segment elsewhere. */
-function pathIsReservedAdminSubtree(p) {
-  let x = p.startsWith('/') ? p : `/${p}`;
-  if (x.length > 1) x = x.replace(/\/+$/, '');
-  return x === PRIVATE_ROUTES.ADMIN_ROOT || x.startsWith(`${PRIVATE_ROUTES.ADMIN_ROOT}/`);
-}
-
-function assertNoAdminInPublicUrls(publicAbsUrls, publicPathnames) {
+function assertNoPrivateInPublicUrls(publicAbsUrls, publicPathnames) {
   for (let i = 0; i < publicAbsUrls.length; i += 1) {
     const u = publicAbsUrls[i];
     const pListed = publicPathnames[i];
     const pParsed = pathnameFromAbsoluteUrl(u);
-    if (pathIsReservedAdminSubtree(pListed) || pathIsReservedAdminSubtree(pParsed)) {
-      throw new Error(`[seo:files] Assertion failed — /admin or /admin/* leaked into SEO output: ${u}`);
+    if (isPrivateSitePath(pListed) || isPrivateSitePath(pParsed)) {
+      throw new Error(`[seo:files] Assertion failed — private route leaked into SEO output: ${u}`);
     }
   }
 }
 
 function buildRobotsTxt() {
-  const adminDisallowPath = PRIVATE_ROUTES.ADMIN_ROOT.startsWith('/')
-    ? PRIVATE_ROUTES.ADMIN_ROOT
-    : `/${PRIVATE_ROUTES.ADMIN_ROOT}`;
+  const disallowRoots = [PRIVATE_ROUTES.ADMIN_ROOT, PRIVATE_ROUTES.TEAM_ROOT].map((root) =>
+    root.startsWith('/') ? root : `/${root}`,
+  );
 
   const lines = [
     'User-agent: *',
     'Allow: /',
-    `# Disallow admin surface (${adminDisallowPath} and ${adminDisallowPath}/*)`,
-    `Disallow: ${adminDisallowPath}`,
+    '# Disallow private admin + team workspace surfaces',
+    ...disallowRoots.map((d) => `Disallow: ${d}`),
     '',
     'User-agent: Googlebot',
     'Allow: /',
@@ -243,7 +236,7 @@ async function main() {
     publicPaths.push(pathname);
   }
 
-  assertNoAdminInPublicUrls(publicUrls, publicPaths);
+  assertNoPrivateInPublicUrls(publicUrls, publicPaths);
 
   const slugLastmods = await fetchBlogSlugLastmods();
 
