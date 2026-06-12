@@ -4,12 +4,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { createClient } = require('@supabase/supabase-js');
+const multer = require('multer');
 const {
   sendTelegramHtml,
   appendGoogleSheetRow,
   formatTelegramMessage,
   sheetRowFromPayload,
 } = require('./notify');
+const { uploadImage, ALLOWED_FOLDERS } = require('./services/cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,20 +33,55 @@ app.use(helmet({
   contentSecurityPolicy: false,
 }));
 
-// CORS: fail-closed in production (must explicitly set CORS_ORIGIN);
-// allow all in dev so the Vite dev proxy + curl tests work.
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
-  : null;
+// CORS: fail-closed in production unless origin is allowed.
+// Set CORS_ALLOWED_ORIGINS (comma-separated) on Render; CORS_ORIGIN is still read as a fallback.
+const DEFAULT_CORS_ORIGINS = [
+  'https://balochdev.com',
+  'https://www.balochdev.com',
+  'https://balochdev-site.pages.dev',
+  'http://localhost:5173',
+  'http://localhost:5174',
+];
+
+/** Cloudflare Pages project slug — preview URLs are https://<hash>.<project>.pages.dev */
+const CF_PAGES_PROJECT = process.env.CLOUDFLARE_PAGES_PROJECT_NAME || 'balochdev-site';
+
+function parseCorsOrigins() {
+  const raw = process.env.CORS_ALLOWED_ORIGINS || process.env.CORS_ORIGIN || '';
+  const fromEnv = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return fromEnv.length ? fromEnv : DEFAULT_CORS_ORIGINS;
+}
+
+function isCloudflarePagesOrigin(origin) {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    if (protocol !== 'https:') return false;
+    const projectHost = `${CF_PAGES_PROJECT}.pages.dev`;
+    return hostname === projectHost || hostname.endsWith(`.${projectHost}`);
+  } catch {
+    return false;
+  }
+}
+
+function isCorsOriginAllowed(origin, allowedList) {
+  if (allowedList.includes(origin)) return true;
+  return isCloudflarePagesOrigin(origin);
+}
+
+const allowedOrigins = parseCorsOrigins();
 
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
-    if (!allowedOrigins) return cb(null, !isProd);
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error('Not allowed by CORS'));
+    if (!isProd && !process.env.CORS_ALLOWED_ORIGINS && !process.env.CORS_ORIGIN) {
+      return cb(null, true);
+    }
+    if (isCorsOriginAllowed(origin, allowedOrigins)) return cb(null, true);
+    return cb(null, false);
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(express.json({ limit: '512kb' }));
@@ -129,6 +166,54 @@ async function requireAdmin(req, res, next) {
   next();
 }
 
+async function canUploadImages(user) {
+  if (user.app_metadata?.role === 'admin') return true;
+  const { data, error } = await admin
+    .from('team_members')
+    .select('access_role')
+    .eq('auth_user_id', user.id)
+    .maybeSingle();
+  if (error || !data) return false;
+  return data.access_role === 'admin' || data.access_role === 'manager';
+}
+
+/** Blog admin (app_metadata) OR team workspace admin/manager (team_members.access_role). */
+async function requireUploadAuth(req, res, next) {
+  if (!admin) return res.status(503).json({ error: 'Server misconfigured' });
+  const auth = req.headers.authorization;
+  const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Missing token' });
+  const { data, error } = await admin.auth.getUser(token);
+  if (error || !data?.user) return res.status(401).json({ error: 'Invalid session' });
+  const allowed = await canUploadImages(data.user);
+  if (!allowed) return res.status(403).json({ error: 'Upload not permitted' });
+  req.user = data.user;
+  next();
+}
+
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowed.includes(file.mimetype)) return cb(null, true);
+    cb(new Error('Only JPEG, PNG, WebP, and GIF images are allowed'));
+  },
+});
+
+function handleImageUpload(req, res, next) {
+  imageUpload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'Image must be 10MB or smaller' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  });
+}
+
 app.post('/api/blog', requireAdmin, async (req, res) => {
   const { title, slug, excerpt, body_html, published = true } = req.body || {};
   if (!title || !slug) return res.status(400).json({ error: 'title and slug required' });
@@ -147,6 +232,29 @@ app.post('/api/blog', requireAdmin, async (req, res) => {
     .single();
   if (error) return safeError(res, 500, error.message);
   res.json({ post: data });
+});
+
+app.post('/api/uploads/image', requireUploadAuth, handleImageUpload, async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image file provided. Use multipart field name "image".' });
+
+  const folder = String(req.body?.folder || '').trim();
+  if (!ALLOWED_FOLDERS.has(folder)) {
+    return res.status(400).json({
+      error: 'Invalid folder. Use balochdev/blog, balochdev/members, or balochdev/site.',
+    });
+  }
+
+  const publicId = String(req.body?.publicId || '').trim() || undefined;
+
+  try {
+    const result = await uploadImage(req.file.buffer, { folder, publicId });
+    return res.json({
+      secureUrl: result.secureUrl,
+      publicId: result.publicId,
+    });
+  } catch (err) {
+    return safeError(res, 500, err.message, 'Upload failed');
+  }
 });
 
 app.get('/api/analytics/summary', requireAdmin, async (_req, res) => {
