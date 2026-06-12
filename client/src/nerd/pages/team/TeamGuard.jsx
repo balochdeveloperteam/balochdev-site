@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
@@ -14,6 +14,7 @@ function TeamGuardInner() {
   const location = useLocation();
   const { showToast } = useTeamToast();
   const reduceMotion = useReducedMotion();
+  const authSubRef = useRef(null);
   const [session, setSession] = useState(null);
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ function TeamGuardInner() {
 
   const loadMember = useCallback(async (userId) => {
     if (!supabase || !userId) {
+      console.log('[TeamGuard] member row:', null);
       setMember(null);
       setNotMember(true);
       return;
@@ -33,10 +35,12 @@ function TeamGuardInner() {
       .eq('auth_user_id', userId)
       .maybeSingle();
     if (error) {
+      console.log('[TeamGuard] error:', error);
       setMember(null);
       setNotMember(true);
       return;
     }
+    console.log('[TeamGuard] member row:', data);
     if (!data) {
       setMember(null);
       setNotMember(true);
@@ -49,37 +53,62 @@ function TeamGuardInner() {
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
-      return;
+      return undefined;
     }
 
     let cancelled = false;
 
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
+    (async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (cancelled) return;
+
+        console.log('[TeamGuard] session:', data.session?.user?.id ?? null);
+        if (error) console.log('[TeamGuard] error:', error);
+
+        if (!data.session) {
+          nav('/admin/login', { replace: true, state: { from: location.pathname } });
+          return;
+        }
+
+        setSession(data.session);
+        console.log('[TeamGuard] querying members for', data.session.user.id);
+        await loadMember(data.session.user.id);
+      } catch (err) {
+        console.log('[TeamGuard] error:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+
       if (cancelled) return;
-      if (!data.session) {
-        nav('/admin/login', { replace: true, state: { from: location.pathname } });
-        return;
-      }
-      setSession(data.session);
-      await loadMember(data.session.user.id);
-      if (!cancelled) setLoading(false);
-    };
 
-    init();
+      const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+        // Session at mount is handled by getSession above — avoid duplicate work and auth lock deadlock.
+        if (event === 'INITIAL_SESSION') return;
+        if (cancelled) return;
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, s) => {
-      if (!s) {
-        nav('/admin/login', { replace: true, state: { from: location.pathname } });
-        return;
-      }
-      setSession(s);
-      await loadMember(s.user.id);
-    });
+        if (!s) {
+          nav('/admin/login', { replace: true, state: { from: location.pathname } });
+          return;
+        }
+
+        setSession(s);
+        setTimeout(() => {
+          if (cancelled) return;
+          console.log('[TeamGuard] querying members for', s.user.id);
+          loadMember(s.user.id).catch((err) => {
+            console.log('[TeamGuard] error:', err);
+          });
+        }, 0);
+      });
+
+      authSubRef.current = sub.subscription;
+    })();
 
     return () => {
       cancelled = true;
-      sub.subscription.unsubscribe();
+      authSubRef.current?.unsubscribe();
+      authSubRef.current = null;
     };
   }, [loadMember, location.pathname, nav]);
 
@@ -132,6 +161,10 @@ function TeamGuardInner() {
         </section>
       </>
     );
+  }
+
+  if (!session) {
+    return null;
   }
 
   if (notMember || !member) {
