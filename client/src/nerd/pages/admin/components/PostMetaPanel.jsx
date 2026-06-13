@@ -98,7 +98,11 @@ export default function PostMetaPanel({
   };
 
   return (
-    <aside className="ndx-admin-meta-panel">
+    <aside className="ndx-admin-meta-panel ndx-glass-section">
+      <div>
+        <p className="ndx-admin-meta-heading">Publishing & SEO</p>
+        <p className="ndx-admin-meta-sub">Slug, metadata, and publish settings</p>
+      </div>
       <div className="ndx-admin-field">
         <label htmlFor="post-slug">Slug</label>
         <input
@@ -200,7 +204,7 @@ export default function PostMetaPanel({
 
       <div className="ndx-admin-field">
         <label htmlFor="tags">Tags</label>
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
+        <div className="ndx-admin-tag-row">
           <input
             id="tags"
             className="ndx-admin-input"
@@ -232,9 +236,9 @@ export default function PostMetaPanel({
       <div className="ndx-admin-field">
         <label>Related articles</label>
         <div className="ndx-admin-field-hint">Published posts only</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '160px', overflowY: 'auto' }}>
+        <div className="ndx-admin-related-list">
           {publishedOptions.map((p) => (
-            <label key={p.id} style={{ display: 'flex', gap: '0.4rem', fontSize: '0.82rem' }}>
+            <label key={p.id} className="ndx-admin-related-item">
               <input
                 type="checkbox"
                 checked={(form.related_slugs || []).includes(p.slug)}

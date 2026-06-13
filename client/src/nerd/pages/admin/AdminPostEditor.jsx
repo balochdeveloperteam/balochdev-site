@@ -243,7 +243,7 @@ export default function AdminPostEditor() {
   };
 
   if (loading) {
-    return <p className="ndx-tech-blurb">Loading post…</p>;
+    return <p className="ndx-admin-loading">Loading post</p>;
   }
 
   return (
@@ -255,20 +255,18 @@ export default function AdminPostEditor() {
       <div className="ndx-admin-page-head">
         <div>
           <p className="ndx-eyebrow">{isNew ? 'New post' : 'Edit post'}</p>
-          <h2 className="ndx-h2" style={{ margin: 0 }}>
-            {isNew ? 'Create post' : form.title || 'Untitled'}
-          </h2>
+          <h2 className="ndx-h2">{isNew ? 'Create post' : form.title || 'Untitled'}</h2>
         </div>
-        <Link to="/admin/posts" className="ndx-btn">
-          ← Back to list
-        </Link>
+        <div className="ndx-admin-page-head-actions">
+          <Link to="/admin/posts" className="ndx-btn">
+            ← Back to list
+          </Link>
+        </div>
       </div>
 
-      {err && (
-        <p style={{ color: '#f87171', fontSize: '0.875rem', marginBottom: '1rem' }}>{err}</p>
-      )}
+      {err && <p className="ndx-admin-alert">{err}</p>}
 
-      <div className="ndx-admin-field" style={{ marginBottom: '1rem' }}>
+      <div className="ndx-admin-field ndx-admin-field--title">
         <label htmlFor="post-title">Title</label>
         <input
           id="post-title"
@@ -280,7 +278,7 @@ export default function AdminPostEditor() {
 
       {form.post_type === 'image_caption' ? (
         <div className="ndx-admin-editor-layout">
-          <div className="ndx-glass-section" style={{ padding: '1rem', borderRadius: '16px' }}>
+          <div className="ndx-admin-panel ndx-glass-section">
             <div className="ndx-admin-field">
               <label>Image</label>
               {form.caption_image_url && (

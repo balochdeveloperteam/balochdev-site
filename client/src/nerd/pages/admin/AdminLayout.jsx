@@ -66,29 +66,34 @@ export default function AdminLayout({ children }) {
                 <span className="ndx-admin-brand-mark" aria-hidden>
                   BD
                 </span>
-                <div>
+                <div className="ndx-admin-brand-text">
                   <p className="ndx-admin-brand-label">BalochDev</p>
                   <h1 className="ndx-admin-sidebar-title">Content admin</h1>
                 </div>
               </div>
 
-              <div className="ndx-admin-user">
-                <p className="ndx-admin-welcome">
-                  Welcome, <strong>{profile?.name || 'Admin'}</strong>
-                </p>
-                {profile?.role && <AccessRoleBadge role={profile.role} />}
-              </div>
-
               <NavItems className="ndx-admin-nav ndx-admin-nav--sidebar" itemClassName="ndx-admin-nav-link" />
 
-              <button type="button" className="ndx-btn ndx-admin-signout" onClick={signOut}>
-                Sign out
-              </button>
+              <div className="ndx-admin-sidebar-footer">
+                <div className="ndx-admin-user">
+                  <p className="ndx-admin-welcome">
+                    Welcome, <strong>{profile?.name || 'Admin'}</strong>
+                  </p>
+                  {profile?.role && <AccessRoleBadge role={profile.role} />}
+                </div>
+                <button
+                  type="button"
+                  className="ndx-btn ndx-admin-signout ndx-admin-signout--sidebar"
+                  onClick={signOut}
+                >
+                  Sign out
+                </button>
+              </div>
             </aside>
 
             <NavItems className="ndx-admin-nav ndx-admin-nav--mobile" itemClassName="ndx-admin-nav-link" />
 
-            <div className="ndx-admin-main">{children}</div>
+            <div className="ndx-admin-main ndx-page-rich">{children}</div>
           </motion.div>
         </div>
       </section>
