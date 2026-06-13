@@ -22,7 +22,6 @@ function TeamGuardInner() {
 
   const loadMember = useCallback(async (userId) => {
     if (!supabase || !userId) {
-      console.log('[TeamGuard] member row:', null);
       setMember(null);
       setNotMember(true);
       return;
@@ -35,12 +34,10 @@ function TeamGuardInner() {
       .eq('auth_user_id', userId)
       .maybeSingle();
     if (error) {
-      console.log('[TeamGuard] error:', error);
       setMember(null);
       setNotMember(true);
       return;
     }
-    console.log('[TeamGuard] member row:', data);
     if (!data) {
       setMember(null);
       setNotMember(true);
@@ -60,11 +57,8 @@ function TeamGuardInner() {
 
     (async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        const { data } = await supabase.auth.getSession();
         if (cancelled) return;
-
-        console.log('[TeamGuard] session:', data.session?.user?.id ?? null);
-        if (error) console.log('[TeamGuard] error:', error);
 
         if (!data.session) {
           nav('/admin/login', { replace: true, state: { from: location.pathname } });
@@ -72,10 +66,9 @@ function TeamGuardInner() {
         }
 
         setSession(data.session);
-        console.log('[TeamGuard] querying members for', data.session.user.id);
         await loadMember(data.session.user.id);
-      } catch (err) {
-        console.log('[TeamGuard] error:', err);
+      } catch {
+        /* auth bootstrap errors surface via empty session / notMember */
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -95,10 +88,7 @@ function TeamGuardInner() {
         setSession(s);
         setTimeout(() => {
           if (cancelled) return;
-          console.log('[TeamGuard] querying members for', s.user.id);
-          loadMember(s.user.id).catch((err) => {
-            console.log('[TeamGuard] error:', err);
-          });
+          loadMember(s.user.id).catch(() => {});
         }, 0);
       });
 

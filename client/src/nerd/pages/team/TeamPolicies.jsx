@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
 import { useTeam } from './TeamContext';
 import PolicyEditorModal from './components/PolicyEditorModal';
@@ -16,6 +17,7 @@ const CATEGORIES = [
 
 export default function TeamPolicies() {
   const { isAdmin, showToast } = useTeam();
+  const reduceMotion = useReducedMotion();
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -79,25 +81,28 @@ export default function TeamPolicies() {
   };
 
   return (
-    <div>
-      <div className="ndx-team-page-head" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div className="ndx-page-rich">
+      <motion.div
+        className="ndx-team-page-head ndx-team-page-head--row"
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div>
           <p className="ndx-eyebrow">Handbook</p>
           <h2 className="ndx-h2">Policies</h2>
           <p className="ndx-lead">Team guidelines by category. Paste your policy markdown after setup.</p>
         </div>
         {isAdmin ? (
-          <button type="button" className="ndx-btn ndx-btn-primary" onClick={openCreate}>
-            New policy
-          </button>
+          <div className="ndx-team-page-head-actions">
+            <button type="button" className="ndx-btn ndx-btn-primary" onClick={openCreate}>
+              New policy
+            </button>
+          </div>
         ) : null}
-      </div>
+      </motion.div>
 
-      {error ? (
-        <p role="alert" style={{ color: '#fecaca', marginBottom: '1rem' }}>
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="ndx-team-alert" role="alert">{error}</p> : null}
 
       <div className="ndx-team-tabs" role="tablist" aria-label="Policy categories">
         {CATEGORIES.map((cat) => {
@@ -131,12 +136,18 @@ export default function TeamPolicies() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {activePolicies.map((policy) => (
-            <article key={policy.id} className="ndx-card ndx-glass-section" style={{ padding: '1.1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          {activePolicies.map((policy, index) => (
+            <motion.article
+              key={policy.id}
+              className="ndx-card ndx-glass-section ndx-team-policy-card"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.32, delay: reduceMotion ? 0 : index * 0.04 }}
+            >
+              <div className="ndx-team-policy-head">
                 <div>
                   <h3 className="ndx-h3">{policy.title}</h3>
-                  <p className="ndx-tech-blurb" style={{ fontSize: '0.8rem' }}>
+                  <p className="ndx-team-policy-slug">
                     {policy.slug}
                     {policy.updated_at
                       ? ` · updated ${new Date(policy.updated_at).toLocaleDateString()}`
@@ -144,7 +155,7 @@ export default function TeamPolicies() {
                   </p>
                 </div>
                 {isAdmin ? (
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div className="ndx-team-page-head-actions">
                     <button type="button" className="ndx-btn" onClick={() => openEdit(policy)}>
                       Edit
                     </button>
@@ -155,7 +166,7 @@ export default function TeamPolicies() {
                 ) : null}
               </div>
               <TeamMarkdown content={policy.content} />
-            </article>
+            </motion.article>
           ))}
         </div>
       )}

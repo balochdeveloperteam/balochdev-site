@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
 import { useTeam } from './TeamContext';
 import { TeamBlockSkeleton } from './components/TeamSkeleton';
@@ -7,6 +8,7 @@ const emptyForm = { title: '', description: '', ordering: 0 };
 
 export default function TeamMyRole() {
   const { member, canManageTeam, isAdmin, showToast } = useTeam();
+  const reduceMotion = useReducedMotion();
   const [allMembers, setAllMembers] = useState([]);
   const [selectedId, setSelectedId] = useState(member?.id || '');
   const [selectedMember, setSelectedMember] = useState(member);
@@ -127,8 +129,13 @@ export default function TeamMyRole() {
   }, [allMembers, canManageTeam, member]);
 
   return (
-    <div>
-      <div className="ndx-team-page-head">
+    <div className="ndx-page-rich">
+      <motion.div
+        className="ndx-team-page-head"
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <p className="ndx-eyebrow">Role card</p>
         <h2 className="ndx-h2">My role & responsibilities</h2>
         <p className="ndx-lead">
@@ -136,7 +143,7 @@ export default function TeamMyRole() {
             ? 'View or manage responsibility rows for each team member.'
             : 'Your role definition and assigned responsibilities.'}
         </p>
-      </div>
+      </motion.div>
 
       {canManageTeam ? (
         <label className="ndx-team-field" style={{ maxWidth: 360 }}>
@@ -159,18 +166,14 @@ export default function TeamMyRole() {
       ) : null}
 
       {selectedMember ? (
-        <div className="ndx-card ndx-glass-section" style={{ padding: '1rem', marginBottom: '1.25rem' }}>
+        <div className="ndx-card ndx-glass-section ndx-team-panel">
           <h3 className="ndx-h3">{selectedMember.full_name}</h3>
           <p className="ndx-tech-blurb">{selectedMember.role_title}</p>
           <p className="ndx-tech-blurb">{selectedMember.department}</p>
         </div>
       ) : null}
 
-      {error ? (
-        <p role="alert" style={{ color: '#fecaca', marginBottom: '1rem' }}>
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="ndx-team-alert" role="alert">{error}</p> : null}
 
       {loading ? (
         <TeamBlockSkeleton />
@@ -182,41 +185,37 @@ export default function TeamMyRole() {
           ) : null}
         </div>
       ) : (
-        <div className="ndx-team-table-wrap ndx-card" style={{ marginBottom: '1.25rem' }}>
-          <table className="ndx-team-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Description</th>
-                {canEdit ? <th /> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.ordering}</td>
-                  <td>{row.title}</td>
-                  <td>{row.description}</td>
-                  {canEdit ? (
-                    <td style={{ whiteSpace: 'nowrap' }}>
-                      <button type="button" className="ndx-btn" style={{ marginRight: '0.5rem' }} onClick={() => onEditRow(row)}>
-                        Edit
-                      </button>
-                      <button type="button" className="ndx-btn" onClick={() => onDelete(row.id)}>
-                        Delete
-                      </button>
-                    </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="ndx-team-resp-list">
+          {rows.map((row, index) => (
+            <motion.article
+              key={row.id}
+              className="ndx-team-resp-item"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.32, delay: reduceMotion ? 0 : index * 0.03 }}
+            >
+              <div className="ndx-team-resp-item-head">
+                <p className="ndx-team-resp-title">{row.title}</p>
+                <span className="ndx-team-resp-order">#{row.ordering}</span>
+              </div>
+              {row.description ? <p className="ndx-team-resp-desc">{row.description}</p> : null}
+              {canEdit ? (
+                <div className="ndx-team-resp-actions" style={{ marginTop: '0.75rem' }}>
+                  <button type="button" className="ndx-btn" onClick={() => onEditRow(row)}>
+                    Edit
+                  </button>
+                  <button type="button" className="ndx-btn" onClick={() => onDelete(row.id)}>
+                    Delete
+                  </button>
+                </div>
+              ) : null}
+            </motion.article>
+          ))}
         </div>
       )}
 
       {canEdit ? (
-        <div className="ndx-card" style={{ padding: '1rem' }}>
+        <div className="ndx-card ndx-team-form-card">
           <h3 className="ndx-h3">{editingId ? 'Edit responsibility' : 'Add responsibility'}</h3>
           <form onSubmit={onSave} className="ndx-team-form" style={{ marginTop: '0.75rem' }}>
             <label className="ndx-team-field">

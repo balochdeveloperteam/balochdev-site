@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
 import { useTeam } from './TeamContext';
 import AccessRoleBadge from './components/AccessRoleBadge';
@@ -18,6 +19,7 @@ function formatDate(value) {
 
 export default function TeamMembers() {
   const { session, isAdmin, canManageTeam, showToast } = useTeam();
+  const reduceMotion = useReducedMotion();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -49,28 +51,29 @@ export default function TeamMembers() {
   const showLimitedNote = !canManageTeam && members.length <= 1;
 
   return (
-    <div>
-      <div className="ndx-team-page-head">
+    <div className="ndx-page-rich">
+      <motion.div
+        className="ndx-team-page-head"
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <p className="ndx-eyebrow">Directory</p>
         <h2 className="ndx-h2">Members</h2>
         <p className="ndx-lead">Team roster — visibility follows your workspace role.</p>
-      </div>
+      </motion.div>
 
       {showLimitedNote ? (
-        <p className="ndx-tech-blurb" style={{ marginBottom: '1rem' }}>
+        <p className="ndx-team-note">
           You can only see your own profile here. Admins and managers see the full team directory.
         </p>
       ) : null}
 
-      {error ? (
-        <p role="alert" style={{ color: '#fecaca', marginBottom: '1rem' }}>
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="ndx-team-alert" role="alert">{error}</p> : null}
 
       {loading ? (
         <div className="ndx-team-grid">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <TeamCardSkeleton key={n} />
           ))}
         </div>
@@ -80,14 +83,18 @@ export default function TeamMembers() {
         </div>
       ) : (
         <div className="ndx-team-grid">
-          {members.map((m) => (
-            <article key={m.id} className="ndx-card ndx-team-member-card">
+          {members.map((m, index) => (
+            <motion.article
+              key={m.id}
+              className="ndx-card ndx-team-member-card"
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: reduceMotion ? 0 : index * 0.04 }}
+            >
               <div className="ndx-team-member-card-head">
                 <TeamAvatar name={m.full_name} avatarUrl={m.avatar_url} size={56} />
                 <div style={{ minWidth: 0 }}>
-                  <h3 className="ndx-h3" style={{ fontSize: '1.05rem', marginBottom: '0.15rem' }}>
-                    {m.full_name}
-                  </h3>
+                  <h3>{m.full_name}</h3>
                   <p className="ndx-tech-blurb">{m.role_title}</p>
                   <p className="ndx-tech-blurb">{m.department}</p>
                 </div>
@@ -96,16 +103,21 @@ export default function TeamMembers() {
                 <AccessRoleBadge role={m.access_role} />
                 <StatusBadge status={m.status} />
               </div>
-              <p className="ndx-tech-blurb" style={{ fontSize: '0.82rem' }}>
+              <p className="ndx-team-member-foot">
                 Joined {formatDate(m.joined_date)}
-                {m.email ? ` · ${m.email}` : ''}
+                {m.email ? (
+                  <>
+                    <br />
+                    {m.email}
+                  </>
+                ) : null}
               </p>
               {isAdmin ? (
                 <button type="button" className="ndx-btn" onClick={() => setEditing(m)}>
                   Edit member
                 </button>
               ) : null}
-            </article>
+            </motion.article>
           ))}
         </div>
       )}

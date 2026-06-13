@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import ShellHeader from './nerd/components/ShellHeader';
 import ShellFooter from './nerd/components/ShellFooter';
 import VerticalBookCTA from './nerd/components/VerticalBookCTA';
@@ -32,7 +32,10 @@ import NTerms from './nerd/pages/legal/NTerms';
 import NRefund from './nerd/pages/legal/NRefund';
 import NFulfilment from './nerd/pages/legal/NFulfilment';
 import AdminLogin from './nerd/pages/admin/AdminLogin';
-import AdminDashboard from './nerd/pages/admin/AdminDashboard';
+import AdminGuard from './nerd/pages/admin/AdminGuard';
+import AdminOverview from './nerd/pages/admin/AdminOverview';
+import AdminPostsList from './nerd/pages/admin/AdminPostsList';
+import AdminPostEditor from './nerd/pages/admin/AdminPostEditor';
 import TeamGuard from './nerd/pages/team/TeamGuard';
 import TeamLayout from './nerd/pages/team/TeamLayout';
 import TeamDashboard from './nerd/pages/team/TeamDashboard';
@@ -78,7 +81,13 @@ function AppRoutes() {
             <Route path="/refund" element={<NRefund />} />
             <Route path="/fulfilment" element={<NFulfilment />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminGuard />}>
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<AdminOverview />} />
+              <Route path="posts" element={<AdminPostsList />} />
+              <Route path="posts/new" element={<AdminPostEditor />} />
+              <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+            </Route>
             <Route path="/team" element={<TeamGuard />}>
               <Route element={<TeamLayout />}>
                 <Route index element={<TeamDashboard />} />

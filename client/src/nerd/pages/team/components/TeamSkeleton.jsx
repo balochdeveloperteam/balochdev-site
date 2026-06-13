@@ -10,10 +10,11 @@ export function TeamCardSkeleton() {
 
 export function TeamBlockSkeleton() {
   return (
-    <div className="ndx-team-skeleton-block" aria-hidden>
-      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '30%' }} />
-      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '90%' }} />
-      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '75%' }} />
+    <div className="ndx-team-skeleton-block ndx-card ndx-team-skeleton-card" aria-hidden>
+      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '28%' }} />
+      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '92%' }} />
+      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '78%' }} />
+      <div className="ndx-team-skeleton ndx-team-skeleton--line" style={{ width: '65%' }} />
     </div>
   );
 }

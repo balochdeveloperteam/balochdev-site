@@ -15,6 +15,11 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
     "@tailwindcss/vite": "^4.3.0",
+    "@tiptap/extension-link": "^3.26.1",
+    "@tiptap/extension-placeholder": "^3.26.1",
+    "@tiptap/pm": "^3.26.1",
+    "@tiptap/react": "^3.26.1",
+    "@tiptap/starter-kit": "^3.26.1",
     "axios": "^1.8.2",
     "framer-motion": "^12.38.0",
     "lenis": "^1.3.23",
