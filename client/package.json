@@ -13,6 +13,7 @@
     "seo:files": "node scripts/generate-seo-files.mjs"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.6",
     "@supabase/supabase-js": "^2.105.3",
     "@tailwindcss/vite": "^4.3.0",
     "@tiptap/extension-link": "^3.26.1",
