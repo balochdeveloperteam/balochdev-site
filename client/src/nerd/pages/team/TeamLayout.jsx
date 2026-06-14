@@ -15,6 +15,7 @@ const NAV = [
   { to: '/team/members', label: 'Members' },
   { to: '/team/my-role', label: 'My Role' },
   { to: '/team/policies', label: 'Policies' },
+  { to: '/team/hours', label: 'Weekly Hours' },
 ];
 
 function NavLinks({ className, itemClassName, showAdminLink }) {

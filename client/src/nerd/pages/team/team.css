@@ -802,3 +802,300 @@ html[data-theme='dark'] .ndx-team-sidebar {
   align-items: center;
   justify-content: center;
 }
+
+/* ── Weekly hours ──────────────────────────────────────────────────── */
+
+.ndx-team-dash-hours-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ndx-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.ndx-team-hours-week-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.ndx-team-hours-week-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ndx-team-hours-rejection strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.ndx-team-hours-rejection p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.ndx-team-hours-form {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.ndx-team-hours-form:disabled {
+  opacity: 0.72;
+}
+
+.ndx-team-hours-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ndx-team-hours-day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 4.25rem;
+  flex: 1 1 4.25rem;
+}
+
+.ndx-team-hours-day span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ndx-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ndx-team-hours-day-input {
+  text-align: center;
+  padding: 0.55rem 0.4rem;
+}
+
+.ndx-team-hours-total {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  color: var(--ndx-text-muted);
+}
+
+.ndx-team-hours-total-saved {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.ndx-team-hours-actions {
+  margin-top: 1rem;
+}
+
+.ndx-team-hours-history {
+  margin-top: 1.5rem;
+}
+
+.ndx-team-hours-history h3 {
+  margin-bottom: 0.85rem;
+}
+
+.ndx-team-hours-week-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ndx-team-hours-week-btn {
+  min-width: 2.5rem;
+  padding: 0.45rem 0.65rem;
+}
+
+.ndx-team-hours-week-picker-label {
+  flex: 1;
+  text-align: center;
+}
+
+.ndx-team-hours-week-picker-label strong {
+  display: block;
+  font-size: 1rem;
+  margin-top: 0.15rem;
+}
+
+.ndx-team-hours-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--ndx-border);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.84rem;
+  color: var(--ndx-text-muted);
+}
+
+.ndx-team-hours-summary-item strong {
+  color: var(--ndx-text);
+  margin-right: 0.2rem;
+}
+
+.ndx-team-hours-summary-item--red strong {
+  color: #f87171;
+}
+
+.ndx-team-hours-red-badge {
+  background: rgba(248, 113, 113, 0.12) !important;
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+.ndx-team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.ndx-team-table th,
+.ndx-team-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ndx-border);
+  vertical-align: middle;
+}
+
+.ndx-team-table th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ndx-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ndx-team-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ndx-team-hours-row--red {
+  background: rgba(248, 113, 113, 0.04);
+}
+
+.ndx-team-hours-col-day {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ndx-team-hours-member-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.ndx-team-hours-review-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ndx-team-hours-btn-sm {
+  font-size: 0.78rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.ndx-team-hours-history-table-wrap,
+.ndx-team-hours-review-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--ndx-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.ndx-team-hours-review-cards {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .ndx-team-hours-review-table {
+    display: none;
+  }
+
+  .ndx-team-hours-review-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .ndx-team-hours-review-card {
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    border: 1px solid var(--ndx-border);
+  }
+
+  .ndx-team-hours-review-card--red {
+    border-color: rgba(248, 113, 113, 0.35);
+    background: rgba(248, 113, 113, 0.04);
+  }
+
+  .ndx-team-hours-review-card-head {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    margin-bottom: 0.65rem;
+  }
+
+  .ndx-team-hours-review-card-head h4 {
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
+  }
+
+  .ndx-team-hours-review-card-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--ndx-text-muted);
+    margin: 0.5rem 0;
+  }
+
+  .ndx-team-hours-review-card-total {
+    margin: 0.35rem 0 0.65rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 560px) {
+  .ndx-team-hours-history-table thead {
+    display: none;
+  }
+
+  .ndx-team-hours-history-table tr {
+    display: block;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--ndx-border);
+  }
+
+  .ndx-team-hours-history-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border: none;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .ndx-team-hours-history-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--ndx-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}

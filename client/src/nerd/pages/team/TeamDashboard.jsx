@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { supabase } from '../../../lib/supabase';
 import { useTeam } from './TeamContext';
 import AccessRoleBadge from './components/AccessRoleBadge';
 import TeamAvatar from './components/TeamAvatar';
+import WeeklyHoursStatusBadge from './components/WeeklyHoursStatusBadge';
+import { getCurrentWeekSunday, getWeekRange } from './utils/weeklyHoursUtils';
 
 const TILES = [
   {
@@ -27,10 +31,12 @@ const TILES = [
     link: true,
   },
   {
+    to: '/team/hours',
     label: 'Ops',
     title: 'Weekly hours',
     body: 'Submit and review weekly hour sheets.',
-    soon: true,
+    link: true,
+    hoursTile: true,
   },
   {
     label: 'Tasks',
@@ -41,9 +47,57 @@ const TILES = [
 ];
 
 export default function TeamDashboard() {
-  const { member } = useTeam();
+  const { member, canManageTeam, showToast } = useTeam();
   const reduceMotion = useReducedMotion();
   const firstName = member.full_name.split(' ')[0];
+
+  const currentWeek = useMemo(() => getWeekRange(getCurrentWeekSunday()), []);
+  const [hoursHint, setHoursHint] = useState(null);
+  const [hoursLoading, setHoursLoading] = useState(true);
+
+  const loadHoursHint = useCallback(async () => {
+    if (!supabase || !member?.id) {
+      setHoursLoading(false);
+      return;
+    }
+    setHoursLoading(true);
+
+    if (canManageTeam) {
+      const { data, error } = await supabase
+        .from('weekly_hours')
+        .select('status')
+        .eq('week_start_date', currentWeek.weekStart);
+
+      if (error) {
+        showToast('Could not load hours summary', 'error');
+        setHoursHint(null);
+      } else {
+        const rows = data || [];
+        const submitted = rows.filter((r) => r.status === 'submitted').length;
+        const pending = rows.filter((r) => r.status === 'pending').length;
+        setHoursHint({ type: 'manager', submitted, pending });
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('weekly_hours')
+        .select('status')
+        .eq('member_id', member.id)
+        .eq('week_start_date', currentWeek.weekStart)
+        .maybeSingle();
+
+      if (error) {
+        setHoursHint(null);
+      } else {
+        setHoursHint({ type: 'member', status: data?.status || 'pending', hasRow: !!data });
+      }
+    }
+
+    setHoursLoading(false);
+  }, [canManageTeam, currentWeek.weekStart, member?.id, showToast]);
+
+  useEffect(() => {
+    loadHoursHint();
+  }, [loadHoursHint]);
 
   return (
     <div className="ndx-page-rich">
@@ -96,6 +150,22 @@ export default function TeamDashboard() {
               <span className="ndx-team-dash-card-label">{tile.label}</span>
               <h3>{tile.title}</h3>
               <p>{tile.body}</p>
+              {tile.hoursTile && !hoursLoading && hoursHint ? (
+                <p className="ndx-team-dash-hours-hint">
+                  {hoursHint.type === 'manager' ? (
+                    <>
+                      This week: <strong>{hoursHint.submitted}</strong> submitted · <strong>{hoursHint.pending}</strong>{' '}
+                      pending
+                    </>
+                  ) : !hoursHint.hasRow ? (
+                    <>This week: not started</>
+                  ) : (
+                    <>
+                      This week: <WeeklyHoursStatusBadge status={hoursHint.status} />
+                    </>
+                  )}
+                </p>
+              ) : null}
               {tile.soon ? (
                 <span className="ndx-team-soon-pill">Coming soon</span>
               ) : (

@@ -42,6 +42,7 @@ import TeamDashboard from './nerd/pages/team/TeamDashboard';
 import TeamMembers from './nerd/pages/team/TeamMembers';
 import TeamMyRole from './nerd/pages/team/TeamMyRole';
 import TeamPolicies from './nerd/pages/team/TeamPolicies';
+import TeamWeeklyHours from './nerd/pages/team/TeamWeeklyHours';
 import NNotFound from './nerd/pages/NNotFound';
 
 function NBlogPostRoute() {
@@ -94,6 +95,7 @@ function AppRoutes() {
                 <Route path="members" element={<TeamMembers />} />
                 <Route path="my-role" element={<TeamMyRole />} />
                 <Route path="policies" element={<TeamPolicies />} />
+                <Route path="hours" element={<TeamWeeklyHours />} />
               </Route>
             </Route>
             <Route path="*" element={<NNotFound />} />
