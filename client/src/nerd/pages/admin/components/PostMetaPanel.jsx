@@ -22,6 +22,7 @@ export default function PostMetaPanel({
   postId,
   onUploadCover,
   readingTime,
+  variant = 'panel',
 }) {
   const [slugStatus, setSlugStatus] = useState('');
   const [publishedOptions, setPublishedOptions] = useState([]);
@@ -98,11 +99,17 @@ export default function PostMetaPanel({
   };
 
   return (
-    <aside className="ndx-admin-meta-panel ndx-glass-section">
-      <div>
-        <p className="ndx-admin-meta-heading">Publishing & SEO</p>
-        <p className="ndx-admin-meta-sub">Slug, metadata, and publish settings</p>
-      </div>
+    <div
+      className={`ndx-admin-meta-panel${variant === 'drawer' ? ' ndx-admin-meta-panel--drawer' : ''}`}
+      role="group"
+      aria-label="Publishing and SEO"
+    >
+      {variant !== 'drawer' && (
+        <div>
+          <p className="ndx-admin-meta-heading">Publishing & SEO</p>
+          <p className="ndx-admin-meta-sub">Slug, metadata, and publish settings</p>
+        </div>
+      )}
       <div className="ndx-admin-field">
         <label htmlFor="post-slug">Slug</label>
         <input
@@ -293,6 +300,6 @@ export default function PostMetaPanel({
       </div>
 
       <p className="ndx-admin-field-hint">Reading time: ~{readingTime} min</p>
-    </aside>
+    </div>
   );
 }

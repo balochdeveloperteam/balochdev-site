@@ -3,6 +3,20 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import {
+  TbBold,
+  TbCode,
+  TbH2,
+  TbH3,
+  TbItalic,
+  TbLink,
+  TbList,
+  TbListNumbers,
+  TbMinus,
+  TbPhoto,
+  TbQuote,
+  TbSourceCode,
+} from 'react-icons/tb';
 import { apiUrl } from '../../../../lib/api';
 
 function escapeAttr(value) {
@@ -12,40 +26,15 @@ function escapeAttr(value) {
     .replace(/</g, '&lt;');
 }
 
-function ToolbarButton({ active, onClick, children, title }) {
+export function ToolbarButton({ active, onClick, children, title }) {
   return (
-    <button type="button" className={active ? 'is-active' : ''} onClick={onClick} title={title}>
+    <button type="button" className={active ? 'is-active' : ''} onClick={onClick} title={title} aria-label={title}>
       {children}
     </button>
   );
 }
 
-export default function BlogBlockEditor({ contentHtml, onChange, token, disabled }) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [2, 3] },
-      }),
-      Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } }),
-      Placeholder.configure({ placeholder: 'Write your post…' }),
-    ],
-    content: contentHtml || '',
-    editable: !disabled,
-    onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
-  });
-
-  useEffect(() => {
-    if (!editor) return;
-    editor.setEditable(!disabled);
-  }, [editor, disabled]);
-
-  useEffect(() => {
-    if (!editor || contentHtml === undefined) return;
-    if (editor.getHTML() !== contentHtml) {
-      editor.commands.setContent(contentHtml || '', false);
-    }
-  }, [editor, contentHtml]);
-
+export function BlogEditorToolbar({ editor, token }) {
   if (!editor) return null;
 
   const setLink = () => {
@@ -110,53 +99,114 @@ export default function BlogBlockEditor({ contentHtml, onChange, token, disabled
   };
 
   return (
-    <div className="ndx-blog-editor">
-      <div className="ndx-blog-editor-toolbar">
-        <ToolbarButton
-          active={editor.isActive('heading', { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          title="Heading 2"
-        >
-          H2
-        </ToolbarButton>
-        <ToolbarButton
-          active={editor.isActive('heading', { level: 3 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          title="Heading 3"
-        >
-          H3
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold">
-          B
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic">
-          I
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
-          • List
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Ordered list">
-          1. List
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Quote">
-          Quote
-        </ToolbarButton>
-        <ToolbarButton active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()} title="Code block">
-          Code
-        </ToolbarButton>
-        <ToolbarButton onClick={setLink} title="Link">
-          Link
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
-          HR
-        </ToolbarButton>
-        <ToolbarButton onClick={insertImageFigure} title="Centered image">
-          Image
-        </ToolbarButton>
-        <ToolbarButton onClick={insertRawHtml} title="Raw HTML block">
-          HTML
-        </ToolbarButton>
-      </div>
+    <div className="ndx-blog-editor-toolbar ndx-blog-editor-toolbar--icons">
+      <ToolbarButton
+        active={editor.isActive('heading', { level: 2 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        title="Heading 2"
+      >
+        <TbH2 aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('heading', { level: 3 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        title="Heading 3"
+      >
+        <TbH3 aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('bold')}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        title="Bold"
+      >
+        <TbBold aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('italic')}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        title="Italic"
+      >
+        <TbItalic aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('bulletList')}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        title="Bullet list"
+      >
+        <TbList aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('orderedList')}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        title="Numbered list"
+      >
+        <TbListNumbers aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('blockquote')}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        title="Quote"
+      >
+        <TbQuote aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive('codeBlock')}
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        title="Code block"
+      >
+        <TbCode aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton onClick={setLink} title="Link">
+        <TbLink aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
+        <TbMinus aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton onClick={insertImageFigure} title="Centered image">
+        <TbPhoto aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton onClick={insertRawHtml} title="Raw HTML block">
+        <TbSourceCode aria-hidden />
+      </ToolbarButton>
+    </div>
+  );
+}
+
+export function useBlogBlockEditor({ contentHtml, onChange, disabled }) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+      }),
+      Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } }),
+      Placeholder.configure({ placeholder: 'Write your post…' }),
+    ],
+    content: contentHtml || '',
+    editable: !disabled,
+    onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    editor.setEditable(!disabled);
+  }, [editor, disabled]);
+
+  useEffect(() => {
+    if (!editor || contentHtml === undefined) return;
+    if (editor.getHTML() !== contentHtml) {
+      editor.commands.setContent(contentHtml || '', false);
+    }
+  }, [editor, contentHtml]);
+
+  return editor;
+}
+
+export default function BlogBlockEditor({ editor, token, showToolbar = true }) {
+  if (!editor) return null;
+
+  return (
+    <div className="ndx-blog-editor ndx-blog-editor--focus">
+      {showToolbar && <BlogEditorToolbar editor={editor} token={token} />}
       <div className="ndx-blog-editor-content">
         <EditorContent editor={editor} />
       </div>

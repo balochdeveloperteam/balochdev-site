@@ -1,8 +1,9 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import Seo from '../../seo/Seo';
 import { PRIVATE_ROUTES } from '../../seo/siteSeo';
 import AccessRoleBadge from '../team/components/AccessRoleBadge';
+import WorkspaceTopBar from '../shared/WorkspaceTopBar';
 import { useAdmin } from './AdminContext';
 import './admin.css';
 
@@ -15,7 +16,7 @@ const NAV = [
   { to: '/admin/media', label: 'Media', soon: true },
 ];
 
-function NavItems({ className, itemClassName }) {
+function NavItems({ className, itemClassName, crossLinkClassName, showTeamLink }) {
   return (
     <nav className={className} aria-label="Admin workspace">
       {NAV.map((item) =>
@@ -37,12 +38,17 @@ function NavItems({ className, itemClassName }) {
           </NavLink>
         ),
       )}
+      {showTeamLink && (
+        <Link to="/team" className={`${crossLinkClassName || itemClassName} ndx-workspace-cross-link`}>
+          Go to Team workspace →
+        </Link>
+      )}
     </nav>
   );
 }
 
 export default function AdminLayout({ children }) {
-  const { profile, signOut } = useAdmin();
+  const { profile, signOut, canAccessTeam, canAccessAdmin } = useAdmin();
   const location = useLocation();
   const reduceMotion = useReducedMotion();
   const isEditor = location.pathname.includes('/admin/posts/');
@@ -72,7 +78,11 @@ export default function AdminLayout({ children }) {
                 </div>
               </div>
 
-              <NavItems className="ndx-admin-nav ndx-admin-nav--sidebar" itemClassName="ndx-admin-nav-link" />
+              <NavItems
+                className="ndx-admin-nav ndx-admin-nav--sidebar"
+                itemClassName="ndx-admin-nav-link"
+                showTeamLink={canAccessTeam}
+              />
 
               <div className="ndx-admin-sidebar-footer">
                 <div className="ndx-admin-user">
@@ -91,9 +101,16 @@ export default function AdminLayout({ children }) {
               </div>
             </aside>
 
-            <NavItems className="ndx-admin-nav ndx-admin-nav--mobile" itemClassName="ndx-admin-nav-link" />
+            <NavItems
+              className="ndx-admin-nav ndx-admin-nav--mobile"
+              itemClassName="ndx-admin-nav-link"
+              showTeamLink={canAccessTeam}
+            />
 
-            <div className="ndx-admin-main ndx-page-rich">{children}</div>
+            <div className="ndx-admin-main ndx-page-rich">
+              <WorkspaceTopBar current="admin" showAdmin={canAccessAdmin} showTeam={canAccessTeam} />
+              {children}
+            </div>
           </motion.div>
         </div>
       </section>

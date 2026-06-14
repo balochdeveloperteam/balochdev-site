@@ -9,8 +9,22 @@ export function AdminProvider({ children }) {
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [hasTeamMember, setHasTeamMember] = useState(false);
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
+
+  const loadTeamMembership = useCallback(async (userId) => {
+    if (!supabase || !userId) {
+      setHasTeamMember(false);
+      return;
+    }
+    const { data } = await supabase
+      .from('team_members')
+      .select('id')
+      .eq('auth_user_id', userId)
+      .maybeSingle();
+    setHasTeamMember(!!data);
+  }, []);
 
   const loadProfile = useCallback(async (accessToken) => {
     const res = await fetch(apiUrl('/api/blog/admin/me'), {
@@ -50,7 +64,7 @@ export function AdminProvider({ children }) {
         return;
       }
 
-      await loadProfile(s.access_token);
+      await Promise.all([loadProfile(s.access_token), loadTeamMembership(s.user.id)]);
       if (!cancelled) setLoading(false);
     })();
 
@@ -64,7 +78,7 @@ export function AdminProvider({ children }) {
           navigate('/admin/login', { replace: true });
           return;
         }
-        await loadProfile(s.access_token);
+        await Promise.all([loadProfile(s.access_token), loadTeamMembership(s.user.id)]);
       }, 0);
     });
 
@@ -72,7 +86,7 @@ export function AdminProvider({ children }) {
       cancelled = true;
       sub.subscription.unsubscribe();
     };
-  }, [loadProfile, navigate]);
+  }, [loadProfile, loadTeamMembership, navigate]);
 
   const signOut = useCallback(async () => {
     await supabase?.auth.signOut();
@@ -98,13 +112,16 @@ export function AdminProvider({ children }) {
     () => ({
       session,
       profile,
+      hasTeamMember,
+      canAccessTeam: hasTeamMember,
+      canAccessAdmin: !denied,
       loading,
       denied,
       signOut,
       authFetch,
       token: session?.access_token || null,
     }),
-    [session, profile, loading, denied, signOut, authFetch],
+    [session, profile, hasTeamMember, loading, denied, signOut, authFetch],
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

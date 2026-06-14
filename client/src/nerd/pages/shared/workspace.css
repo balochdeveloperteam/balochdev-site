@@ -1,0 +1,111 @@
+/* Shared workspace chrome — admin + team */
+
+.ndx-workspace-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.ndx-workspace-switcher {
+  position: relative;
+}
+
+.ndx-workspace-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--ndx-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ndx-text);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.ndx-workspace-switcher-trigger:hover {
+  border-color: var(--ndx-border-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ndx-workspace-switcher-label {
+  color: var(--ndx-muted);
+  font-weight: 500;
+}
+
+.ndx-workspace-switcher-current {
+  font-weight: 600;
+}
+
+.ndx-workspace-switcher-chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--ndx-muted);
+}
+
+.ndx-workspace-switcher-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 200px;
+  padding: 0.35rem;
+  border-radius: 12px;
+  border: 1px solid var(--ndx-border);
+  z-index: 40;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.ndx-workspace-switcher-option {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--ndx-muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ndx-workspace-switcher-option:hover {
+  color: var(--ndx-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ndx-workspace-switcher-option.is-current {
+  color: var(--ndx-accent);
+  background: var(--ndx-accent-dim);
+}
+
+.ndx-workspace-cross-link {
+  margin-top: 0.35rem;
+  border-top: 1px solid var(--ndx-border);
+  padding-top: 0.75rem !important;
+  color: var(--ndx-accent) !important;
+}
+
+.ndx-workspace-cross-link:hover {
+  background: var(--ndx-accent-dim) !important;
+  border-color: color-mix(in srgb, var(--ndx-accent) 30%, transparent) !important;
+}
+
+@media (max-width: 640px) {
+  .ndx-workspace-topbar {
+    justify-content: stretch;
+  }
+
+  .ndx-workspace-switcher {
+    width: 100%;
+  }
+
+  .ndx-workspace-switcher-trigger {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .ndx-workspace-switcher-menu {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+}

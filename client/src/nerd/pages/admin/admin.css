@@ -1,5 +1,7 @@
 /* BalochDev admin CMS — dark theme aligned with ndx-* tokens + /team workspace */
 
+@import '../shared/workspace.css';
+
 .ndx-admin-section {
   padding-top: 1.65rem;
   padding-bottom: 4rem;
@@ -7,6 +9,10 @@
 
 .ndx-admin-section--editor {
   padding-bottom: 2rem;
+}
+
+.ndx-admin-section--editor .ndx-admin-container {
+  max-width: 980px;
 }
 
 .ndx-admin-container {
@@ -819,6 +825,323 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--ndx-border);
+}
+
+/* ── Focus post editor ─────────────────────────────────────────────── */
+
+.ndx-admin-post-editor {
+  min-width: 0;
+}
+
+.ndx-admin-editor-chrome {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 25;
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--ndx-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ndx-surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--ndx-shadow-card) 45%, transparent);
+  overflow: hidden;
+}
+
+.ndx-admin-editor-chrome-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.ndx-admin-editor-chrome-row--primary {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--ndx-border);
+}
+
+.ndx-admin-editor-chrome-row--toolbar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.ndx-admin-editor-chrome-row--toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.ndx-admin-editor-chrome-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ndx-admin-editor-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--ndx-border);
+  color: var(--ndx-muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.ndx-admin-editor-back:hover {
+  color: var(--ndx-text);
+  border-color: var(--ndx-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ndx-admin-editor-back svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ndx-admin-editor-status {
+  font-size: 0.78rem;
+  color: var(--ndx-dim);
+  white-space: nowrap;
+}
+
+.ndx-admin-editor-chrome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.ndx-admin-editor-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ndx-admin-editor-settings-btn svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.ndx-admin-editor-write {
+  padding: 0 0 2rem;
+}
+
+.ndx-admin-editor-write-inner {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.ndx-admin-editor-title-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+}
+
+.ndx-admin-input--title {
+  width: 100%;
+  margin-bottom: 1.35rem;
+  padding: 0.35rem 0;
+  border: none;
+  border-bottom: 1px solid var(--ndx-border);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--ndx-font-brand);
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ndx-text);
+}
+
+.ndx-admin-input--title:focus {
+  outline: none;
+  border-bottom-color: color-mix(in srgb, var(--ndx-accent) 55%, var(--ndx-border));
+  box-shadow: none;
+}
+
+.ndx-admin-input--title::placeholder {
+  color: var(--ndx-dim);
+}
+
+.ndx-admin-caption-compose {
+  padding: 1.25rem 1.35rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ndx-admin-textarea--caption {
+  min-height: 120px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.ndx-blog-editor--focus {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.ndx-blog-editor--focus .ndx-blog-editor-content {
+  min-height: 360px;
+  padding: 0.25rem 0 1rem;
+  background: transparent;
+}
+
+.ndx-blog-editor--focus .ndx-blog-editor-content .ProseMirror {
+  min-height: 340px;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.ndx-blog-editor-toolbar--icons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  min-width: max-content;
+}
+
+.ndx-blog-editor-toolbar--icons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.ndx-blog-editor-toolbar--icons button svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* ── SEO settings drawer ───────────────────────────────────────────── */
+
+.ndx-admin-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+}
+
+.ndx-admin-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 90;
+  width: min(420px, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--ndx-border);
+  background: var(--ndx-surface);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.45);
+}
+
+.ndx-admin-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.15rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--ndx-border);
+}
+
+.ndx-admin-drawer-eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+}
+
+.ndx-admin-drawer-title {
+  margin: 0;
+  font-family: var(--ndx-font-brand);
+  font-size: 1.05rem;
+  color: var(--ndx-text);
+}
+
+.ndx-admin-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--ndx-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ndx-muted);
+  cursor: pointer;
+}
+
+.ndx-admin-drawer-close:hover {
+  color: var(--ndx-text);
+  border-color: var(--ndx-border-strong);
+}
+
+.ndx-admin-drawer-close svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.ndx-admin-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.15rem 1.5rem;
+}
+
+.ndx-admin-meta-panel--drawer {
+  position: static;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .ndx-admin-editor-chrome {
+    top: 4rem;
+  }
+
+  .ndx-admin-editor-chrome-row--primary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ndx-admin-editor-chrome-actions {
+    width: 100%;
+  }
+
+  .ndx-admin-editor-chrome-actions .ndx-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .ndx-admin-editor-settings-btn span {
+    display: none;
+  }
+
+  .ndx-admin-drawer {
+    width: 100vw;
+  }
 }
 
 .ndx-admin-slug-ok {

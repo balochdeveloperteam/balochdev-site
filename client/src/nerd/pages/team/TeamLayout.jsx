@@ -1,7 +1,8 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import Seo from '../../seo/Seo';
 import { PRIVATE_ROUTES } from '../../seo/siteSeo';
+import WorkspaceTopBar from '../shared/WorkspaceTopBar';
 import { useTeam } from './TeamContext';
 import AccessRoleBadge from './components/AccessRoleBadge';
 import TeamAvatar from './components/TeamAvatar';
@@ -16,7 +17,7 @@ const NAV = [
   { to: '/team/policies', label: 'Policies' },
 ];
 
-function NavLinks({ className, itemClassName }) {
+function NavLinks({ className, itemClassName, showAdminLink }) {
   return (
     <nav className={className} aria-label="Team workspace">
       {NAV.map((item) => (
@@ -31,12 +32,17 @@ function NavLinks({ className, itemClassName }) {
           {item.label}
         </NavLink>
       ))}
+      {showAdminLink && (
+        <Link to="/admin/overview" className={`${itemClassName} ndx-workspace-cross-link`}>
+          Go to Admin →
+        </Link>
+      )}
     </nav>
   );
 }
 
 export default function TeamLayout() {
-  const { member, signOut } = useTeam();
+  const { member, signOut, canManageTeam } = useTeam();
   const location = useLocation();
   const reduceMotion = useReducedMotion();
   const canonicalPath = location.pathname.startsWith('/team') ? location.pathname : PRIVATE_ROUTES.TEAM_ROOT;
@@ -72,7 +78,11 @@ export default function TeamLayout() {
                 </div>
               </div>
 
-              <NavLinks className="ndx-team-nav ndx-team-nav--sidebar" itemClassName="ndx-team-nav-link" />
+              <NavLinks
+                className="ndx-team-nav ndx-team-nav--sidebar"
+                itemClassName="ndx-team-nav-link"
+                showAdminLink={canManageTeam}
+              />
 
               <button type="button" className="ndx-btn ndx-team-signout ndx-team-signout--sidebar" onClick={signOut}>
                 Sign out
@@ -82,9 +92,11 @@ export default function TeamLayout() {
             <NavLinks
               className="ndx-team-nav ndx-team-nav--mobile"
               itemClassName="ndx-team-nav-link"
+              showAdminLink={canManageTeam}
             />
 
             <div className="ndx-team-main">
+              <WorkspaceTopBar current="team" showAdmin={canManageTeam} showTeam />
               <Outlet />
             </div>
           </motion.div>

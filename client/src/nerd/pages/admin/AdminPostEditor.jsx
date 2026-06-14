@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
+import { TbArrowLeft, TbSettings } from 'react-icons/tb';
 import { apiUrl } from '../../../lib/api';
 import { useAdmin } from './AdminContext';
-import BlogBlockEditor from './components/BlogBlockEditor';
-import PostMetaPanel, { slugifyTitle } from './components/PostMetaPanel';
+import BlogBlockEditor, { BlogEditorToolbar, useBlogBlockEditor } from './components/BlogBlockEditor';
+import PostMetaDrawer from './components/PostMetaDrawer';
+import { slugifyTitle } from './components/PostMetaPanel';
 
 function computeReadingTime(html) {
   const text = String(html || '')
@@ -86,6 +88,12 @@ async function uploadImage(token, file, folder = 'balochdev/blog') {
   return res.json();
 }
 
+function statusLabel(status) {
+  if (status === 'published') return 'Published';
+  if (status === 'archived') return 'Archived';
+  return 'Draft';
+}
+
 export default function AdminPostEditor() {
   const { id } = useParams();
   const isNew = !id || id === 'new';
@@ -96,7 +104,15 @@ export default function AdminPostEditor() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(null);
   const slugTouched = useRef(false);
+
+  const editor = useBlogBlockEditor({
+    contentHtml: form.content_html,
+    onChange: (html) => setForm((p) => ({ ...p, content_html: html })),
+    disabled: saving || form.post_type === 'image_caption',
+  });
 
   useEffect(() => {
     if (isNew) return undefined;
@@ -198,6 +214,10 @@ export default function AdminPostEditor() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Save failed');
+      setLastSavedAt(new Date());
+      if (statusOverride) {
+        setForm((p) => ({ ...p, status: statusOverride }));
+      }
       navigate('/admin/posts', { replace: !isNew });
     } catch (e) {
       setErr(e.message || 'Save failed');
@@ -242,116 +262,124 @@ export default function AdminPostEditor() {
     input.click();
   };
 
+  const handleFormChange = (next) => {
+    if (next.slug !== form.slug) slugTouched.current = true;
+    setForm(next);
+  };
+
+  const panelProps = {
+    form,
+    onChange: handleFormChange,
+    token,
+    postId: isNew ? null : id,
+    onUploadCover: uploadCover,
+    readingTime,
+  };
+
   if (loading) {
     return <p className="ndx-admin-loading">Loading post</p>;
   }
 
   return (
     <motion.div
+      className="ndx-admin-post-editor"
       initial={reduceMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <div className="ndx-admin-page-head">
-        <div>
-          <p className="ndx-eyebrow">{isNew ? 'New post' : 'Edit post'}</p>
-          <h2 className="ndx-h2">{isNew ? 'Create post' : form.title || 'Untitled'}</h2>
+      <div className="ndx-admin-editor-chrome">
+        <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--primary">
+          <div className="ndx-admin-editor-chrome-left">
+            <Link to="/admin/posts" className="ndx-admin-editor-back">
+              <TbArrowLeft aria-hidden />
+              <span>Posts</span>
+            </Link>
+            <span className="ndx-admin-editor-status" aria-live="polite">
+              {saving ? 'Saving…' : lastSavedAt ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : statusLabel(form.status)}
+            </span>
+          </div>
+          <div className="ndx-admin-editor-chrome-actions">
+            <button
+              type="button"
+              className="ndx-btn ndx-admin-editor-settings-btn"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <TbSettings aria-hidden />
+              <span>Settings / SEO</span>
+            </button>
+            <button type="button" className="ndx-btn" disabled={saving} onClick={() => save('draft')}>
+              Save draft
+            </button>
+            <button
+              type="button"
+              className="ndx-btn ndx-btn-primary"
+              disabled={saving}
+              onClick={() => save('published')}
+            >
+              Publish
+            </button>
+          </div>
         </div>
-        <div className="ndx-admin-page-head-actions">
-          <Link to="/admin/posts" className="ndx-btn">
-            ← Back to list
-          </Link>
-        </div>
+        {form.post_type === 'article' && (
+          <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--toolbar">
+            <BlogEditorToolbar editor={editor} token={token} />
+          </div>
+        )}
       </div>
 
       {err && <p className="ndx-admin-alert">{err}</p>}
 
-      <div className="ndx-admin-field ndx-admin-field--title">
-        <label htmlFor="post-title">Title</label>
-        <input
-          id="post-title"
-          className="ndx-admin-input"
-          value={form.title}
-          onChange={(e) => onTitleChange(e.target.value)}
-        />
+      <div className="ndx-admin-editor-write">
+        <div className="ndx-admin-editor-write-inner">
+          <label htmlFor="post-title" className="ndx-admin-editor-title-label">
+            Post title
+          </label>
+          <input
+            id="post-title"
+            className="ndx-admin-input ndx-admin-input--title"
+            placeholder="Untitled post"
+            value={form.title}
+            onChange={(e) => onTitleChange(e.target.value)}
+          />
+
+          {form.post_type === 'image_caption' ? (
+            <div className="ndx-admin-caption-compose ndx-glass-section">
+              <div className="ndx-admin-field">
+                <label>Image</label>
+                {form.caption_image_url && (
+                  <img src={form.caption_image_url} alt="" className="ndx-admin-cover-preview" />
+                )}
+                <button type="button" className="ndx-btn" onClick={uploadCaptionImage}>
+                  {form.caption_image_url ? 'Replace image' : 'Upload image'}
+                </button>
+              </div>
+              <div className="ndx-admin-field">
+                <label htmlFor="caption-alt">Image alt text</label>
+                <input
+                  id="caption-alt"
+                  className="ndx-admin-input"
+                  value={form.caption_image_alt}
+                  onChange={(e) => setForm((p) => ({ ...p, caption_image_alt: e.target.value }))}
+                />
+              </div>
+              <div className="ndx-admin-field">
+                <label htmlFor="caption-text">Caption</label>
+                <textarea
+                  id="caption-text"
+                  className="ndx-admin-textarea ndx-admin-textarea--caption"
+                  rows={4}
+                  value={form.caption_text}
+                  onChange={(e) => setForm((p) => ({ ...p, caption_text: e.target.value }))}
+                />
+              </div>
+            </div>
+          ) : (
+            <BlogBlockEditor editor={editor} token={token} showToolbar={false} />
+          )}
+        </div>
       </div>
 
-      {form.post_type === 'image_caption' ? (
-        <div className="ndx-admin-editor-layout">
-          <div className="ndx-admin-panel ndx-glass-section">
-            <div className="ndx-admin-field">
-              <label>Image</label>
-              {form.caption_image_url && (
-                <img src={form.caption_image_url} alt="" className="ndx-admin-cover-preview" />
-              )}
-              <button type="button" className="ndx-btn" onClick={uploadCaptionImage}>
-                {form.caption_image_url ? 'Replace image' : 'Upload image'}
-              </button>
-            </div>
-            <div className="ndx-admin-field">
-              <label htmlFor="caption-alt">Image alt text</label>
-              <input
-                id="caption-alt"
-                className="ndx-admin-input"
-                value={form.caption_image_alt}
-                onChange={(e) => setForm((p) => ({ ...p, caption_image_alt: e.target.value }))}
-              />
-            </div>
-            <div className="ndx-admin-field">
-              <label htmlFor="caption-text">Caption</label>
-              <textarea
-                id="caption-text"
-                className="ndx-admin-textarea"
-                rows={4}
-                value={form.caption_text}
-                onChange={(e) => setForm((p) => ({ ...p, caption_text: e.target.value }))}
-              />
-            </div>
-          </div>
-          <PostMetaPanel
-            form={form}
-            onChange={setForm}
-            token={token}
-            postId={isNew ? null : id}
-            onUploadCover={uploadCover}
-            readingTime={readingTime}
-          />
-        </div>
-      ) : (
-        <div className="ndx-admin-editor-layout">
-          <BlogBlockEditor
-            contentHtml={form.content_html}
-            onChange={(html) => setForm((p) => ({ ...p, content_html: html }))}
-            token={token}
-            disabled={saving}
-          />
-          <PostMetaPanel
-            form={form}
-            onChange={(next) => {
-              if (next.slug !== form.slug) slugTouched.current = true;
-              setForm(next);
-            }}
-            token={token}
-            postId={isNew ? null : id}
-            onUploadCover={uploadCover}
-            readingTime={readingTime}
-          />
-        </div>
-      )}
-
-      <div className="ndx-admin-save-bar">
-        <button type="button" className="ndx-btn" disabled={saving} onClick={() => save('draft')}>
-          Save draft
-        </button>
-        <button
-          type="button"
-          className="ndx-btn ndx-btn-primary"
-          disabled={saving}
-          onClick={() => save('published')}
-        >
-          Publish
-        </button>
-      </div>
+      <PostMetaDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} panelProps={panelProps} />
     </motion.div>
   );
 }
