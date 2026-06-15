@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TbArrowLeft, TbSettings } from 'react-icons/tb';
 import { apiUrl } from '../../../lib/api';
 import { useAdmin } from './AdminContext';
 import BlogBlockEditor, { BlogEditorToolbar, useBlogBlockEditor } from './components/BlogBlockEditor';
+import AdminEditorErrorBoundary from './components/AdminEditorErrorBoundary';
 import PostMetaDrawer from './components/PostMetaDrawer';
 import { slugifyTitle } from './components/PostMetaPanel';
 
@@ -99,7 +100,6 @@ export default function AdminPostEditor() {
   const isNew = !id || id === 'new';
   const navigate = useNavigate();
   const { authFetch, token } = useAdmin();
-  const reduceMotion = useReducedMotion();
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -297,12 +297,13 @@ export default function AdminPostEditor() {
   }
 
   return (
-    <motion.div
-      className="ndx-admin-post-editor"
-      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-    >
+    <AdminEditorErrorBoundary>
+      <motion.div
+        className="ndx-admin-post-editor"
+        initial={false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
       <div className="ndx-admin-editor-chrome">
         <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--primary">
           <div className="ndx-admin-editor-chrome-left">
@@ -336,11 +337,15 @@ export default function AdminPostEditor() {
             </button>
           </div>
         </div>
-        {form.post_type === 'article' && (
+        {form.post_type === 'article' && editor ? (
           <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--toolbar">
             <BlogEditorToolbar editor={editor} token={token} onNotify={(msg) => setErr(msg)} />
           </div>
-        )}
+        ) : form.post_type === 'article' ? (
+          <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--toolbar">
+            <p className="ndx-admin-field-hint" style={{ margin: 0 }}>Loading toolbar…</p>
+          </div>
+        ) : null}
       </div>
 
       {err && <p className="ndx-admin-alert">{err}</p>}
@@ -403,5 +408,6 @@ export default function AdminPostEditor() {
         panelProps={panelProps}
       />
     </motion.div>
+    </AdminEditorErrorBoundary>
   );
 }

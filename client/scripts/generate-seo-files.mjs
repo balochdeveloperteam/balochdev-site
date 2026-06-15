@@ -82,18 +82,13 @@ function formatSitemapLastMod(value) {
 }
 
 /**
- * Prefer published_at; if missing and created_at exists, use created_at; else omit.
+ * Prefer updated_at for blog sitemap lastmod; fall back to published_at, then created_at.
  */
 function resolveBlogLastmodRow(row) {
-  const pa = row?.published_at;
-  const ca = row?.created_at;
-  if (pa !== null && pa !== undefined && String(pa).trim() !== '') {
-    return formatSitemapLastMod(pa);
-  }
-  if (pa === null || pa === undefined || String(pa).trim() === '') {
-    if (ca !== null && ca !== undefined && String(ca).trim() !== '') {
-      return formatSitemapLastMod(ca);
-    }
+  const candidates = [row?.updated_at, row?.published_at, row?.created_at];
+  for (const v of candidates) {
+    const lm = formatSitemapLastMod(v);
+    if (lm) return lm;
   }
   return null;
 }
@@ -111,7 +106,7 @@ async function fetchBlogSlugLastmods() {
   try {
     const { data, error } = await client
       .from('blog_posts')
-      .select('slug, published_at, created_at')
+      .select('slug, published_at, created_at, updated_at')
       .eq('published', true);
 
     if (error) {

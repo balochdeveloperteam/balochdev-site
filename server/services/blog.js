@@ -60,12 +60,44 @@ function slugifyTitle(title) {
     .slice(0, 80);
 }
 
-function mapPublicPost(row) {
+function mapPublicPost(row, extras = {}) {
   if (!row) return row;
+  const bodyHtml = row.content_html || row.body_html || '';
   return {
-    ...row,
-    body_html: row.content_html || row.body_html || '',
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || '',
+    body_html: bodyHtml,
+    content_html: bodyHtml,
+    post_type: row.post_type || 'article',
+    cover_image_url: row.cover_image_url || null,
+    cover_image_alt: row.cover_image_alt || '',
+    meta_title: row.meta_title || '',
+    meta_description: row.meta_description || '',
+    focus_keyword: row.focus_keyword || '',
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    category: row.category || '',
+    og_image_url: row.og_image_url || row.cover_image_url || null,
+    reading_time_minutes: row.reading_time_minutes || 1,
+    author_name: row.author_name || 'BalochDev',
+    author_member_id: row.author_member_id || null,
+    published_at: row.published_at,
+    updated_at: row.updated_at,
+    like_count: row.like_count || 0,
+    comment_count: row.comment_count || 0,
+    related_slugs: Array.isArray(row.related_slugs) ? row.related_slugs : [],
+    view_count: row.view_count || 0,
+    ...extras,
   };
+}
+
+function stripHtmlToPlain(html, maxLen = 320) {
+  const plain = String(html || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return plain.length > maxLen ? `${plain.slice(0, maxLen - 1)}…` : plain;
 }
 
 function normalizeTags(tags) {
@@ -83,6 +115,7 @@ module.exports = {
   computeReadingTimeMinutes,
   slugifyTitle,
   mapPublicPost,
+  stripHtmlToPlain,
   normalizeTags,
   normalizeRelatedSlugs,
 };

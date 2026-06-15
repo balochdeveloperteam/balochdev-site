@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
+import SocialLinksRow from './SocialLinksRow';
 
 const cols = [
   {
@@ -74,6 +75,7 @@ export default function ShellFooter() {
           <p style={{ marginTop: '0.35rem', fontSize: '0.8125rem', color: 'var(--ndx-dim)' }}>
             balochdev.com
           </p>
+          <SocialLinksRow className="ndx-social-links--footer" showLabel={false} />
         </div>
         {cols.map((col) => (
           <div key={col.title}>

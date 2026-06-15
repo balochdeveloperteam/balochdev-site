@@ -293,17 +293,20 @@ function createShouldPrerenderPath(blogSlugWhitelistSet) {
   };
 }
 
-async function injectBlogBootstrapJson(page, slug, postPayload) {
+async function injectBlogBootstrapJson(page, slug, entry) {
   await page.evaluate(
-    ({ slug, post }) => {
+    ({ slug, post, comments }) => {
       document.getElementById('balochdev-blog-bootstrap')?.remove();
       const script = document.createElement('script');
       script.type = 'application/json';
       script.id = 'balochdev-blog-bootstrap';
-      script.textContent = JSON.stringify({ slug, post }).replace(/</g, '\\u003c');
+      script.textContent = JSON.stringify({ slug, post, comments: comments || [], post_liked: false }).replace(
+        /</g,
+        '\\u003c',
+      );
       (document.body || document.documentElement).appendChild(script);
     },
-    { slug, post: postPayload },
+    { slug, post: entry.post, comments: entry.comments || [] },
   );
 }
 
@@ -457,7 +460,8 @@ async function main() {
           return;
         }
 
-        const post = eligiblePostsForMock.get(slugMatched);
+        const entry = eligiblePostsForMock.get(slugMatched);
+        const post = entry?.post;
         if (!post?.title?.trim?.()) {
           throw new Error(
             `[prerender] Internal error: whitelist contains "${slugMatched}" but no sanitized post payload is available.`,
@@ -470,6 +474,46 @@ async function main() {
           status: 200,
           contentType: 'application/json; charset=utf-8',
           body: JSON.stringify({ post }),
+        });
+      });
+    }
+
+    /** Mock comments API for prerender (empty visitor_key — no liked state needed in static HTML). */
+    if (scheduledBlogSnapshots > 0) {
+      await page.route('**/*', async (route) => {
+        const reqUrl = route.request().url();
+        let req;
+        try {
+          req = new URL(reqUrl);
+        } catch {
+          await route.continue();
+          return;
+        }
+        const m = /^\/api\/blog\/([^/?#]+)\/comments$/.exec(req.pathname || '');
+        if (!m) {
+          await route.continue();
+          return;
+        }
+        let slugMatched;
+        try {
+          slugMatched = decodeURIComponent(m[1]).trim();
+        } catch {
+          await route.continue();
+          return;
+        }
+        if (!blogSlugWhitelist.has(slugMatched)) {
+          await route.continue();
+          return;
+        }
+        const entry = eligiblePostsForMock.get(slugMatched);
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json; charset=utf-8',
+          body: JSON.stringify({
+            comments: entry?.comments || [],
+            post_liked: false,
+            like_count: entry?.post?.like_count || 0,
+          }),
         });
       });
     }
@@ -495,26 +539,26 @@ async function main() {
 
       const blogSlugHit = extractBlogSlugFromPathname(pathname);
       if (blogSlugHit && blogSlugWhitelist.has(blogSlugHit)) {
-        const p = eligiblePostsForMock.get(blogSlugHit);
-        if (!p) {
+        const entry = eligiblePostsForMock.get(blogSlugHit);
+        if (!entry?.post) {
           throw new Error(`[prerender] Missing sanitized post row for whitelist slug "${blogSlugHit}".`);
         }
-        await injectBlogBootstrapJson(page, blogSlugHit, p);
+        await injectBlogBootstrapJson(page, blogSlugHit, entry);
       }
 
       const html = await page.evaluate(() => document.documentElement.outerHTML);
 
       /** Never ship placeholder-only blog HTML for whitelisted slugs */
       if (blogSlugHit && blogSlugWhitelist.has(blogSlugHit)) {
-        const p = eligiblePostsForMock.get(blogSlugHit);
+        const entry = eligiblePostsForMock.get(blogSlugHit);
+        const p = entry?.post;
         const pageOk =
           !!p &&
           (await page.evaluate(({ titleSnippet }) => {
             if (!document.getElementById('balochdev-blog-bootstrap')) return false;
 
-            /** Placeholder-only view uses this exact lead copy on /blog/:slug */
             const hasPlaceholder = [...document.querySelectorAll('.ndx-lead')].some((el) =>
-              (el.textContent || '').includes('Loading or sample — connect API for live content.'),
+              (el.textContent || '').trim() === 'Loading…',
             );
             if (hasPlaceholder) return false;
 

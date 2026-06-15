@@ -55,8 +55,10 @@ export const organizationJsonLd = {
   description: SITE_META_DESCRIPTION,
   sameAs: [
     'https://github.com/balochdeveloperteam',
-    'https://www.instagram.com/ba1ochdev',
-    'https://www.tiktok.com/@baloch.dev',
+    'https://www.linkedin.com/company/balochdev/',
+    'https://x.com/BalochDev404',
+    'https://www.instagram.com/balochdev_',
+    'https://medium.com/@balochdev',
     'https://www.facebook.com/share/18QuFjdbMm/',
   ],
 };

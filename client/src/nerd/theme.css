@@ -634,6 +634,49 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
   margin-bottom: 0 !important;
 }
 
+/* Shared social profile links (footer + blog) */
+.ndx-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+}
+
+.ndx-social-links__label {
+  font-size: 0.8125rem;
+  color: var(--ndx-dim);
+  white-space: nowrap;
+}
+
+.ndx-social-links__icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ndx-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--ndx-border);
+  color: var(--ndx-dim);
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.ndx-social-link:hover {
+  border-color: var(--ndx-accent);
+  color: var(--ndx-text);
+  background: color-mix(in srgb, var(--ndx-accent) 10%, transparent);
+}
+
+.ndx-social-links--footer {
+  margin-top: 1.25rem;
+}
+
 /* ---------- Page shell ---------- */
 .ndx-section {
   padding: 4rem 1.25rem;

@@ -152,9 +152,7 @@ async function main() {
 
     const verdict = await page.evaluate(() => {
       const txt = document.body?.innerText ?? '';
-      const hasPlaceholder = txt.includes(
-        'Loading or sample — connect API for live content.',
-      );
+      const hasPlaceholder = txt.trim() === 'Loading…' || (txt.includes('Loading…') && !hasArticle);
       const hasArticle = !!document.querySelector('article h1.ndx-h1');
       return { hasPlaceholder, hasArticle, sample: txt.slice(0, 420) };
     });

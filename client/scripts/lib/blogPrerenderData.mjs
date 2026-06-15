@@ -1,6 +1,5 @@
 /**
- * Bulk-load published blog_posts for Playwright prerender (Node only).
- * Reason: sanitize-html is optimized for stripping HTML strings on the server without a JSDOM window.
+ * Bulk-load published blog_posts (+ visible comments) for Playwright prerender (Node only).
  */
 
 import sanitizeHtml from 'sanitize-html';
@@ -67,10 +66,91 @@ export function sanitizeBlogPlainLine(s) {
   return sanitizeHtml(String(s ?? ''), { allowedTags: [], allowedAttributes: {} });
 }
 
+function mapPrerenderPost(row) {
+  const body_html = sanitizeBlogBodyHtml(row.content_html || row.body_html);
+  const title = sanitizeBlogPlainLine(row.title).trim();
+  let excerptOut;
+  if (typeof row.excerpt === 'string' && row.excerpt.trim()) {
+    const plain = sanitizeBlogPlainLine(row.excerpt).trim();
+    if (plain) excerptOut = plain;
+  }
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    title,
+    excerpt: excerptOut || '',
+    body_html,
+    content_html: body_html,
+    post_type: row.post_type || 'article',
+    cover_image_url: row.cover_image_url || null,
+    cover_image_alt: sanitizeBlogPlainLine(row.cover_image_alt || ''),
+    meta_title: sanitizeBlogPlainLine(row.meta_title || ''),
+    meta_description: sanitizeBlogPlainLine(row.meta_description || ''),
+    og_image_url: row.og_image_url || row.cover_image_url || null,
+    reading_time_minutes: row.reading_time_minutes || 1,
+    author_name: sanitizeBlogPlainLine(row.author_name || 'BalochDev'),
+    author_member_id: row.author_member_id || null,
+    published_at: row.published_at,
+    updated_at: row.updated_at,
+    like_count: row.like_count || 0,
+    comment_count: row.comment_count || 0,
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    category: sanitizeBlogPlainLine(row.category || ''),
+    related_slugs: Array.isArray(row.related_slugs) ? row.related_slugs : [],
+  };
+}
+
+function mapPrerenderComment(row) {
+  return {
+    id: row.id,
+    post_id: row.post_id,
+    parent_id: row.parent_id,
+    author_name: sanitizeBlogPlainLine(row.author_name),
+    content: sanitizeBlogPlainLine(row.content),
+    is_pinned: !!row.is_pinned,
+    like_count: row.like_count || 0,
+    created_at: row.created_at,
+  };
+}
+
+async function loadCommentsByPostIds(client, postIds) {
+  /** @type {Map<string, object[]>} */
+  const byPost = new Map();
+  if (!postIds.length) return byPost;
+
+  try {
+    const { data, error } = await client
+      .from('blog_comments')
+      .select('id, post_id, parent_id, author_name, content, is_pinned, like_count, created_at')
+      .in('post_id', postIds)
+      .eq('status', 'visible')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn(`[prerender] blog_comments query failed (${error.message}) — comments omitted from snapshots.`);
+      return byPost;
+    }
+
+    for (const row of data || []) {
+      const list = byPost.get(row.post_id) || [];
+      list.push(mapPrerenderComment(row));
+      byPost.set(row.post_id, list);
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`[prerender] blog_comments threw (${msg}) — comments omitted.`);
+  }
+
+  return byPost;
+}
+
 /**
- * @returns {Promise<{ bySlug: Map<string, { title: string, body_html: string, excerpt?: string }>, querySucceeded: boolean }>}
+ * @returns {Promise<{ bySlug: Map<string, { post: object, comments: object[] }>, querySucceeded: boolean }>}
  */
 export async function loadSanitizedBlogPostsMap() {
+  /** @type {Map<string, { post: object, comments: object[] }>} */
   const bySlug = new Map();
 
   const client = tryCreateSupabaseBuildClient(() => {});
@@ -82,7 +162,9 @@ export async function loadSanitizedBlogPostsMap() {
   try {
     const { data, error } = await client
       .from('blog_posts')
-      .select('slug, title, body_html, excerpt, published')
+      .select(
+        'id, slug, title, body_html, content_html, excerpt, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs',
+      )
       .eq('published', true);
 
     if (error) {
@@ -91,23 +173,16 @@ export async function loadSanitizedBlogPostsMap() {
     }
 
     const rows = Array.isArray(data) ? data : [];
+    const postIds = rows.map((r) => r.id).filter(Boolean);
+    const commentsByPost = await loadCommentsByPostIds(client, postIds);
+
     for (const row of rows) {
       const slug = typeof row?.slug === 'string' ? row.slug.trim() : '';
       if (!slug) continue;
-      const titleRaw = typeof row?.title === 'string' ? row.title : '';
-      const title = sanitizeBlogPlainLine(titleRaw).trim();
-      if (!title) continue;
-
-      const body_html = sanitizeBlogBodyHtml(row.body_html);
-      let excerptOut;
-      if (typeof row.excerpt === 'string' && row.excerpt.trim()) {
-        const plain = sanitizeBlogPlainLine(row.excerpt).trim();
-        if (plain) excerptOut = plain;
-      }
-
-      /** @type {{ title: string, body_html: string, excerpt?: string }} */
-      const post = excerptOut ? { title, body_html, excerpt: excerptOut } : { title, body_html };
-      bySlug.set(slug, post);
+      const post = mapPrerenderPost(row);
+      if (!post.title) continue;
+      const comments = commentsByPost.get(row.id) || [];
+      bySlug.set(slug, { post, comments });
     }
 
     return { bySlug, querySucceeded: true };

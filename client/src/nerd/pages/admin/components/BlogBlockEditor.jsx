@@ -31,13 +31,15 @@ import {
   createBlogEditorExtensions,
   serializeBlogEditorHtml,
 } from './editor/tiptapExtensions';
+import { applyTextColor, preventToolbarFocusSteal } from './editor/applyTextColor';
 
-export function ToolbarButton({ active, onClick, children, title, className = '' }) {
+export function ToolbarButton({ active, onClick, onMouseDown, children, title, className = '' }) {
   return (
     <button
       type="button"
       className={`${active ? 'is-active' : ''} ${className}`.trim()}
       onClick={onClick}
+      onMouseDown={onMouseDown}
       title={title}
       aria-label={title}
     >
@@ -65,11 +67,7 @@ function ColorPicker({ editor }) {
   }, [open]);
 
   const apply = (color) => {
-    if (!color) {
-      editor.chain().focus().unsetColor().run();
-    } else {
-      editor.chain().focus().setColor(color).run();
-    }
+    applyTextColor(editor, color);
     setOpen(false);
   };
 
@@ -77,6 +75,7 @@ function ColorPicker({ editor }) {
     <div className="ndx-blog-editor-color" ref={wrapRef}>
       <ToolbarButton
         active={!!current}
+        onMouseDown={preventToolbarFocusSteal}
         onClick={() => setOpen((v) => !v)}
         title="Text color"
         className="ndx-blog-editor-color-trigger"
@@ -99,15 +98,26 @@ function ColorPicker({ editor }) {
                 style={{ background: c.value }}
                 title={c.label}
                 aria-label={c.label}
+                onMouseDown={preventToolbarFocusSteal}
                 onClick={() => apply(c.value)}
               />
             ))}
           </div>
           <label className="ndx-blog-editor-color-custom">
             <span>Custom</span>
-            <input type="color" value={current || '#f8fafc'} onChange={(e) => apply(e.target.value)} />
+            <input
+              type="color"
+              value={current || '#f8fafc'}
+              onMouseDown={preventToolbarFocusSteal}
+              onChange={(e) => apply(e.target.value)}
+            />
           </label>
-          <button type="button" className="ndx-blog-editor-color-clear" onClick={() => apply(null)}>
+          <button
+            type="button"
+            className="ndx-blog-editor-color-clear"
+            onMouseDown={preventToolbarFocusSteal}
+            onClick={() => apply(null)}
+          >
             Clear color
           </button>
         </div>
@@ -526,6 +536,7 @@ export function useBlogBlockEditor({ contentHtml, onChange, disabled }) {
     extensions: createBlogEditorExtensions(),
     content: contentHtml || '',
     editable: !disabled,
+    immediatelyRender: false,
     onUpdate: ({ editor: ed }) => onChange(serializeBlogEditorHtml(ed)),
   });
 
@@ -537,16 +548,22 @@ export function useBlogBlockEditor({ contentHtml, onChange, disabled }) {
   useEffect(() => {
     if (!editor || contentHtml === undefined) return;
     const serialized = serializeBlogEditorHtml(editor);
-    if (serialized !== contentHtml) {
-      editor.commands.setContent(contentHtml || '', false);
-    }
+    if (serialized === contentHtml) return;
+    // External load (e.g. fetched post) — avoid fighting live typing
+    editor.commands.setContent(contentHtml || '', false);
   }, [editor, contentHtml]);
 
   return editor;
 }
 
 export default function BlogBlockEditor({ editor, token, showToolbar = true, onNotify }) {
-  if (!editor) return null;
+  if (!editor) {
+    return (
+      <div className="ndx-blog-editor ndx-blog-editor--focus ndx-blog-editor--loading" aria-busy="true">
+        <p className="ndx-admin-field-hint">Loading editor…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="ndx-blog-editor ndx-blog-editor--focus">

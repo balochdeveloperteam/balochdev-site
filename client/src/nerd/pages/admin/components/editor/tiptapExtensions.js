@@ -159,7 +159,7 @@ export function createBlogEditorExtensions() {
       alignments: ['left', 'center', 'right', 'justify'],
     }),
     TextStyle,
-    Color,
+    Color.configure({ types: ['textStyle'] }),
     FontSize.configure({
       types: ['textStyle'],
     }),

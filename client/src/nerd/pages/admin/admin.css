@@ -719,7 +719,6 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 1.35rem 0 0.65rem;
-  color: var(--ndx-text);
 }
 
 .ndx-blog-editor-content .ProseMirror h3 {
@@ -727,7 +726,6 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   font-size: 1.15rem;
   font-weight: 600;
   margin: 1rem 0 0.5rem;
-  color: var(--ndx-text);
 }
 
 .ndx-blog-editor-content .ProseMirror a {
@@ -970,11 +968,13 @@ html[data-theme='dark'] .ndx-admin-sidebar {
 
 .ndx-admin-editor-write {
   padding: 0 0 2rem;
+  min-height: 50vh;
 }
 
 .ndx-admin-editor-write-inner {
   max-width: 46rem;
   margin: 0 auto;
+  min-height: 40vh;
 }
 
 .ndx-admin-editor-title-label {
@@ -1045,6 +1045,19 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   line-height: 1.75;
 }
 
+.ndx-blog-editor--loading {
+  min-height: 360px;
+  padding: 1rem 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.ndx-admin-editor-error {
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border-radius: 14px;
+}
+
 .ndx-blog-editor-toolbar--icons {
   display: flex;
   flex-wrap: nowrap;
@@ -1104,7 +1117,7 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 0;
-  z-index: 30;
+  z-index: 40;
   min-width: 11rem;
   padding: 0.55rem;
   border-radius: 12px;
@@ -1404,6 +1417,16 @@ html[data-theme='dark'] .ndx-admin-sidebar {
 @media (max-width: 640px) {
   .ndx-admin-editor-chrome {
     top: 4rem;
+    position: sticky;
+  }
+
+  .ndx-admin-editor-chrome-row--toolbar {
+    min-height: 2.75rem;
+  }
+
+  .ndx-blog-editor-toolbar--icons {
+    flex-wrap: nowrap;
+    min-width: max-content;
   }
 
   .ndx-admin-editor-chrome-row--primary {
