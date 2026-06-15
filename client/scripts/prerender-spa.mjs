@@ -227,57 +227,168 @@ function extractBlogSlugFromPathname(entryPath) {
   return m ? decodeURIComponent(m[1]).trim() : null;
 }
 
-function viteConfiguredApiOrigin() {
-  const viteRaw = (process.env.VITE_API_URL ?? '').trim();
-  if (!viteRaw) return null;
-  let baseTrim = viteRaw.replace(/\/+$/, '');
-  if (!/^https?:\/\//i.test(baseTrim)) baseTrim = `https://${baseTrim}`;
-  try {
-    return new URL(baseTrim).origin;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Mirrors runtime apiUrl (/api/blog/:slug): same-origin when bundle has empty base, else bundled API origin(s).
- */
-function slugFromBlogApiRequestUrl(absRequestUrl, previewBaseHref) {
-  let req;
-  try {
-    req = new URL(absRequestUrl);
-  } catch {
-    return null;
-  }
-
-  const previewOrigin = new URL(previewBaseHref).origin;
-  const viteOrigin = viteConfiguredApiOrigin();
-
-  const originsOk = new Set([previewOrigin]);
-  if (viteOrigin) originsOk.add(viteOrigin);
-
-  /** Local dev ergonomics for apiUrl(...) hitting 127 vs localhost with different origins. */
-  for (const o of [...originsOk]) {
-    try {
-      const u = new URL(o);
-      const h = u.hostname;
-      if (h !== 'localhost' && h !== '127.0.0.1') continue;
-      u.hostname = h === 'localhost' ? '127.0.0.1' : 'localhost';
-      originsOk.add(u.origin);
-    } catch {
-      /* ignore */
-    }
-  }
-
-  if (!originsOk.has(req.origin)) return null;
-
-  const m = /^\/api\/blog\/([^/?#]+)$/.exec(req.pathname || '');
+/** Parse /api/blog/:slug from any absolute URL (Playwright mock — ignore origin so bundled VITE_API_URL still intercepts). */
+function slugFromBlogPostApiPathname(pathname) {
+  const m = /^\/api\/blog\/([^/?#]+)$/.exec(pathname || '');
   if (!m) return null;
   try {
     return decodeURIComponent(m[1]).trim();
   } catch {
     return null;
   }
+}
+
+/** Parse /api/blog/:slug/comments from any absolute URL. */
+function slugFromBlogCommentsApiPathname(pathname) {
+  const m = /^\/api\/blog\/([^/?#]+)\/comments$/.exec(pathname || '');
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Validate prerendered blog post DOM before writing dist/blog/:slug/index.html.
+ * @returns {Promise<{ ok: boolean, checks: Record<string, boolean>, details: Record<string, string> }>}
+ */
+async function validateBlogPostHtml(page, slug, expectedPost) {
+  const titleSnippet = expectedPost?.title?.trim?.() ?? '';
+
+  return page.evaluate(
+    ({ slug, titleSnippet }) => {
+      /** @type {Record<string, boolean>} */
+      const checks = {};
+      /** @type {Record<string, string>} */
+      const details = {};
+
+      const bootstrapEl = document.getElementById('balochdev-blog-bootstrap');
+      checks.bootstrapPresent = !!bootstrapEl;
+      details.bootstrapPresent = bootstrapEl ? 'found #balochdev-blog-bootstrap' : 'missing bootstrap script';
+
+      const loadingLead = [...document.querySelectorAll('.ndx-lead')].find(
+        (el) => (el.textContent || '').trim() === 'Loading…',
+      );
+      checks.noLoadingPlaceholder = !loadingLead;
+      details.noLoadingPlaceholder = loadingLead
+        ? 'still showing "Loading…" placeholder — post data did not hydrate before snapshot'
+        : 'no loading placeholder';
+
+      const h1El = document.querySelector('article h1.ndx-h1');
+      const h1Txt = h1El?.textContent?.trim?.() ?? '';
+      checks.articleH1Present = !!h1Txt;
+      details.articleH1Present = h1Txt ? `h1="${h1Txt.slice(0, 120)}"` : 'missing article h1.ndx-h1';
+
+      checks.titleMatches = !!titleSnippet && (h1Txt === titleSnippet || (document.body?.innerText ?? '').includes(titleSnippet));
+      details.titleMatches = titleSnippet
+        ? `expected="${titleSnippet.slice(0, 120)}" got="${h1Txt.slice(0, 120)}"`
+        : 'expected title empty in Supabase payload';
+
+      const proseEl = document.querySelector('.ndx-blog-prose');
+      const proseHtml = proseEl?.innerHTML?.trim?.() ?? '';
+      checks.prosePresent = proseHtml.length > 0 && proseHtml !== '<p></p>';
+      details.prosePresent = proseHtml
+        ? `prose length=${proseHtml.length} preview=${proseHtml.slice(0, 160).replace(/\s+/g, ' ')}`
+        : 'missing or empty .ndx-blog-prose';
+
+      const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content')?.trim?.() ?? '';
+      checks.ogTitlePresent = ogTitle.length > 0;
+      details.ogTitlePresent = ogTitle ? `og:title="${ogTitle.slice(0, 120)}"` : 'missing og:title';
+
+      const ok =
+        checks.bootstrapPresent &&
+        checks.noLoadingPlaceholder &&
+        checks.articleH1Present &&
+        checks.titleMatches &&
+        checks.prosePresent &&
+        checks.ogTitlePresent;
+
+      const rootSnippet = (document.getElementById('root')?.innerHTML ?? '')
+        .replace(/\s+/g, ' ')
+        .slice(0, 900);
+
+      return { ok, checks, details, slug, rootSnippet };
+    },
+    { slug, titleSnippet },
+  );
+}
+
+function logBlogValidationFailure(slug, result) {
+  const failed = Object.entries(result.checks)
+    .filter(([k, v]) => !v)
+    .map(([k]) => k);
+  console.error(`[prerender] Blog HTML validation failed for /blog/${slug}`);
+  console.error('[prerender] Failed checks:', failed.join(', ') || '(none — unexpected)');
+  for (const key of failed) {
+    console.error(`[prerender]   ${key}: ${result.details[key] ?? ''}`);
+  }
+  console.error('[prerender] #root snippet:', result.rootSnippet || '(empty)');
+}
+
+/** Inject bootstrap JSON before React mounts so NBlogPost reads post on first paint (not after async fetch). */
+async function installBlogBootstrapInitScript(page, postsBySlug) {
+  const payload = {};
+  for (const [slug, entry] of postsBySlug) {
+    payload[slug] = {
+      post: entry.post,
+      comments: entry.comments || [],
+    };
+  }
+
+  await page.addInitScript(({ posts }) => {
+    function injectForPathname() {
+      const m = /^\/blog\/([^/?#]+)$/.exec(window.location.pathname || '');
+      if (!m) return;
+      let slug;
+      try {
+        slug = decodeURIComponent(m[1]).trim();
+      } catch {
+        return;
+      }
+      const entry = posts[slug];
+      if (!entry?.post) return;
+      if (document.getElementById('balochdev-blog-bootstrap')) return;
+
+      const script = document.createElement('script');
+      script.type = 'application/json';
+      script.id = 'balochdev-blog-bootstrap';
+      script.textContent = JSON.stringify({
+        slug,
+        post: entry.post,
+        comments: entry.comments || [],
+        post_liked: false,
+      }).replace(/</g, '\\u003c');
+
+      (document.body || document.documentElement).appendChild(script);
+    }
+
+    /** Run immediately (before deferred React bundle) and once more on DOMContentLoaded if body was not ready. */
+    injectForPathname();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', injectForPathname, { once: true });
+    }
+  }, { posts: payload });
+}
+
+async function waitForBlogArticleRender(page, slug, expectedTitle, timeoutMs = 30_000) {
+  const titleSnippet = expectedTitle.trim();
+  await page.waitForFunction(
+    ({ titleSnippet: title }) => {
+      const loading = [...document.querySelectorAll('.ndx-lead')].some(
+        (el) => (el.textContent || '').trim() === 'Loading…',
+      );
+      if (loading) return false;
+
+      const h1 = document.querySelector('article h1.ndx-h1');
+      const h1Txt = h1?.textContent?.trim?.() ?? '';
+      if (!h1Txt) return false;
+      if (h1Txt === title) return true;
+      return (document.body?.innerText ?? '').includes(title);
+    },
+    { titleSnippet },
+    { timeout: timeoutMs },
+  );
 }
 
 /** @returns {(p: string) => boolean} */
@@ -450,21 +561,45 @@ async function main() {
     const page = await context.newPage();
 
     if (scheduledBlogSnapshots > 0) {
+      await installBlogBootstrapInitScript(page, eligiblePostsForMock);
       console.info('[prerender] Installing Playwright /api/blog/* mock (sanitized payloads only).');
 
       await page.route('**/*', async (route) => {
-        const reqUrl = route.request().url();
-        const slugMatched = slugFromBlogApiRequestUrl(reqUrl, base);
-        if (!slugMatched || !blogSlugWhitelist.has(slugMatched)) {
+        let req;
+        try {
+          req = new URL(route.request().url());
+        } catch {
           await route.continue();
           return;
         }
 
-        const entry = eligiblePostsForMock.get(slugMatched);
+        const commentsSlug = slugFromBlogCommentsApiPathname(req.pathname);
+        if (commentsSlug && blogSlugWhitelist.has(commentsSlug)) {
+          const entry = eligiblePostsForMock.get(commentsSlug);
+          blogApiMockFulfillCount += 1;
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json; charset=utf-8',
+            body: JSON.stringify({
+              comments: entry?.comments || [],
+              post_liked: false,
+              like_count: entry?.post?.like_count || 0,
+            }),
+          });
+          return;
+        }
+
+        const postSlug = slugFromBlogPostApiPathname(req.pathname);
+        if (!postSlug || !blogSlugWhitelist.has(postSlug)) {
+          await route.continue();
+          return;
+        }
+
+        const entry = eligiblePostsForMock.get(postSlug);
         const post = entry?.post;
         if (!post?.title?.trim?.()) {
           throw new Error(
-            `[prerender] Internal error: whitelist contains "${slugMatched}" but no sanitized post payload is available.`,
+            `[prerender] Internal error: whitelist contains "${postSlug}" but no sanitized post payload is available.`,
           );
         }
 
@@ -474,46 +609,6 @@ async function main() {
           status: 200,
           contentType: 'application/json; charset=utf-8',
           body: JSON.stringify({ post }),
-        });
-      });
-    }
-
-    /** Mock comments API for prerender (empty visitor_key — no liked state needed in static HTML). */
-    if (scheduledBlogSnapshots > 0) {
-      await page.route('**/*', async (route) => {
-        const reqUrl = route.request().url();
-        let req;
-        try {
-          req = new URL(reqUrl);
-        } catch {
-          await route.continue();
-          return;
-        }
-        const m = /^\/api\/blog\/([^/?#]+)\/comments$/.exec(req.pathname || '');
-        if (!m) {
-          await route.continue();
-          return;
-        }
-        let slugMatched;
-        try {
-          slugMatched = decodeURIComponent(m[1]).trim();
-        } catch {
-          await route.continue();
-          return;
-        }
-        if (!blogSlugWhitelist.has(slugMatched)) {
-          await route.continue();
-          return;
-        }
-        const entry = eligiblePostsForMock.get(slugMatched);
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json; charset=utf-8',
-          body: JSON.stringify({
-            comments: entry?.comments || [],
-            post_liked: false,
-            like_count: entry?.post?.like_count || 0,
-          }),
         });
       });
     }
@@ -543,6 +638,17 @@ async function main() {
         if (!entry?.post) {
           throw new Error(`[prerender] Missing sanitized post row for whitelist slug "${blogSlugHit}".`);
         }
+
+        try {
+          await waitForBlogArticleRender(page, blogSlugHit, entry.post.title);
+        } catch (waitErr) {
+          const diag = await validateBlogPostHtml(page, blogSlugHit, entry.post);
+          logBlogValidationFailure(blogSlugHit, diag);
+          throw new Error(
+            `[prerender] Timed out waiting for article render on /blog/${blogSlugHit} (${waitErr instanceof Error ? waitErr.message : waitErr})`,
+          );
+        }
+
         await injectBlogBootstrapJson(page, blogSlugHit, entry);
       }
 
@@ -551,24 +657,10 @@ async function main() {
       /** Never ship placeholder-only blog HTML for whitelisted slugs */
       if (blogSlugHit && blogSlugWhitelist.has(blogSlugHit)) {
         const entry = eligiblePostsForMock.get(blogSlugHit);
-        const p = entry?.post;
-        const pageOk =
-          !!p &&
-          (await page.evaluate(({ titleSnippet }) => {
-            if (!document.getElementById('balochdev-blog-bootstrap')) return false;
+        const validation = await validateBlogPostHtml(page, blogSlugHit, entry?.post);
 
-            const hasPlaceholder = [...document.querySelectorAll('.ndx-lead')].some((el) =>
-              (el.textContent || '').trim() === 'Loading…',
-            );
-            if (hasPlaceholder) return false;
-
-            const h1Txt = document.querySelector('article h1.ndx-h1')?.textContent?.trim?.() ?? '';
-            if (!h1Txt || !titleSnippet) return false;
-            const bodyTxt = document.body?.innerText ?? '';
-            return h1Txt === titleSnippet || bodyTxt.includes(titleSnippet);
-          }, { titleSnippet: p.title.trim() }));
-
-        if (!pageOk) {
+        if (!validation.ok) {
+          logBlogValidationFailure(blogSlugHit, validation);
           throw new Error(`[prerender] Blog HTML validation failed for /blog/${blogSlugHit}.`);
         }
       }
