@@ -1,7 +1,7 @@
 const sanitizeHtml = require('sanitize-html');
 
 const ALLOWED_TAGS = [
-  'h2', 'h3', 'p', 'br', 'strong', 'em', 'b', 'i',
+  'h2', 'h3', 'p', 'br', 'strong', 'em', 'b', 'i', 'span',
   'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
   'a', 'hr', 'figure', 'figcaption', 'img', 'div',
 ];
@@ -13,6 +13,23 @@ const ALLOWED_ATTR = {
   div: ['class', 'data-raw-html'],
   pre: ['class'],
   code: ['class'],
+  p: ['style'],
+  h2: ['style'],
+  h3: ['style'],
+  span: ['style'],
+  blockquote: ['style'],
+};
+
+const ALLOWED_STYLES = {
+  '*': {
+    'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+    color: [
+      /^#[0-9a-f]{3,8}$/i,
+      /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/i,
+      /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*(0|1|0?\.\d+)\s*\)$/i,
+    ],
+    'font-size': [/^(0\.\d+|[1-9]\d*)(\.\d+)?(px|rem|em|%)$/],
+  },
 };
 
 function sanitizeBlogHtml(html) {
@@ -20,6 +37,7 @@ function sanitizeBlogHtml(html) {
   return sanitizeHtml(raw, {
     allowedTags: ALLOWED_TAGS,
     allowedAttributes: ALLOWED_ATTR,
+    allowedStyles: ALLOWED_STYLES,
     allowedSchemes: ['http', 'https', 'mailto'],
     transformTags: {
       a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer', target: '_blank' }),

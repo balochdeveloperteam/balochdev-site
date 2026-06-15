@@ -105,6 +105,7 @@ export default function AdminPostEditor() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsSaving, setSettingsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const slugTouched = useRef(false);
 
@@ -187,19 +188,19 @@ export default function AdminPostEditor() {
     };
   };
 
-  const save = async (statusOverride) => {
+  const persist = async (statusOverride, { navigateAway = true } = {}) => {
     setErr('');
     if (!form.title.trim()) {
       setErr('Title is required.');
-      return;
+      return false;
     }
     if (form.post_type === 'image_caption' && !form.caption_image_url) {
       setErr('Image is required for image + caption posts.');
-      return;
+      return false;
     }
     if (form.post_type === 'image_caption' && !form.caption_image_alt.trim()) {
       setErr('Image alt text is required for SEO.');
-      return;
+      return false;
     }
 
     setSaving(true);
@@ -218,12 +219,27 @@ export default function AdminPostEditor() {
       if (statusOverride) {
         setForm((p) => ({ ...p, status: statusOverride }));
       }
-      navigate('/admin/posts', { replace: !isNew });
+      if (navigateAway) {
+        navigate('/admin/posts', { replace: !isNew });
+      }
+      return true;
     } catch (e) {
       setErr(e.message || 'Save failed');
+      return false;
     } finally {
       setSaving(false);
     }
+  };
+
+  const save = async (statusOverride) => {
+    await persist(statusOverride, { navigateAway: true });
+  };
+
+  const saveSettings = async () => {
+    setSettingsSaving(true);
+    const ok = await persist(form.status, { navigateAway: false });
+    setSettingsSaving(false);
+    if (ok) setSettingsOpen(false);
   };
 
   const uploadCover = async () => {
@@ -238,7 +254,7 @@ export default function AdminPostEditor() {
         const { secureUrl } = await uploadImage(token, file);
         setForm((prev) => ({ ...prev, cover_image_url: secureUrl }));
       } catch {
-        alert('Cover upload failed');
+        setErr('Cover upload failed');
       }
     };
     input.click();
@@ -256,7 +272,7 @@ export default function AdminPostEditor() {
         const { secureUrl } = await uploadImage(token, file);
         setForm((prev) => ({ ...prev, caption_image_url: secureUrl }));
       } catch {
-        alert('Image upload failed');
+        setErr('Image upload failed');
       }
     };
     input.click();
@@ -322,7 +338,7 @@ export default function AdminPostEditor() {
         </div>
         {form.post_type === 'article' && (
           <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--toolbar">
-            <BlogEditorToolbar editor={editor} token={token} />
+            <BlogEditorToolbar editor={editor} token={token} onNotify={(msg) => setErr(msg)} />
           </div>
         )}
       </div>
@@ -379,7 +395,13 @@ export default function AdminPostEditor() {
         </div>
       </div>
 
-      <PostMetaDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} panelProps={panelProps} />
+      <PostMetaDrawer
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onSave={saveSettings}
+        saving={settingsSaving || saving}
+        panelProps={panelProps}
+      />
     </motion.div>
   );
 }
