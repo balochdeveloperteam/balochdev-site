@@ -240,6 +240,7 @@ function buildBlogPostRow(body, user) {
     title,
     slug,
     excerpt: String(body.excerpt || '').trim(),
+    summary: String(body.summary || '').trim(),
     content_html: contentHtml,
     cover_image_url: body.cover_image_url || null,
     cover_image_alt: String(body.cover_image_alt || '').trim(),

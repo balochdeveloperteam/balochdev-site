@@ -1,16 +1,43 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { apiUrl } from '../../lib/api';
+import { BLOG_CATEGORIES, blogCategoryUrl } from '../lib/blogCategories';
 import Seo from '../seo/Seo';
 import BlogCard from './blog/BlogCard';
+import BlogCategoriesAside from './blog/BlogCategoriesAside';
 import './blog/blog.css';
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'liked', label: 'Most liked' },
+  { value: 'commented', label: 'Most commented' },
+];
+
+function sortPosts(posts, sort) {
+  const list = [...posts];
+  switch (sort) {
+    case 'oldest':
+      return list.sort((a, b) => new Date(a.published_at || 0) - new Date(b.published_at || 0));
+    case 'liked':
+      return list.sort((a, b) => (b.like_count || 0) - (a.like_count || 0));
+    case 'commented':
+      return list.sort((a, b) => (b.comment_count || 0) - (a.comment_count || 0));
+    default:
+      return list.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+  }
+}
+
 export default function NBlog() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
+  const [sort, setSort] = useState('newest');
   const [tag, setTag] = useState('');
+
+  const category = searchParams.get('category') || '';
 
   useEffect(() => {
     fetch(apiUrl('/api/blog'))
@@ -20,11 +47,6 @@ export default function NBlog() {
       .finally(() => setLoading(false));
   }, []);
 
-  const categories = useMemo(() => {
-    const set = new Set(posts.map((p) => p.category).filter(Boolean));
-    return [...set].sort();
-  }, [posts]);
-
   const tags = useMemo(() => {
     const set = new Set();
     for (const p of posts) {
@@ -33,33 +55,57 @@ export default function NBlog() {
     return [...set].sort();
   }, [posts]);
 
+  const categoryCounts = useMemo(() => {
+    /** @type {Record<string, number>} */
+    const counts = { __all: posts.length };
+    for (const cat of BLOG_CATEGORIES) counts[cat] = 0;
+    for (const p of posts) {
+      if (p.category) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [posts]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return posts
-      .filter((p) => {
-        if (category && p.category !== category) return false;
-        if (tag && !(p.tags || []).includes(tag)) return false;
-        if (!q) return true;
-        const hay = `${p.title} ${p.excerpt_plain || p.excerpt || ''}`.toLowerCase();
-        return hay.includes(q);
-      })
-      .sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
-  }, [posts, search, category, tag]);
+    const matched = posts.filter((p) => {
+      if (category && p.category !== category) return false;
+      if (tag && !(p.tags || []).includes(tag)) return false;
+      if (!q) return true;
+      const hay = `${p.title} ${p.excerpt_plain || p.excerpt || ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+    return sortPosts(matched, sort);
+  }, [posts, search, category, tag, sort]);
 
   const featured = useMemo(() => {
-    if (filtered.length < 4) return [];
+    if (sort !== 'newest' || filtered.length < 4) return [];
     return [...filtered].sort((a, b) => (b.like_count || 0) - (a.like_count || 0)).slice(0, 3);
-  }, [filtered]);
+  }, [filtered, sort]);
 
   const featuredIds = new Set(featured.map((p) => p.id));
   const gridPosts = featured.length ? filtered.filter((p) => !featuredIds.has(p.id)) : filtered;
 
+  const setCategoryFilter = (cat) => {
+    const next = new URLSearchParams(searchParams);
+    if (cat) next.set('category', cat);
+    else next.delete('category');
+    setSearchParams(next, { replace: true });
+    setTag('');
+  };
+
+  const visibleCategories = useMemo(() => {
+    const fromPosts = new Set(posts.map((p) => p.category).filter(Boolean));
+    return BLOG_CATEGORIES.filter((c) => fromPosts.has(c) || category === c);
+  }, [posts, category]);
+
   return (
     <section className="ndx-section ndx-blog-feed">
       <Seo
-        title="Blog — BalochDev"
+        title={category ? `${category} — Blog — BalochDev` : 'Blog — BalochDev'}
         description="Notes from BalochDev on AI, web and mobile development, Supabase backends, and Balochi language technology."
-        canonicalPath="/blog"
+        canonicalPath={category ? `/blog?category=${encodeURIComponent(category)}` : '/blog'}
         type="website"
       />
       <div className="ndx-container">
@@ -73,69 +119,102 @@ export default function NBlog() {
           </p>
         </header>
 
-        <div className="ndx-blog-feed__toolbar">
-          <input
-            type="search"
-            className="ndx-blog-feed__search"
-            placeholder="Search titles and excerpts…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search blog posts"
-          />
-          <div className="ndx-blog-feed__filters">
-            <button
-              type="button"
-              className={`ndx-blog-feed__chip${!category && !tag ? ' is-active' : ''}`}
-              onClick={() => { setCategory(''); setTag(''); }}
-            >
-              All
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={`ndx-blog-feed__chip${category === c ? ' is-active' : ''}`}
-                onClick={() => { setCategory(c); setTag(''); }}
+        <div className="ndx-blog-feed__layout">
+          <main className="ndx-blog-feed__main">
+            <div className="ndx-blog-feed__toolbar">
+              <input
+                type="search"
+                className="ndx-blog-feed__search"
+                placeholder="Search titles and excerpts…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search blog posts"
+              />
+              <select
+                className="ndx-blog-feed__sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                aria-label="Sort posts"
               >
-                {c}
-              </button>
-            ))}
-            {tags.slice(0, 8).map((t) => (
-              <button
-                key={t}
-                type="button"
-                className={`ndx-blog-feed__chip${tag === t ? ' is-active' : ''}`}
-                onClick={() => { setTag(t); setCategory(''); }}
-              >
-                #{t}
-              </button>
-            ))}
-          </div>
-        </div>
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {loading ? (
-          <p className="ndx-lead">Loading posts…</p>
-        ) : !filtered.length ? (
-          <p className="ndx-blog-empty">No posts match your filters.</p>
-        ) : (
-          <>
-            {featured.length ? (
-              <div className="ndx-blog-feed__featured">
-                <p className="ndx-blog-feed__featured-label">Most liked</p>
+            <div className="ndx-blog-feed__filters">
+              <button
+                type="button"
+                className={`ndx-blog-feed__chip${!category && !tag ? ' is-active' : ''}`}
+                onClick={() => { setCategoryFilter(''); setTag(''); }}
+              >
+                All
+              </button>
+              {visibleCategories.map((c) => (
+                <Link
+                  key={c}
+                  to={blogCategoryUrl(c)}
+                  className={`ndx-blog-feed__chip${category === c ? ' is-active' : ''}`}
+                  onClick={() => setTag('')}
+                >
+                  {c}
+                </Link>
+              ))}
+              {tags.slice(0, 8).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`ndx-blog-feed__chip${tag === t ? ' is-active' : ''}`}
+                  onClick={() => { setTag(t); setCategoryFilter(''); }}
+                >
+                  #{t}
+                </button>
+              ))}
+            </div>
+
+            {category ? (
+              <p className="ndx-blog-feed__active-filter">
+                Showing posts in <strong>{category}</strong>
+                {' · '}
+                <Link to="/blog">Clear filter</Link>
+              </p>
+            ) : null}
+
+            {loading ? (
+              <p className="ndx-lead">Loading posts…</p>
+            ) : !filtered.length ? (
+              <p className="ndx-blog-empty">No posts match your filters.</p>
+            ) : (
+              <>
+                {featured.length ? (
+                  <div className="ndx-blog-feed__featured">
+                    <p className="ndx-blog-feed__featured-label">Most liked</p>
+                    <div className="ndx-blog-grid">
+                      {featured.map((p) => (
+                        <BlogCard key={p.id} post={p} />
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="ndx-blog-grid">
-                  {featured.map((p) => (
+                  {gridPosts.map((p) => (
                     <BlogCard key={p.id} post={p} />
                   ))}
                 </div>
-              </div>
-            ) : null}
-            <div className="ndx-blog-grid">
-              {gridPosts.map((p) => (
-                <BlogCard key={p.id} post={p} />
-              ))}
-            </div>
-          </>
-        )}
+              </>
+            )}
+          </main>
+
+          <aside className="ndx-blog-feed__sidebar" aria-label="Blog sidebar">
+            <BlogCategoriesAside
+              counts={categoryCounts}
+              activeCategory={category}
+              showCounts
+            />
+          </aside>
+        </div>
       </div>
     </section>
   );

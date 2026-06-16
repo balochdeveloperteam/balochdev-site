@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { apiUrl } from '../../lib/api';
+import { blogCategoryUrl } from '../lib/blogCategories';
 import {
   blogSeoDescription,
   blogSeoTitle,
@@ -12,9 +13,11 @@ import {
 import { getVisitorKey } from '../lib/visitorKey';
 import Seo from '../seo/Seo';
 import BlogAvatar from './blog/BlogAvatar';
+import BlogBreadcrumb from './blog/BlogBreadcrumb';
 import BlogCard from './blog/BlogCard';
 import BlogComments from './blog/BlogComments';
 import BlogLikeButton from './blog/BlogLikeButton';
+import BlogPostSidebar from './blog/BlogPostSidebar';
 import BlogShareRow from './blog/BlogShareRow';
 import SocialLinksRow from '../components/SocialLinksRow';
 import './blog/blog.css';
@@ -102,10 +105,28 @@ export default function NBlogPost() {
     return [buildBlogArticleJsonLd(post, comments), buildBlogBreadcrumbJsonLd(post)];
   }, [post, comments]);
 
+  const breadcrumbItems = useMemo(() => {
+    if (!post) return [];
+    const items = [
+      { label: 'Home', to: '/' },
+      { label: 'Blog', to: '/blog' },
+    ];
+    if (post.category) {
+      items.push({ label: post.category, to: blogCategoryUrl(post.category) });
+    }
+    items.push({ label: post.title });
+    return items;
+  }, [post]);
+
+  const sidebarRelated = useMemo(() => {
+    if (!post?.related_posts?.length) return [];
+    return post.related_posts.map((r) => ({ slug: r.slug, title: r.title }));
+  }, [post]);
+
   if (missing) {
     return (
       <section className="ndx-section ndx-blog-article">
-        <div className="ndx-container" style={{ maxWidth: '720px' }}>
+        <div className="ndx-container ndx-blog-article__wrap">
           <h1 className="ndx-h1">Post not found</h1>
           <Link to="/blog" className="ndx-btn">← All posts</Link>
         </div>
@@ -116,7 +137,7 @@ export default function NBlogPost() {
   if (!post) {
     return (
       <section className="ndx-section ndx-blog-article">
-        <div className="ndx-container" style={{ maxWidth: '720px' }}>
+        <div className="ndx-container ndx-blog-article__wrap">
           <p className="ndx-eyebrow">Blog</p>
           <p className="ndx-lead">Loading…</p>
         </div>
@@ -137,65 +158,78 @@ export default function NBlogPost() {
         type="article"
         jsonLd={jsonLd}
       />
-      <div className="ndx-container">
-        <header className="ndx-blog-article__header">
-          <p className="ndx-eyebrow">
-            {post.category ? `${post.category} · ` : ''}Blog
-          </p>
-          <h1 className="ndx-h1" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}>
-            {post.title}
-          </h1>
-          <div className="ndx-blog-article__byline">
-            <BlogAvatar name={post.author_name} url={post.author_avatar_url} />
-            <span>{post.author_name}</span>
-            {post.published_at ? (
-              <>
-                <span aria-hidden>·</span>
-                <time dateTime={post.published_at}>{formatBlogDate(post.published_at)}</time>
-              </>
-            ) : null}
-            {post.reading_time_minutes ? (
-              <>
-                <span aria-hidden>·</span>
-                <span>{post.reading_time_minutes} min read</span>
-              </>
-            ) : null}
-          </div>
-        </header>
+      <div className="ndx-container ndx-blog-article__wrap">
+        <BlogBreadcrumb items={breadcrumbItems} />
 
         {post.cover_image_url ? (
-          <img
-            className="ndx-blog-article__cover"
-            src={post.cover_image_url}
-            alt={post.cover_image_alt || post.title}
-            width={1200}
-            height={630}
-            loading="eager"
-          />
+          <div className="ndx-blog-article__hero">
+            <img
+              src={post.cover_image_url}
+              alt={post.cover_image_alt || post.title}
+              width={1200}
+              height={630}
+              loading="eager"
+            />
+          </div>
         ) : null}
 
-        <div
-          className={`ndx-blog-prose${isImageCaption ? ' ndx-blog-prose--caption' : ''}`}
-          dangerouslySetInnerHTML={{ __html: post.body_html || '<p></p>' }}
-        />
+        <div className="ndx-blog-article__layout">
+          <div className="ndx-blog-article__main">
+            <header className="ndx-blog-article__header">
+              <p className="ndx-eyebrow">
+                {post.category ? (
+                  <Link to={blogCategoryUrl(post.category)} className="ndx-blog-article__cat-link">
+                    {post.category}
+                  </Link>
+                ) : null}
+                {post.category ? ' · ' : ''}
+                Blog
+              </p>
+              <h1 className="ndx-h1 ndx-blog-article__title">{post.title}</h1>
+              <div className="ndx-blog-article__byline">
+                <BlogAvatar name={post.author_name} url={post.author_avatar_url} />
+                <span>{post.author_name}</span>
+                {post.published_at ? (
+                  <>
+                    <span aria-hidden>·</span>
+                    <time dateTime={post.published_at}>{formatBlogDate(post.published_at)}</time>
+                  </>
+                ) : null}
+                {post.reading_time_minutes ? (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>{post.reading_time_minutes} min read</span>
+                  </>
+                ) : null}
+              </div>
+            </header>
 
-        <div className="ndx-blog-article__actions">
-          <BlogLikeButton
-            targetType="post"
-            targetId={post.id}
-            initialCount={post.like_count || 0}
-            initialLiked={postLiked}
-          />
-          <BlogShareRow slug={slug} title={post.title} />
+            <div
+              className={`ndx-blog-prose ndx-blog-prose--in-main${isImageCaption ? ' ndx-blog-prose--caption' : ''}`}
+              dangerouslySetInnerHTML={{ __html: post.body_html || '<p></p>' }}
+            />
+
+            <div className="ndx-blog-article__actions">
+              <BlogLikeButton
+                targetType="post"
+                targetId={post.id}
+                initialCount={post.like_count || 0}
+                initialLiked={postLiked}
+              />
+              <BlogShareRow slug={slug} title={post.title} />
+            </div>
+
+            <SocialLinksRow className="ndx-social-links--article" label="We're also on:" />
+
+            <BlogComments
+              slug={slug}
+              initialComments={comments}
+              commentCount={post.comment_count ?? comments.length}
+            />
+          </div>
+
+          <BlogPostSidebar summary={post.summary} relatedPosts={sidebarRelated} />
         </div>
-
-        <SocialLinksRow className="ndx-social-links--article" label="We're also on:" />
-
-        <BlogComments
-          slug={slug}
-          initialComments={comments}
-          commentCount={post.comment_count ?? comments.length}
-        />
 
         {post.related_posts?.length ? (
           <section className="ndx-blog-related" aria-labelledby="related-heading">

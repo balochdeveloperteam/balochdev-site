@@ -6,6 +6,19 @@ import sanitizeHtml from 'sanitize-html';
 
 import { tryCreateSupabaseBuildClient } from './supabaseBuildClient.mjs';
 
+const BLOG_POST_SELECT_WITH_SUMMARY =
+  'id, slug, title, body_html, content_html, excerpt, summary, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs';
+
+const BLOG_POST_SELECT_LEGACY = BLOG_POST_SELECT_WITH_SUMMARY.replace(', summary', '');
+
+function isMissingSummaryColumnError(message) {
+  return /summary.*does not exist|column.*summary/i.test(String(message || ''));
+}
+
+async function fetchPublishedBlogPosts(client, selectFields) {
+  return client.from('blog_posts').select(selectFields).eq('published', true);
+}
+
 const SUPABASE_FETCH_MAX_ATTEMPTS = 3;
 const RETRYABLE_SUPABASE_ERROR = /terminated|ECONNRESET|ETIMEDOUT|fetch failed|network|socket hang up|aborted/i;
 
@@ -91,6 +104,7 @@ function mapPrerenderPost(row) {
     slug: row.slug,
     title,
     excerpt: excerptOut || '',
+    summary: sanitizeBlogPlainLine(row.summary || ''),
     body_html,
     content_html: body_html,
     post_type: row.post_type || 'article',
@@ -172,12 +186,16 @@ export async function loadSanitizedBlogPostsMap() {
 
   for (let attempt = 1; attempt <= SUPABASE_FETCH_MAX_ATTEMPTS; attempt += 1) {
     try {
-      const { data, error } = await client
-        .from('blog_posts')
-        .select(
-          'id, slug, title, body_html, content_html, excerpt, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs',
-        )
-        .eq('published', true);
+      let selectFields = BLOG_POST_SELECT_WITH_SUMMARY;
+      let { data, error } = await fetchPublishedBlogPosts(client, selectFields);
+
+      if (error && isMissingSummaryColumnError(error.message)) {
+        console.warn(
+          '[prerender] blog_posts.summary column missing — retrying without summary (apply 007_blog_summary.sql).',
+        );
+        selectFields = BLOG_POST_SELECT_LEGACY;
+        ({ data, error } = await fetchPublishedBlogPosts(client, selectFields));
+      }
 
       if (error) {
         const msg = error.message || String(error);

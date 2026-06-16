@@ -68,6 +68,7 @@ function mapPublicPost(row, extras = {}) {
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt || '',
+    summary: row.summary || '',
     body_html: bodyHtml,
     content_html: bodyHtml,
     post_type: row.post_type || 'article',

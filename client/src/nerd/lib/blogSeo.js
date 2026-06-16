@@ -67,14 +67,39 @@ export function buildBlogArticleJsonLd(post, comments = []) {
 
 export function buildBlogBreadcrumbJsonLd(post) {
   const pageUrl = `${SITE_URL}/blog/${post.slug}`;
+  /** @type {object[]} */
+  const itemListElement = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+  ];
+
+  const category = String(post.category || '').trim();
+  if (category) {
+    itemListElement.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: category,
+      item: `${SITE_URL}/blog?category=${encodeURIComponent(category)}`,
+    });
+    itemListElement.push({
+      '@type': 'ListItem',
+      position: 4,
+      name: post.title,
+      item: pageUrl,
+    });
+  } else {
+    itemListElement.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: post.title,
+      item: pageUrl,
+    });
+  }
+
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
-      { '@type': 'ListItem', position: 3, name: post.title, item: pageUrl },
-    ],
+    itemListElement,
   };
 }
 

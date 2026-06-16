@@ -150,6 +150,18 @@ export default function PostMetaPanel({
       </div>
 
       <div className="ndx-admin-field">
+        <label htmlFor="post-summary">Sidebar summary</label>
+        <textarea
+          id="post-summary"
+          className="ndx-admin-textarea"
+          rows={5}
+          value={form.summary || ''}
+          onChange={(e) => setField('summary', e.target.value)}
+          placeholder="Short summary / key takeaways shown in the sidebar (150–300 words)"
+        />
+      </div>
+
+      <div className="ndx-admin-field">
         <label>Cover image</label>
         {form.cover_image_url && (
           <img src={form.cover_image_url} alt="" className="ndx-admin-cover-preview" />
