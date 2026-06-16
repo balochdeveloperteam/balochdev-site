@@ -6,6 +6,17 @@ import sanitizeHtml from 'sanitize-html';
 
 import { tryCreateSupabaseBuildClient } from './supabaseBuildClient.mjs';
 
+const SUPABASE_FETCH_MAX_ATTEMPTS = 3;
+const RETRYABLE_SUPABASE_ERROR = /terminated|ECONNRESET|ETIMEDOUT|fetch failed|network|socket hang up|aborted/i;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableSupabaseError(message) {
+  return RETRYABLE_SUPABASE_ERROR.test(String(message || ''));
+}
+
 /** Rich HTML matching typical CMS posts — no iframe/event handlers/svg flash. */
 const BLOG_HTML_SANITIZE = {
   allowedTags: [
@@ -159,36 +170,55 @@ export async function loadSanitizedBlogPostsMap() {
     return { bySlug, querySucceeded: false };
   }
 
-  try {
-    const { data, error } = await client
-      .from('blog_posts')
-      .select(
-        'id, slug, title, body_html, content_html, excerpt, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs',
-      )
-      .eq('published', true);
+  for (let attempt = 1; attempt <= SUPABASE_FETCH_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const { data, error } = await client
+        .from('blog_posts')
+        .select(
+          'id, slug, title, body_html, content_html, excerpt, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs',
+        )
+        .eq('published', true);
 
-    if (error) {
-      console.warn(`[prerender] blog_posts query failed (${error.message}) — skipping blog snapshots.`);
+      if (error) {
+        const msg = error.message || String(error);
+        if (attempt < SUPABASE_FETCH_MAX_ATTEMPTS && isRetryableSupabaseError(msg)) {
+          console.warn(
+            `[prerender] blog_posts query failed (${msg}) — retrying (${attempt}/${SUPABASE_FETCH_MAX_ATTEMPTS - 1})…`,
+          );
+          await sleep(attempt * 750);
+          continue;
+        }
+        console.warn(`[prerender] blog_posts query failed (${msg}) — skipping blog snapshots.`);
+        return { bySlug, querySucceeded: false };
+      }
+
+      const rows = Array.isArray(data) ? data : [];
+      const postIds = rows.map((r) => r.id).filter(Boolean);
+      const commentsByPost = await loadCommentsByPostIds(client, postIds);
+
+      for (const row of rows) {
+        const slug = typeof row?.slug === 'string' ? row.slug.trim() : '';
+        if (!slug) continue;
+        const post = mapPrerenderPost(row);
+        if (!post.title) continue;
+        const comments = commentsByPost.get(row.id) || [];
+        bySlug.set(slug, { post, comments });
+      }
+
+      return { bySlug, querySucceeded: true };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt < SUPABASE_FETCH_MAX_ATTEMPTS && isRetryableSupabaseError(msg)) {
+        console.warn(
+          `[prerender] blog_posts threw (${msg}) — retrying (${attempt}/${SUPABASE_FETCH_MAX_ATTEMPTS - 1})…`,
+        );
+        await sleep(attempt * 750);
+        continue;
+      }
+      console.warn(`[prerender] blog_posts threw (${msg}) — skipping blog snapshots.`);
       return { bySlug, querySucceeded: false };
     }
-
-    const rows = Array.isArray(data) ? data : [];
-    const postIds = rows.map((r) => r.id).filter(Boolean);
-    const commentsByPost = await loadCommentsByPostIds(client, postIds);
-
-    for (const row of rows) {
-      const slug = typeof row?.slug === 'string' ? row.slug.trim() : '';
-      if (!slug) continue;
-      const post = mapPrerenderPost(row);
-      if (!post.title) continue;
-      const comments = commentsByPost.get(row.id) || [];
-      bySlug.set(slug, { post, comments });
-    }
-
-    return { bySlug, querySucceeded: true };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[prerender] blog_posts threw (${msg}) — skipping blog snapshots.`);
-    return { bySlug, querySucceeded: false };
   }
+
+  return { bySlug, querySucceeded: false };
 }

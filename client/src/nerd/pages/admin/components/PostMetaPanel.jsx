@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiUrl } from '../../../../lib/api';
+import { BLOG_CATEGORIES } from '../../../lib/blogCategories';
 
 export function slugifyTitle(title) {
   return String(title || '')
@@ -117,6 +118,7 @@ export default function PostMetaPanel({
           className="ndx-admin-input"
           value={form.slug}
           onChange={(e) => setField('slug', e.target.value)}
+          placeholder="url-friendly-slug (auto-generated, editable)"
         />
         {slugStatus === 'available' && <span className="ndx-admin-slug-ok">Slug available</span>}
         {slugStatus === 'taken' && <span className="ndx-admin-slug-bad">Slug already in use</span>}
@@ -143,6 +145,7 @@ export default function PostMetaPanel({
           rows={3}
           value={form.excerpt}
           onChange={(e) => setField('excerpt', e.target.value)}
+          placeholder="Short summary shown on cards (1–2 sentences)"
         />
       </div>
 
@@ -163,6 +166,7 @@ export default function PostMetaPanel({
           className="ndx-admin-input"
           value={form.cover_image_alt}
           onChange={(e) => setField('cover_image_alt', e.target.value)}
+          placeholder="Describe the image for SEO/accessibility"
         />
       </div>
 
@@ -173,6 +177,7 @@ export default function PostMetaPanel({
           className="ndx-admin-input"
           value={form.meta_title}
           onChange={(e) => setField('meta_title', e.target.value)}
+          placeholder="SEO title (~60 chars)"
         />
         <span className="ndx-admin-field-hint">{countChars(form.meta_title, 60)}</span>
       </div>
@@ -185,6 +190,7 @@ export default function PostMetaPanel({
           rows={3}
           value={form.meta_description}
           onChange={(e) => setField('meta_description', e.target.value)}
+          placeholder="SEO description (~155 chars)"
         />
         <span className="ndx-admin-field-hint">{countChars(form.meta_description, 155)}</span>
       </div>
@@ -196,17 +202,26 @@ export default function PostMetaPanel({
           className="ndx-admin-input"
           value={form.focus_keyword}
           onChange={(e) => setField('focus_keyword', e.target.value)}
+          placeholder="Primary keyword to rank for"
         />
       </div>
 
       <div className="ndx-admin-field">
         <label htmlFor="category">Category</label>
-        <input
+        <select
           id="category"
-          className="ndx-admin-input"
-          value={form.category}
+          className="ndx-admin-select"
+          value={form.category || ''}
           onChange={(e) => setField('category', e.target.value)}
-        />
+        >
+          <option value="">Uncategorized — choose a category</option>
+          {BLOG_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        <span className="ndx-admin-field-hint">Choose a category from the managed list (edit in blogCategories.js).</span>
       </div>
 
       <div className="ndx-admin-field">
@@ -217,6 +232,7 @@ export default function PostMetaPanel({
             className="ndx-admin-input"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
+            placeholder="Add a tag and press Enter"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();

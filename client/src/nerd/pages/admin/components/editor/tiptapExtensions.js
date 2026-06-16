@@ -141,6 +141,36 @@ export function serializeBlogEditorHtml(editor) {
   return html;
 }
 
+function escapeHtmlAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function escapeHtmlText(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/** Build sanitized figure HTML for TipTap parseHTML → blogFigure node. */
+export function buildBlogFigureHtml({ src, alt, caption = '' }) {
+  const figcaption = caption.trim()
+    ? `<figcaption>${escapeHtmlText(caption.trim())}</figcaption>`
+    : '<figcaption></figcaption>';
+  return `<figure class="blog-figure"><img src="${escapeHtmlAttr(src)}" alt="${escapeHtmlAttr(alt)}" loading="lazy" />${figcaption}</figure>`;
+}
+
+/** Insert an inline blog figure at the current selection. Returns false if insert failed. */
+export function insertBlogFigure(editor, { src, alt, caption = '' }) {
+  if (!editor || !src) return false;
+  const figureHtml = buildBlogFigureHtml({ src, alt, caption });
+  return editor.chain().focus().insertContent(figureHtml).insertContent('<p></p>').run();
+}
+
 export function createBlogEditorExtensions() {
   return [
     StarterKit.configure({
@@ -153,7 +183,10 @@ export function createBlogEditorExtensions() {
       openOnClick: false,
       HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
     }),
-    Placeholder.configure({ placeholder: 'Write your post…' }),
+    Placeholder.configure({
+      placeholder:
+        'Start writing your article… use the toolbar for headings, images, and formatting.',
+    }),
     TextAlign.configure({
       types: ['heading', 'paragraph'],
       alignments: ['left', 'center', 'right', 'justify'],

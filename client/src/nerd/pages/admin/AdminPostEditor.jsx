@@ -358,7 +358,7 @@ export default function AdminPostEditor() {
           <input
             id="post-title"
             className="ndx-admin-input ndx-admin-input--title"
-            placeholder="Untitled post"
+            placeholder="Post title…"
             value={form.title}
             onChange={(e) => onTitleChange(e.target.value)}
           />

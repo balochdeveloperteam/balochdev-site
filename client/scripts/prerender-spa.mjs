@@ -663,6 +663,9 @@ async function main() {
           logBlogValidationFailure(blogSlugHit, validation);
           throw new Error(`[prerender] Blog HTML validation failed for /blog/${blogSlugHit}.`);
         }
+        console.info(
+          `[prerender] Blog HTML validation passed for /blog/${blogSlugHit} (${Object.keys(validation.checks).filter((k) => validation.checks[k]).join(', ')})`,
+        );
       }
 
       const outFile = diskPathForPathname(pathname);

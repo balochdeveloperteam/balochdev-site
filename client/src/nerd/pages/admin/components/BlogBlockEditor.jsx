@@ -22,20 +22,22 @@ import {
 } from 'react-icons/tb';
 import { apiUrl } from '../../../../lib/api';
 import AdminEditorModal from './editor/AdminEditorModal';
+import EditorToolbarPopover from './editor/EditorToolbarPopover';
 import { sanitizeBlogEditorHtml } from './editor/editorSanitize';
 import {
-  BlogFigure,
   BlogRawHtml,
   EDITOR_COLOR_PALETTE,
   FONT_SIZE_OPTIONS,
   createBlogEditorExtensions,
+  insertBlogFigure,
   serializeBlogEditorHtml,
 } from './editor/tiptapExtensions';
 import { applyTextColor, preventToolbarFocusSteal } from './editor/applyTextColor';
 
-export function ToolbarButton({ active, onClick, onMouseDown, children, title, className = '' }) {
+export function ToolbarButton({ active, onClick, onMouseDown, children, title, className = '', buttonRef }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       className={`${active ? 'is-active' : ''} ${className}`.trim()}
       onClick={onClick}
@@ -52,77 +54,163 @@ function ToolbarDivider() {
   return <span className="ndx-blog-editor-toolbar-divider" aria-hidden />;
 }
 
-function ColorPicker({ editor }) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-  const current = editor.getAttributes('textStyle').color || '';
+function LinkModalFields({ linkUrl, onLinkUrlChange }) {
+  return (
+    <>
+      <label className="ndx-admin-field">
+        <span>URL</span>
+        <input
+          className="ndx-admin-input"
+          type="url"
+          value={linkUrl}
+          onChange={(e) => onLinkUrlChange(e.target.value)}
+          placeholder="https://example.com/page"
+          autoFocus
+        />
+      </label>
+      <p className="ndx-admin-field-hint">Leave empty to remove an existing link from the selection.</p>
+    </>
+  );
+}
 
-  useEffect(() => {
-    if (!open) return undefined;
-    const onDoc = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+function ImageModalFields({ imageAlt, imageCaption, imageUploading, onAltChange, onCaptionChange, onFileChange }) {
+  return (
+    <>
+      <div className="ndx-admin-field">
+        <span>Image file</span>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="ndx-admin-input"
+          disabled={imageUploading}
+          onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+        />
+        <p className="ndx-admin-field-hint">JPEG, PNG, WebP, or GIF — uploaded to Cloudinary on insert.</p>
+      </div>
+      <label className="ndx-admin-field">
+        <span>Alt text (required)</span>
+        <input
+          className="ndx-admin-input"
+          value={imageAlt}
+          onChange={(e) => onAltChange(e.target.value)}
+          placeholder="Describe the image for SEO and accessibility"
+          disabled={imageUploading}
+        />
+      </label>
+      <label className="ndx-admin-field">
+        <span>Caption (optional)</span>
+        <input
+          className="ndx-admin-input"
+          value={imageCaption}
+          onChange={(e) => onCaptionChange(e.target.value)}
+          placeholder="Shown below the image"
+          disabled={imageUploading}
+        />
+      </label>
+    </>
+  );
+}
 
-  const apply = (color) => {
-    applyTextColor(editor, color);
-    setOpen(false);
-  };
+function HtmlEmbedModalFields({ htmlInput, onHtmlInputChange }) {
+  const htmlPreview = htmlInput.trim() ? sanitizeBlogEditorHtml(htmlInput) : '';
 
   return (
-    <div className="ndx-blog-editor-color" ref={wrapRef}>
-      <ToolbarButton
-        active={!!current}
-        onMouseDown={preventToolbarFocusSteal}
-        onClick={() => setOpen((v) => !v)}
-        title="Text color"
-        className="ndx-blog-editor-color-trigger"
-      >
-        <TbPalette aria-hidden />
-        <span
-          className="ndx-blog-editor-color-swatch"
-          style={{ background: current || 'var(--ndx-text)' }}
-          aria-hidden
+    <>
+      <p className="ndx-admin-field-hint" style={{ marginTop: 0 }}>
+        Paste HTML that will be sanitized on save. It is displayed as an embed block, not executed as a script.
+      </p>
+      <label className="ndx-admin-field">
+        <span>HTML</span>
+        <textarea
+          className="ndx-admin-textarea ndx-admin-textarea--mono"
+          rows={8}
+          value={htmlInput}
+          onChange={(e) => onHtmlInputChange(e.target.value)}
+          placeholder="<div>…</div>"
+          autoFocus
         />
-      </ToolbarButton>
-      {open ? (
-        <div className="ndx-blog-editor-color-menu">
-          <div className="ndx-blog-editor-color-grid">
-            {EDITOR_COLOR_PALETTE.map((c) => (
-              <button
-                key={c.value}
-                type="button"
-                className={`ndx-blog-editor-color-chip${current === c.value ? ' is-active' : ''}`}
-                style={{ background: c.value }}
-                title={c.label}
-                aria-label={c.label}
-                onMouseDown={preventToolbarFocusSteal}
-                onClick={() => apply(c.value)}
-              />
-            ))}
-          </div>
-          <label className="ndx-blog-editor-color-custom">
-            <span>Custom</span>
-            <input
-              type="color"
-              value={current || '#f8fafc'}
+      </label>
+      <div className="ndx-admin-field">
+        <span>Sanitized preview</span>
+        <div
+          className="ndx-blog-raw-html-preview"
+          dangerouslySetInnerHTML={{
+            __html: htmlPreview || '<p class="ndx-admin-field-hint">Preview appears here</p>',
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
+function ColorPicker({ editor }) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef(null);
+  const current = editor.getAttributes('textStyle').color || '';
+
+  const apply = useCallback(
+    (color) => {
+      applyTextColor(editor, color);
+      setOpen(false);
+    },
+    [editor],
+  );
+
+  const close = useCallback(() => setOpen(false), []);
+
+  return (
+    <>
+      <div className="ndx-blog-editor-color">
+        <ToolbarButton
+          buttonRef={triggerRef}
+          active={!!current}
+          onMouseDown={preventToolbarFocusSteal}
+          onClick={() => setOpen((value) => !value)}
+          title="Text color"
+          className="ndx-blog-editor-color-trigger"
+        >
+          <TbPalette aria-hidden />
+          <span
+            className="ndx-blog-editor-color-swatch"
+            style={{ background: current || 'var(--ndx-text)' }}
+            aria-hidden
+          />
+        </ToolbarButton>
+      </div>
+      <EditorToolbarPopover open={open} onClose={close} anchorRef={triggerRef} className="ndx-blog-editor-color-menu">
+        <div className="ndx-blog-editor-color-grid">
+          {EDITOR_COLOR_PALETTE.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              className={`ndx-blog-editor-color-chip${current === c.value ? ' is-active' : ''}`}
+              style={{ background: c.value }}
+              title={c.label}
+              aria-label={c.label}
               onMouseDown={preventToolbarFocusSteal}
-              onChange={(e) => apply(e.target.value)}
+              onClick={() => apply(c.value)}
             />
-          </label>
-          <button
-            type="button"
-            className="ndx-blog-editor-color-clear"
-            onMouseDown={preventToolbarFocusSteal}
-            onClick={() => apply(null)}
-          >
-            Clear color
-          </button>
+          ))}
         </div>
-      ) : null}
-    </div>
+        <label className="ndx-blog-editor-color-custom">
+          <span>Custom</span>
+          <input
+            type="color"
+            value={current || '#f8fafc'}
+            onMouseDown={preventToolbarFocusSteal}
+            onChange={(e) => apply(e.target.value)}
+          />
+        </label>
+        <button
+          type="button"
+          className="ndx-blog-editor-color-clear"
+          onMouseDown={preventToolbarFocusSteal}
+          onClick={() => apply(null)}
+        >
+          Clear color
+        </button>
+      </EditorToolbarPopover>
+    </>
   );
 }
 
@@ -163,7 +251,6 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
   const [htmlInput, setHtmlInput] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  const fileRef = useRef(null);
 
   const notify = useCallback(
     (message) => {
@@ -176,14 +263,21 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
     [onNotify],
   );
 
-  if (!editor) return null;
+  const closeLink = useCallback(() => setLinkOpen(false), []);
+  const closeImage = useCallback(() => {
+    if (!imageUploading) setImageOpen(false);
+  }, [imageUploading]);
+  const closeHtml = useCallback(() => setHtmlOpen(false), []);
+  const closeAlert = useCallback(() => setAlertOpen(false), []);
 
-  const openLink = () => {
+  const openLink = useCallback(() => {
+    if (!editor) return;
     setLinkUrl(editor.getAttributes('link').href || 'https://');
     setLinkOpen(true);
-  };
+  }, [editor]);
 
-  const confirmLink = () => {
+  const confirmLink = useCallback(() => {
+    if (!editor) return;
     const url = linkUrl.trim();
     if (!url) {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
@@ -191,17 +285,25 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
       editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }
     setLinkOpen(false);
-  };
+  }, [editor, linkUrl]);
 
-  const openImage = () => {
+  const openImage = useCallback(() => {
     setImageAlt('');
     setImageCaption('');
     setImageFile(null);
     setImageOpen(true);
-  };
+  }, []);
 
-  const confirmImage = async () => {
-    if (!imageFile || !token) return;
+  const confirmImage = useCallback(async () => {
+    if (!editor) return;
+    if (!imageFile) {
+      notify('Choose an image file first.');
+      return;
+    }
+    if (!token) {
+      notify('You must be signed in to upload images.');
+      return;
+    }
     if (!imageAlt.trim()) {
       notify('Alt text is required for SEO.');
       return;
@@ -216,35 +318,31 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!res.ok) throw new Error('upload failed');
-      const { secureUrl } = await res.json();
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: BlogFigure.name,
-          attrs: {
-            src: secureUrl,
-            alt: imageAlt.trim(),
-            caption: imageCaption.trim(),
-          },
-        })
-        .insertContent({ type: 'paragraph' })
-        .run();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      const secureUrl = data.secureUrl;
+      if (!secureUrl) throw new Error('Upload succeeded but no image URL was returned.');
+      const inserted = insertBlogFigure(editor, {
+        src: secureUrl,
+        alt: imageAlt.trim(),
+        caption: imageCaption.trim(),
+      });
+      if (!inserted) throw new Error('Could not insert image into the editor.');
       setImageOpen(false);
-    } catch {
-      notify('Image upload failed.');
+    } catch (error) {
+      notify(error.message || 'Image upload failed.');
     } finally {
       setImageUploading(false);
     }
-  };
+  }, [editor, imageAlt, imageCaption, imageFile, notify, token]);
 
-  const openHtml = () => {
+  const openHtml = useCallback(() => {
     setHtmlInput('');
     setHtmlOpen(true);
-  };
+  }, []);
 
-  const confirmHtml = () => {
+  const confirmHtml = useCallback(() => {
+    if (!editor) return;
     const trimmed = htmlInput.trim();
     if (!trimmed) return;
     const sanitized = sanitizeBlogEditorHtml(trimmed);
@@ -258,9 +356,9 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
       .insertContent({ type: 'paragraph' })
       .run();
     setHtmlOpen(false);
-  };
+  }, [editor, htmlInput]);
 
-  const htmlPreview = htmlInput.trim() ? sanitizeBlogEditorHtml(htmlInput) : '';
+  if (!editor) return null;
 
   return (
     <>
@@ -400,10 +498,10 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
       <AdminEditorModal
         open={linkOpen}
         title="Insert link"
-        onClose={() => setLinkOpen(false)}
+        onClose={closeLink}
         footer={
           <>
-            <button type="button" className="ndx-btn" onClick={() => setLinkOpen(false)}>
+            <button type="button" className="ndx-btn" onClick={closeLink}>
               Cancel
             </button>
             <button type="button" className="ndx-btn ndx-btn-primary" onClick={confirmLink}>
@@ -412,27 +510,16 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
           </>
         }
       >
-        <label className="ndx-admin-field">
-          <span>URL</span>
-          <input
-            className="ndx-admin-input"
-            type="url"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="https://"
-            autoFocus
-          />
-        </label>
-        <p className="ndx-admin-field-hint">Leave empty to remove an existing link from the selection.</p>
+        <LinkModalFields linkUrl={linkUrl} onLinkUrlChange={setLinkUrl} />
       </AdminEditorModal>
 
       <AdminEditorModal
         open={imageOpen}
         title="Insert inline image"
-        onClose={() => !imageUploading && setImageOpen(false)}
+        onClose={closeImage}
         footer={
           <>
-            <button type="button" className="ndx-btn" disabled={imageUploading} onClick={() => setImageOpen(false)}>
+            <button type="button" className="ndx-btn" disabled={imageUploading} onClick={closeImage}>
               Cancel
             </button>
             <button
@@ -446,44 +533,24 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
           </>
         }
       >
-        <div className="ndx-admin-field">
-          <span>Image file</span>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            className="ndx-admin-input"
-            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-          />
-        </div>
-        <label className="ndx-admin-field">
-          <span>Alt text (required)</span>
-          <input
-            className="ndx-admin-input"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="Describe the image for SEO and accessibility"
-          />
-        </label>
-        <label className="ndx-admin-field">
-          <span>Caption (optional)</span>
-          <input
-            className="ndx-admin-input"
-            value={imageCaption}
-            onChange={(e) => setImageCaption(e.target.value)}
-            placeholder="Shown below the image"
-          />
-        </label>
+        <ImageModalFields
+          imageAlt={imageAlt}
+          imageCaption={imageCaption}
+          imageUploading={imageUploading}
+          onAltChange={setImageAlt}
+          onCaptionChange={setImageCaption}
+          onFileChange={setImageFile}
+        />
       </AdminEditorModal>
 
       <AdminEditorModal
         open={htmlOpen}
         title="Embed HTML"
         wide
-        onClose={() => setHtmlOpen(false)}
+        onClose={closeHtml}
         footer={
           <>
-            <button type="button" className="ndx-btn" onClick={() => setHtmlOpen(false)}>
+            <button type="button" className="ndx-btn" onClick={closeHtml}>
               Cancel
             </button>
             <button type="button" className="ndx-btn ndx-btn-primary" disabled={!htmlInput.trim()} onClick={confirmHtml}>
@@ -492,35 +559,15 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
           </>
         }
       >
-        <p className="ndx-admin-field-hint" style={{ marginTop: 0 }}>
-          Paste HTML that will be sanitized on save. It is displayed as an embed block, not executed as a script.
-        </p>
-        <label className="ndx-admin-field">
-          <span>HTML</span>
-          <textarea
-            className="ndx-admin-textarea ndx-admin-textarea--mono"
-            rows={8}
-            value={htmlInput}
-            onChange={(e) => setHtmlInput(e.target.value)}
-            placeholder="<div>…</div>"
-            autoFocus
-          />
-        </label>
-        <div className="ndx-admin-field">
-          <span>Sanitized preview</span>
-          <div
-            className="ndx-blog-raw-html-preview"
-            dangerouslySetInnerHTML={{ __html: htmlPreview || '<p class="ndx-admin-field-hint">Preview appears here</p>' }}
-          />
-        </div>
+        <HtmlEmbedModalFields htmlInput={htmlInput} onHtmlInputChange={setHtmlInput} />
       </AdminEditorModal>
 
       <AdminEditorModal
         open={alertOpen}
         title="Notice"
-        onClose={() => setAlertOpen(false)}
+        onClose={closeAlert}
         footer={
-          <button type="button" className="ndx-btn ndx-btn-primary" onClick={() => setAlertOpen(false)}>
+          <button type="button" className="ndx-btn ndx-btn-primary" onClick={closeAlert}>
             OK
           </button>
         }
@@ -532,12 +579,17 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
 }
 
 export function useBlogBlockEditor({ contentHtml, onChange, disabled }) {
+  const isEditorUpdate = useRef(false);
+
   const editor = useEditor({
     extensions: createBlogEditorExtensions(),
     content: contentHtml || '',
     editable: !disabled,
     immediatelyRender: false,
-    onUpdate: ({ editor: ed }) => onChange(serializeBlogEditorHtml(ed)),
+    onUpdate: ({ editor: ed }) => {
+      isEditorUpdate.current = true;
+      onChange(serializeBlogEditorHtml(ed));
+    },
   });
 
   useEffect(() => {
@@ -547,9 +599,12 @@ export function useBlogBlockEditor({ contentHtml, onChange, disabled }) {
 
   useEffect(() => {
     if (!editor || contentHtml === undefined) return;
+    if (isEditorUpdate.current) {
+      isEditorUpdate.current = false;
+      return;
+    }
     const serialized = serializeBlogEditorHtml(editor);
     if (serialized === contentHtml) return;
-    // External load (e.g. fetched post) — avoid fighting live typing
     editor.commands.setContent(contentHtml || '', false);
   }, [editor, contentHtml]);
 

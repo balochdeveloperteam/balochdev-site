@@ -470,6 +470,14 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   color: var(--ndx-dim);
 }
 
+.ndx-admin-select::placeholder {
+  color: var(--ndx-dim);
+}
+
+.ndx-admin-select option[value=''] {
+  color: var(--ndx-dim);
+}
+
 .ndx-admin-input:hover,
 .ndx-admin-textarea:hover,
 .ndx-admin-select:hover {
@@ -1114,16 +1122,17 @@ html[data-theme='dark'] .ndx-admin-sidebar {
 }
 
 .ndx-blog-editor-color-menu {
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  left: 0;
-  z-index: 40;
   min-width: 11rem;
   padding: 0.55rem;
   border-radius: 12px;
   border: 1px solid var(--ndx-border);
   background: var(--ndx-surface);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+.ndx-blog-editor-toolbar-popover {
+  position: fixed;
+  z-index: 10350;
 }
 
 .ndx-blog-editor-color-grid {
