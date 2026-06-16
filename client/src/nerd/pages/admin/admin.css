@@ -1580,16 +1580,16 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   margin-top: 0.25rem;
 }
 
-.ndx-admin-field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+.ndx-admin-ad-card .ndx-admin-field {
+  min-width: 0;
 }
 
-@media (max-width: 540px) {
-  .ndx-admin-field-row {
-    grid-template-columns: 1fr;
-  }
+.ndx-admin-ad-card .ndx-admin-input--datetime {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .ndx-admin-save-ok {

@@ -17,6 +17,7 @@ import BlogBreadcrumb from './blog/BlogBreadcrumb';
 import BlogCard from './blog/BlogCard';
 import BlogComments from './blog/BlogComments';
 import BlogLikeButton from './blog/BlogLikeButton';
+import BlogArticleBody from './blog/BlogArticleBody';
 import BlogPostSidebar from './blog/BlogPostSidebar';
 import BlogShareRow from './blog/BlogShareRow';
 import SocialLinksRow from '../components/SocialLinksRow';
@@ -207,9 +208,10 @@ export default function NBlogPost() {
               </div>
             </header>
 
-            <div
-              className={`ndx-blog-prose ndx-blog-prose--in-main${isImageCaption ? ' ndx-blog-prose--caption' : ''}`}
-              dangerouslySetInnerHTML={{ __html: post.body_html || '<p></p>' }}
+            <BlogArticleBody
+              html={post.body_html}
+              inContentAd={ads?.post_sidebar_b}
+              isImageCaption={isImageCaption}
             />
 
             <div className="ndx-blog-article__actions">
@@ -235,7 +237,6 @@ export default function NBlogPost() {
             summary={post.summary}
             relatedPosts={sidebarRelated}
             sidebarAdA={ads?.post_sidebar_a}
-            sidebarAdB={ads?.post_sidebar_b}
           />
         </div>
 

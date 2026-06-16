@@ -1,6 +1,6 @@
 /**
  * Renders a single sponsored ad slot (client-loaded only — returns null if no ad).
- * @param {{ ad?: { image_url: string, image_alt?: string, link_url?: string }|null, variant?: 'hero'|'sidebar' }} props
+ * @param {{ ad?: { image_url: string, image_alt?: string, link_url?: string }|null, variant?: 'hero'|'sidebar'|'in-content' }} props
  */
 export default function BlogAdSlot({ ad, variant = 'sidebar' }) {
   if (!ad?.image_url) return null;

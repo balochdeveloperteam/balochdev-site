@@ -221,27 +221,26 @@ function PlacementCard({ placement, ad, token, authFetch, onSaved, onDeleted }) 
         />
       </div>
 
-      <div className="ndx-admin-field-row">
-        <div className="ndx-admin-field">
-          <label htmlFor={`${placement.id}-starts`}>Starts at</label>
-          <input
-            id={`${placement.id}-starts`}
-            type="datetime-local"
-            className="ndx-admin-input"
-            value={form.starts_at_local}
-            onChange={(e) => setField('starts_at_local', e.target.value)}
-          />
-        </div>
-        <div className="ndx-admin-field">
-          <label htmlFor={`${placement.id}-ends`}>Ends at</label>
-          <input
-            id={`${placement.id}-ends`}
-            type="datetime-local"
-            className="ndx-admin-input"
-            value={form.ends_at_local}
-            onChange={(e) => setField('ends_at_local', e.target.value)}
-          />
-        </div>
+      <div className="ndx-admin-field">
+        <label htmlFor={`${placement.id}-starts`}>Starts at</label>
+        <input
+          id={`${placement.id}-starts`}
+          type="datetime-local"
+          className="ndx-admin-input ndx-admin-input--datetime"
+          value={form.starts_at_local}
+          onChange={(e) => setField('starts_at_local', e.target.value)}
+        />
+      </div>
+
+      <div className="ndx-admin-field">
+        <label htmlFor={`${placement.id}-ends`}>Ends at</label>
+        <input
+          id={`${placement.id}-ends`}
+          type="datetime-local"
+          className="ndx-admin-input ndx-admin-input--datetime"
+          value={form.ends_at_local}
+          onChange={(e) => setField('ends_at_local', e.target.value)}
+        />
       </div>
 
       <div className="ndx-admin-field">

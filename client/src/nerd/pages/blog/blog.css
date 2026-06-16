@@ -875,7 +875,7 @@
 }
 
 .ndx-ad-slot--hero {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.25rem;
 }
 
 .ndx-ad-slot--hero .ndx-ad-slot__frame {
@@ -892,9 +892,31 @@
   object-position: center;
 }
 
+/* Portrait / square sidebar slots (post_sidebar_a) */
+.ndx-ad-slot--sidebar .ndx-ad-slot__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ndx-ad-slot--sidebar .ndx-ad-slot__frame img {
-  max-width: 100%;
+  width: 100%;
+  max-height: 500px;
+  height: auto;
   object-fit: contain;
+  object-position: center;
+}
+
+/* Landscape in-article slot (post_sidebar_b) */
+.ndx-ad-slot--in-content {
+  margin: 2rem 0;
+}
+
+.ndx-ad-slot--in-content .ndx-ad-slot__frame img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
 }
 
 .ndx-blog-advertise-cta {

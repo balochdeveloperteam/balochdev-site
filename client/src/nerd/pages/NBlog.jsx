@@ -122,10 +122,12 @@ export default function NBlog() {
           </p>
         </header>
 
-        {ads?.blog_hero ? <BlogAdSlot ad={ads.blog_hero} variant="hero" /> : null}
-
         <div className="ndx-blog-feed__layout">
           <main className="ndx-blog-feed__main">
+            {ads?.blog_hero?.image_url ? (
+              <BlogAdSlot ad={ads.blog_hero} variant="hero" />
+            ) : null}
+
             <div className="ndx-blog-feed__toolbar">
               <input
                 type="search"
@@ -218,6 +220,9 @@ export default function NBlog() {
               activeCategory={category}
               showCounts
             />
+            {ads?.post_sidebar_a?.image_url ? (
+              <BlogAdSlot ad={ads.post_sidebar_a} variant="sidebar" />
+            ) : null}
           </aside>
         </div>
       </div>
