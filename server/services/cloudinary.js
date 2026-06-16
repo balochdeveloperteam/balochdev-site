@@ -10,6 +10,7 @@ const ALLOWED_FOLDERS = new Set([
   'balochdev/blog',
   'balochdev/members',
   'balochdev/site',
+  'balochdev/ads',
 ]);
 
 function validateConfig() {

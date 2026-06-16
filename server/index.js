@@ -21,6 +21,7 @@ const {
   normalizeTags,
   normalizeRelatedSlugs,
 } = require('./services/blog');
+const { registerAdsRoutes } = require('./routes/ads');
 const {
   registerBlogEngagementRoutes,
   getPublishedPostBySlug,
@@ -500,6 +501,7 @@ app.get('/api/blog/:slug', async (req, res) => {
 });
 
 registerBlogEngagementRoutes(app, { admin, safeError, requireBlogAdmin });
+registerAdsRoutes(app, { admin, safeError, requireBlogAdmin });
 
 app.post('/api/uploads/image', requireUploadAuth, handleImageUpload, async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No image file provided. Use multipart field name "image".' });
@@ -507,7 +509,7 @@ app.post('/api/uploads/image', requireUploadAuth, handleImageUpload, async (req,
   const folder = String(req.body?.folder || '').trim();
   if (!ALLOWED_FOLDERS.has(folder)) {
     return res.status(400).json({
-      error: 'Invalid folder. Use balochdev/blog, balochdev/members, or balochdev/site.',
+      error: 'Invalid folder. Use balochdev/blog, balochdev/members, balochdev/site, or balochdev/ads.',
     });
   }
 

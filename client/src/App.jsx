@@ -20,6 +20,7 @@ import NProjectPage from './nerd/pages/NProjectPage';
 import NAbout from './nerd/pages/NAbout';
 import NBlog from './nerd/pages/NBlog';
 import NBlogPost from './nerd/pages/NBlogPost';
+import NAdvertise from './nerd/pages/NAdvertise';
 import NContact from './nerd/pages/NContact';
 import NEstimate from './nerd/pages/NEstimate';
 import NProposal from './nerd/pages/NProposal';
@@ -36,6 +37,7 @@ import AdminGuard from './nerd/pages/admin/AdminGuard';
 import AdminOverview from './nerd/pages/admin/AdminOverview';
 import AdminPostsList from './nerd/pages/admin/AdminPostsList';
 import AdminPostEditor from './nerd/pages/admin/AdminPostEditor';
+import AdminAds from './nerd/pages/admin/AdminAds';
 import TeamGuard from './nerd/pages/team/TeamGuard';
 import TeamLayout from './nerd/pages/team/TeamLayout';
 import TeamDashboard from './nerd/pages/team/TeamDashboard';
@@ -74,6 +76,7 @@ function AppRoutes() {
             <Route path="/about" element={<NAbout />} />
             <Route path="/blog" element={<NBlog />} />
             <Route path="/blog/:slug" element={<NBlogPostRoute />} />
+            <Route path="/advertise" element={<NAdvertise />} />
             <Route path="/contact" element={<NContact />} />
             <Route path="/estimate" element={<NEstimate />} />
             <Route path="/proposal" element={<NProposal />} />
@@ -88,6 +91,7 @@ function AppRoutes() {
               <Route path="posts" element={<AdminPostsList />} />
               <Route path="posts/new" element={<AdminPostEditor />} />
               <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+              <Route path="ads" element={<AdminAds />} />
             </Route>
             <Route path="/team" element={<TeamGuard />}>
               <Route element={<TeamLayout />}>

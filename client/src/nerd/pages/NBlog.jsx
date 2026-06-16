@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 
 import { apiUrl } from '../../lib/api';
 import { BLOG_CATEGORIES, blogCategoryUrl } from '../lib/blogCategories';
+import { useBlogAds } from '../lib/useBlogAds';
 import Seo from '../seo/Seo';
+import BlogAdSlot from './blog/BlogAdSlot';
 import BlogCard from './blog/BlogCard';
 import BlogCategoriesAside from './blog/BlogCategoriesAside';
 import './blog/blog.css';
@@ -38,6 +40,7 @@ export default function NBlog() {
   const [tag, setTag] = useState('');
 
   const category = searchParams.get('category') || '';
+  const ads = useBlogAds();
 
   useEffect(() => {
     fetch(apiUrl('/api/blog'))
@@ -118,6 +121,8 @@ export default function NBlog() {
             Articles, insights, and updates from the BalochDev team — like, comment, and share.
           </p>
         </header>
+
+        {ads?.blog_hero ? <BlogAdSlot ad={ads.blog_hero} variant="hero" /> : null}
 
         <div className="ndx-blog-feed__layout">
           <main className="ndx-blog-feed__main">

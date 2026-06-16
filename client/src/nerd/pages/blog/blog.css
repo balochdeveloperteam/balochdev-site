@@ -841,3 +841,76 @@
   padding: 1rem 0;
   border-bottom: 1px solid var(--ndx-border);
 }
+
+/* Sponsored ad slots (client-rendered only) */
+.ndx-ad-slot {
+  margin-bottom: 1.25rem;
+}
+
+.ndx-ad-slot__label {
+  display: block;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ndx-dim);
+  margin-bottom: 0.35rem;
+}
+
+.ndx-ad-slot__frame {
+  border-radius: var(--ndx-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-border) 25%, var(--ndx-bg-elev));
+}
+
+.ndx-ad-slot__link {
+  display: block;
+  line-height: 0;
+}
+
+.ndx-ad-slot__frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ndx-ad-slot--hero {
+  margin: 0 0 1.5rem;
+}
+
+.ndx-ad-slot--hero .ndx-ad-slot__frame {
+  max-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ndx-ad-slot--hero .ndx-ad-slot__frame img {
+  max-height: 300px;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.ndx-ad-slot--sidebar .ndx-ad-slot__frame img {
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.ndx-blog-advertise-cta {
+  margin: 2rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ndx-border);
+  font-size: 0.875rem;
+  color: var(--ndx-dim);
+  text-align: center;
+}
+
+.ndx-blog-advertise-cta a {
+  color: var(--ndx-accent);
+  text-decoration: none;
+}
+
+.ndx-blog-advertise-cta a:hover {
+  text-decoration: underline;
+}

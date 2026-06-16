@@ -23,6 +23,7 @@ const STATIC_PATHS = [
   '/portfolio',
   '/about',
   '/blog',
+  '/advertise',
   '/contact',
   '/estimate',
   '/proposal',

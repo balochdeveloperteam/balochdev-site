@@ -75,4 +75,10 @@ export const STATIC_PUBLIC_PAGES_SEO = {
     metaDescription:
       'How BalochDev delivers and fulfils contracted software services, including timelines and handoff.',
   },
+  '/advertise': {
+    canonicalPath: '/advertise',
+    metaTitle: 'Advertise on the BalochDev Blog',
+    metaDescription:
+      'Reach developers and tech teams on the BalochDev blog. Blog hero and sidebar ad placements from $5 — specs, pricing, and how to book.',
+  },
 };

@@ -12,6 +12,7 @@ const ADMIN_META = 'BalochDev admin CMS — not indexed.';
 const NAV = [
   { to: '/admin/overview', label: 'Overview', end: false },
   { to: '/admin/posts', label: 'Blog Posts', end: false },
+  { to: '/admin/ads', label: 'Ads', end: false },
   { to: '/admin/analytics', label: 'Analytics', soon: true },
   { to: '/admin/media', label: 'Media', soon: true },
 ];

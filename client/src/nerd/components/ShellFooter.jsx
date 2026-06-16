@@ -9,6 +9,7 @@ const cols = [
       { to: '/about', label: 'About us' },
       { to: '/apps', label: 'Apps & software' },
       { to: '/blog', label: 'Blog' },
+      { to: '/advertise', label: 'Advertise' },
       { to: '/contact', label: 'Contact us' },
       { to: '/estimate', label: 'AI estimate' },
     ],

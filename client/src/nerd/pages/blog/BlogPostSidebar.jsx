@@ -1,12 +1,18 @@
 import { Link } from 'react-router-dom';
 
 import BlogCategoriesAside from './BlogCategoriesAside';
+import BlogAdSlot from './BlogAdSlot';
 
 /**
  * Sticky right sidebar for single post pages.
- * @param {{ summary?: string, relatedPosts?: { slug: string, title: string }[] }} props
+ * @param {{ summary?: string, relatedPosts?: { slug: string, title: string }[], sidebarAdA?: object|null, sidebarAdB?: object|null }} props
  */
-export default function BlogPostSidebar({ summary, relatedPosts = [] }) {
+export default function BlogPostSidebar({
+  summary,
+  relatedPosts = [],
+  sidebarAdA = null,
+  sidebarAdB = null,
+}) {
   const hasSummary = Boolean(String(summary || '').trim());
 
   return (
@@ -34,6 +40,9 @@ export default function BlogPostSidebar({ summary, relatedPosts = [] }) {
           </ul>
         </div>
       ) : null}
+
+      <BlogAdSlot ad={sidebarAdA} variant="sidebar" />
+      <BlogAdSlot ad={sidebarAdB} variant="sidebar" />
     </aside>
   );
 }

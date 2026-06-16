@@ -20,7 +20,9 @@ import BlogLikeButton from './blog/BlogLikeButton';
 import BlogPostSidebar from './blog/BlogPostSidebar';
 import BlogShareRow from './blog/BlogShareRow';
 import SocialLinksRow from '../components/SocialLinksRow';
+import { useBlogAds } from '../lib/useBlogAds';
 import './blog/blog.css';
+import BlogAdvertiseCta from './blog/BlogAdvertiseCta';
 
 const BOOTSTRAP_ID = 'balochdev-blog-bootstrap';
 
@@ -56,6 +58,7 @@ function readBlogBootstrap(slug) {
 export default function NBlogPost() {
   const { slug } = useParams();
   const bootstrap = slug ? readBlogBootstrap(slug) : null;
+  const ads = useBlogAds();
 
   const [post, setPost] = useState(bootstrap?.post ?? null);
   const [comments, setComments] = useState(bootstrap?.comments ?? []);
@@ -228,8 +231,15 @@ export default function NBlogPost() {
             />
           </div>
 
-          <BlogPostSidebar summary={post.summary} relatedPosts={sidebarRelated} />
+          <BlogPostSidebar
+            summary={post.summary}
+            relatedPosts={sidebarRelated}
+            sidebarAdA={ads?.post_sidebar_a}
+            sidebarAdB={ads?.post_sidebar_b}
+          />
         </div>
+
+        <BlogAdvertiseCta />
 
         {post.related_posts?.length ? (
           <section className="ndx-blog-related" aria-labelledby="related-heading">
