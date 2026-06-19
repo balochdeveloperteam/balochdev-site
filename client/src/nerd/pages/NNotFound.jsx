@@ -1,11 +1,24 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+const PAGE_TITLE = '404 — Page not found · BalochDev';
+
 export default function NNotFound() {
   const loc = useLocation();
+  const isStatic404Snapshot = loc.pathname === '/404';
 
   useEffect(() => {
-    document.title = '404 — Page not found · BalochDev';
+    document.title = PAGE_TITLE;
+
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    if (meta.getAttribute('content') !== 'noindex') {
+      meta.setAttribute('content', 'noindex');
+    }
   }, []);
 
   return (
@@ -15,9 +28,19 @@ export default function NNotFound() {
         <h1 className="ndx-h1" style={{ marginTop: '0.5rem' }}>
           We couldn't find that page.
         </h1>
-        <p className="ndx-lead" style={{ marginTop: '1rem' }}>
-          The link <code style={{ background: 'var(--ndx-surface)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>{loc.pathname}</code> doesn't exist or may have moved.
-        </p>
+        {isStatic404Snapshot ? (
+          <p className="ndx-lead" style={{ marginTop: '1rem' }}>
+            This page doesn't exist or may have moved.
+          </p>
+        ) : (
+          <p className="ndx-lead" style={{ marginTop: '1rem' }}>
+            The link{' '}
+            <code style={{ background: 'var(--ndx-surface)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>
+              {loc.pathname}
+            </code>{' '}
+            doesn't exist or may have moved.
+          </p>
+        )}
 
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
           <Link to="/" className="ndx-btn ndx-btn-primary">

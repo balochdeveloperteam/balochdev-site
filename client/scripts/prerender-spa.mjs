@@ -427,6 +427,59 @@ function diskPathForPathname(pathname) {
   return path.join(DIST, ...p.split('/').filter(Boolean), 'index.html');
 }
 
+const STATIC_404_TITLE = '404 — Page not found · BalochDev';
+
+/** Branded static 404 for Cloudflare Pages (dist/404.html, not dist/404/index.html). */
+async function injectStatic404Head(page) {
+  await page.evaluate(({ title }) => {
+    const head = document.head;
+    if (!head) return;
+
+    let meta = head.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      head.appendChild(meta);
+    }
+    meta.setAttribute('content', 'noindex');
+
+    let titleEl = head.querySelector('title');
+    if (!titleEl) {
+      titleEl = document.createElement('title');
+      head.appendChild(titleEl);
+    }
+    titleEl.textContent = title;
+  }, { title: STATIC_404_TITLE });
+}
+
+async function prepareRouteSnapshot(page, base, pathname, absUrlForHelmet) {
+  const navigateTo = pathname === '/' ? `${base}/` : `${base}${pathname}`;
+  await page.goto(navigateTo, { waitUntil: 'domcontentloaded', timeout: 120_000 });
+
+  await page.waitForFunction(
+    () => {
+      const r = document.getElementById('root');
+      return r && r.children && r.children.length > 0;
+    },
+    { timeout: 120_000 },
+  );
+
+  await page.waitForFunction(() => !document.querySelector('.ndx-boot'), { timeout: 12_000 });
+  await page.waitForTimeout(400);
+  await stabilizeHeadTags(page, absUrlForHelmet);
+}
+
+async function writeStatic404Html(page, base, siteUrl) {
+  const pathname = '/404';
+  const absUrl = `${String(siteUrl).replace(/\/$/, '')}${pathname}`;
+  await prepareRouteSnapshot(page, base, pathname, absUrl);
+  await injectStatic404Head(page);
+  const html = await page.evaluate(() => document.documentElement.outerHTML);
+  const outFile = path.join(DIST, '404.html');
+  await fs.writeFile(outFile, `<!DOCTYPE html>\n${html}\n`, 'utf8');
+  console.info('[prerender] wrote', outFile.replace(CLIENT_ROOT, ''));
+}
+
 async function waitForPreviewReady(host, port, tries = 80) {
   for (let i = 0; i < tries; i += 1) {
     try {
@@ -684,6 +737,10 @@ async function main() {
     if (scheduledBlogSnapshots > 0) {
       console.info('[prerender] Blog API intercept fulfill hits:', blogApiMockFulfillCount);
     }
+
+    const siteUrl = data.siteUrl || 'https://balochdev.com';
+    await writeStatic404Html(page, base, siteUrl);
+    written += 1;
 
     await browser.close();
     previewProc.kill('SIGTERM');

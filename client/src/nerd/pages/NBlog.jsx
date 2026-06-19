@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
-import { apiUrl } from '../../lib/api';
+import { fetchPublishedPosts } from '../../lib/blogData';
 import { BLOG_CATEGORIES, blogCategoryUrl } from '../lib/blogCategories';
 import { useBlogAds } from '../lib/useBlogAds';
 import Seo from '../seo/Seo';
@@ -43,9 +43,8 @@ export default function NBlog() {
   const ads = useBlogAds();
 
   useEffect(() => {
-    fetch(apiUrl('/api/blog'))
-      .then((r) => r.json())
-      .then((data) => setPosts(data.posts || []))
+    fetchPublishedPosts()
+      .then((posts) => setPosts(posts || []))
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, []);

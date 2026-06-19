@@ -1,0 +1,7 @@
+# Auth-gated SPA routes — rewrite to shell, keep 200 so hard refresh works.
+# No prerendered shells exist for /admin or /team (see enumerate-routes isPrivateSitePath).
+# ABSOLUTELY NO global /* rule — unknown public URLs fall through to 404.html (HTTP 404).
+/admin     /index.html   200
+/admin/*   /index.html   200
+/team      /index.html   200
+/team/*    /index.html   200

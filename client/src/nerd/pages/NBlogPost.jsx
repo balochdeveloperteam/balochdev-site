@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { apiUrl } from '../../lib/api';
+import { fetchPublishedPostBySlug, normalizePost } from '../../lib/blogData';
 import { blogCategoryUrl } from '../lib/blogCategories';
 import {
   blogSeoDescription,
@@ -26,17 +27,6 @@ import './blog/blog.css';
 import BlogAdvertiseCta from './blog/BlogAdvertiseCta';
 
 const BOOTSTRAP_ID = 'balochdev-blog-bootstrap';
-
-function normalizePost(p) {
-  if (!p || typeof p.title !== 'string' || !p.title.trim()) return null;
-  const bodyHtml =
-    typeof p.body_html === 'string'
-      ? p.body_html
-      : typeof p.content_html === 'string'
-        ? p.content_html
-        : '';
-  return { ...p, title: p.title.trim(), body_html: bodyHtml };
-}
 
 function readBlogBootstrap(slug) {
   const el = document.getElementById(BOOTSTRAP_ID);
@@ -70,21 +60,20 @@ export default function NBlogPost() {
     if (!slug) return undefined;
     let cancelled = false;
 
-    fetch(apiUrl(`/api/blog/${slug}`))
-      .then(async (response) => {
-        if (cancelled) return;
-        if (response.status === 404) {
-          setMissing(true);
-          return;
-        }
-        if (!response.ok) return;
-        const data = await response.json().catch(() => null);
-        const incoming = normalizePost(data?.post);
-        if (cancelled || !incoming) return;
-        setPost((prev) => ({ ...prev, ...incoming }));
-        setMissing(false);
-      })
-      .catch(() => {});
+    const boot = readBlogBootstrap(slug);
+    if (!boot?.post) {
+      fetchPublishedPostBySlug(slug)
+        .then((incoming) => {
+          if (cancelled) return;
+          if (!incoming) {
+            setMissing(true);
+            return;
+          }
+          setPost((prev) => ({ ...prev, ...incoming }));
+          setMissing(false);
+        })
+        .catch(() => {});
+    }
 
     const vk = getVisitorKey();
     fetch(apiUrl(`/api/blog/${slug}/comments?visitor_key=${encodeURIComponent(vk)}`))

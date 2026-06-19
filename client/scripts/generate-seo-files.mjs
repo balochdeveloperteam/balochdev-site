@@ -226,6 +226,7 @@ async function main() {
 
   for (const abs of manifestUrls) {
     const pathname = pathnameFromAbsoluteUrl(abs);
+    if (pathname === '/404') continue;
     if (isPrivateSitePath(pathname)) continue;
     publicUrls.push(abs);
     publicPaths.push(pathname);
