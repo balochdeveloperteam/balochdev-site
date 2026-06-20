@@ -1,0 +1,220 @@
+.ndx-estimate-hero {
+  position: relative;
+  min-height: clamp(280px, 42vw, 420px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ndx-border);
+}
+
+.ndx-estimate-hero__vanta {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.ndx-estimate-hero__vanta canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ndx-estimate-hero__overlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--ndx-max);
+  margin: 0 auto;
+  padding: 3rem 1.25rem 2.5rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ndx-bg) 55%, transparent) 0%,
+    color-mix(in srgb, var(--ndx-bg) 92%, transparent) 55%,
+    var(--ndx-bg) 100%
+  );
+}
+
+.ndx-estimate-hero__overlay .ndx-lead {
+  max-width: 52ch;
+}
+
+.ndx-estimate-loading {
+  margin-top: 2rem;
+  padding: 2rem 1.5rem;
+  border-radius: var(--ndx-radius-lg);
+  border: 1px solid var(--ndx-border);
+  background: var(--ndx-surface);
+  text-align: center;
+}
+
+.ndx-estimate-loading__nodes {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.ndx-estimate-loading__node {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ndx-accent);
+}
+
+.ndx-estimate-report {
+  margin-top: 2.5rem;
+  padding: 2rem 1.75rem;
+  border-radius: var(--ndx-radius-lg);
+  border: 1px solid var(--ndx-border);
+  background: var(--ndx-surface);
+  box-shadow: 0 12px 40px var(--ndx-shadow-card);
+}
+
+.ndx-estimate-report--pdf {
+  background: #ffffff;
+  color: #0b1340;
+  border-color: rgba(11, 19, 64, 0.12);
+}
+
+.ndx-estimate-report__title {
+  font-family: var(--ndx-font-serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.ndx-estimate-report__section {
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--ndx-border);
+}
+
+.ndx-estimate-report__section-title {
+  font-family: var(--ndx-font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ndx-dim);
+  margin-bottom: 1rem;
+}
+
+.ndx-estimate-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-accent) 12%, transparent);
+  color: var(--ndx-text);
+  margin: 0 0.35rem 0.35rem 0;
+}
+
+.ndx-estimate-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.ndx-estimate-tag {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ndx-accent-2) 10%, var(--ndx-bg-elev));
+  border: 1px solid var(--ndx-border);
+  color: var(--ndx-muted);
+}
+
+.ndx-estimate-market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.ndx-estimate-market-cell {
+  padding: 0.85rem 1rem;
+  border-radius: var(--ndx-radius);
+  border: 1px solid var(--ndx-border);
+  background: color-mix(in srgb, var(--ndx-bg) 40%, transparent);
+  font-size: 0.875rem;
+  color: var(--ndx-muted);
+}
+
+.ndx-estimate-market-cell strong {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ndx-dim);
+  margin-bottom: 0.35rem;
+}
+
+.ndx-estimate-chart-svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ndx-estimate-cost-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  font-family: var(--ndx-font-mono);
+  font-size: 0.85rem;
+}
+
+.ndx-estimate-cost-figures span strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--ndx-text);
+  font-weight: 600;
+}
+
+.ndx-estimate-cost-figures span em {
+  font-style: normal;
+  color: var(--ndx-accent);
+}
+
+.ndx-estimate-phase-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ndx-muted);
+}
+
+.ndx-estimate-complexity-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ndx-estimate-complexity-meta {
+  font-size: 0.9rem;
+  color: var(--ndx-muted);
+}
+
+.ndx-estimate-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ndx-muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.ndx-estimate-list li + li {
+  margin-top: 0.45rem;
+}
+
+.ndx-estimate-report__actions {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}

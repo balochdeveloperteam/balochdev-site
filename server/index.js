@@ -22,6 +22,7 @@ const {
   normalizeRelatedSlugs,
 } = require('./services/blog');
 const { registerAdsRoutes } = require('./routes/ads');
+const { registerEstimateRoutes } = require('./routes/estimate');
 const {
   registerBlogEngagementRoutes,
   getPublishedPostBySlug,
@@ -502,6 +503,7 @@ app.get('/api/blog/:slug', async (req, res) => {
 
 registerBlogEngagementRoutes(app, { admin, safeError, requireBlogAdmin });
 registerAdsRoutes(app, { admin, safeError, requireBlogAdmin });
+registerEstimateRoutes(app, { admin, safeError });
 
 app.post('/api/uploads/image', requireUploadAuth, handleImageUpload, async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No image file provided. Use multipart field name "image".' });
