@@ -1,0 +1,21 @@
+# Copy to .dev.vars (gitignored) for `wrangler dev` local testing.
+# Production values are set as Cloudflare Workers secrets via the dashboard
+# or `wrangler secret put <NAME>`. Do NOT commit .dev.vars.
+
+SUPABASE_URL="https://<project>.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+
+GEMINI_API_KEY="<gemini-api-key>"
+
+CLOUDINARY_CLOUD_NAME="<cloud-name>"
+CLOUDINARY_API_KEY="<api-key>"
+CLOUDINARY_API_SECRET="<api-secret>"
+
+IP_HASH_SECRET="<random-32-char-string>"
+
+# Optional integrations
+TELEGRAM_BOT_TOKEN=""
+TELEGRAM_CHAT_ID=""
+GOOGLE_SHEETS_SPREADSHEET_ID=""
+GOOGLE_SHEETS_TAB_NAME="Sheet1"
+GOOGLE_SERVICE_ACCOUNT_JSON=""
