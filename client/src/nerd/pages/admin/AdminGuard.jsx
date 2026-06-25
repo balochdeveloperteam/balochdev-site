@@ -4,7 +4,7 @@ import { AdminProvider, useAdmin } from './AdminContext';
 import AdminLayout from './AdminLayout';
 
 function AdminGate() {
-  const { loading, denied } = useAdmin();
+  const { loading, denied, session } = useAdmin();
 
   if (!supabase) {
     return (
@@ -26,21 +26,8 @@ function AdminGate() {
     );
   }
 
-  if (denied) {
-    return (
-      <section className="ndx-section ndx-admin-section ndx-page-rich">
-        <div className="ndx-container ndx-admin-container">
-          <div className="ndx-admin-empty ndx-glass-section">
-            <p className="ndx-eyebrow">Admin</p>
-            <h1 className="ndx-h2 ndx-admin-empty-title">Access denied</h1>
-            <p className="ndx-admin-empty-text">
-              Blog CMS access requires an admin account or team manager role.
-            </p>
-          </div>
-          <Navigate to="/admin/login" replace />
-        </div>
-      </section>
-    );
+  if (!session || denied) {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return (

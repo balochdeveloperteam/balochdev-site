@@ -569,6 +569,14 @@
   padding-left: 1.5rem;
 }
 
+.ndx-blog-prose ul {
+  list-style-type: disc;
+}
+
+.ndx-blog-prose ol {
+  list-style-type: decimal;
+}
+
 .ndx-blog-prose li {
   margin-bottom: 0.35rem;
 }

@@ -63,18 +63,51 @@ export const BlogFigure = Node.create({
     ];
   },
   addNodeView() {
-    return ({ node }) => {
+    return ({ node: initialNode, getPos, editor: tiptapEditor }) => {
       const figure = document.createElement('figure');
       figure.className = 'blog-figure';
+
       const img = document.createElement('img');
-      img.src = node.attrs.src || '';
-      img.alt = node.attrs.alt || '';
+      img.src = initialNode.attrs.src || '';
+      img.alt = initialNode.attrs.alt || '';
       img.loading = 'lazy';
+
       const figcap = document.createElement('figcaption');
-      figcap.textContent = node.attrs.caption || '';
-      if (!node.attrs.caption) figcap.classList.add('is-empty');
-      figure.append(img, figcap);
-      return { dom: figure };
+      figcap.textContent = initialNode.attrs.caption || '';
+      if (!initialNode.attrs.caption) figcap.classList.add('is-empty');
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'blog-figure-delete';
+      deleteBtn.setAttribute('aria-label', 'Remove image');
+      deleteBtn.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+      deleteBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pos = typeof getPos === 'function' ? getPos() : undefined;
+        if (typeof pos === 'number') {
+          tiptapEditor.chain().setNodeSelection(pos).deleteSelection().run();
+        }
+      });
+
+      figure.append(img, figcap, deleteBtn);
+
+      return {
+        dom: figure,
+        update(updatedNode) {
+          if (updatedNode.type.name !== 'blogFigure') return false;
+          img.src = updatedNode.attrs.src || '';
+          img.alt = updatedNode.attrs.alt || '';
+          figcap.textContent = updatedNode.attrs.caption || '';
+          if (updatedNode.attrs.caption) {
+            figcap.classList.remove('is-empty');
+          } else {
+            figcap.classList.add('is-empty');
+          }
+          return true;
+        },
+      };
     };
   },
 });
@@ -167,8 +200,12 @@ export function buildBlogFigureHtml({ src, alt, caption = '' }) {
 /** Insert an inline blog figure at the current selection. Returns false if insert failed. */
 export function insertBlogFigure(editor, { src, alt, caption = '' }) {
   if (!editor || !src) return false;
-  const figureHtml = buildBlogFigureHtml({ src, alt, caption });
-  return editor.chain().focus().insertContent(figureHtml).insertContent('<p></p>').run();
+  return editor
+    .chain()
+    .focus()
+    .insertContent({ type: 'blogFigure', attrs: { src, alt: alt || '', caption: caption || '' } })
+    .insertContent({ type: 'paragraph' })
+    .run();
 }
 
 export function createBlogEditorExtensions() {
