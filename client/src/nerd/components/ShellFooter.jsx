@@ -96,6 +96,7 @@ export default function ShellFooter() {
           <NavLink to="/terms">Terms</NavLink>
           <NavLink to="/refund">Refund</NavLink>
           <NavLink to="/fulfilment">Fulfilment</NavLink>
+          <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap</a>
         </span>
       </div>
     </footer>
