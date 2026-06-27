@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "include": ["/blog/*"],
+  "exclude": [
+    "/blog",
+    "/admin/*",
+    "/team/*",
+    "/api/*",
+    "/assets/*",
+    "/favicon.svg",
+    "/og/*",
+    "/brand/*",
+    "/fonts/*",
+    "/partners/*"
+  ]
+}

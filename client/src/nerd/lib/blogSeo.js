@@ -132,3 +132,55 @@ export function authorInitials(name) {
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return (parts[0]?.[0] || 'B').toUpperCase();
 }
+
+function escapeHtmlAttr(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * `</` inside an inline <script> can prematurely close it; escape just enough
+ * to keep the JSON parseable while preventing tag termination.
+ */
+function escapeJsonForScript(value) {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
+/**
+ * Server-side head-tag builder for /blog/:slug. Mirrors the tags `<Seo />`
+ * renders client-side (title, description, canonical, OG, Twitter, robots,
+ * Article + Breadcrumb JSON-LD) so SSR HTML matches the SPA hydration.
+ * Returns a single string of head tags ready to inject before `</head>`.
+ *
+ * @param {object} post
+ * @returns {string}
+ */
+export function buildBlogHeadHtml(post) {
+  const title = blogSeoTitle(post);
+  const description = blogSeoDescription(post);
+  const canonical = `${SITE_URL}/blog/${post.slug}`;
+  const ogImage = absImage(post.og_image_url || post.cover_image_url);
+  const articleLd = buildBlogArticleJsonLd(post, []);
+  const breadcrumbLd = buildBlogBreadcrumbJsonLd(post);
+
+  return [
+    `<title>${escapeHtmlAttr(title)}</title>`,
+    `<meta name="description" content="${escapeHtmlAttr(description)}" />`,
+    `<link rel="canonical" href="${escapeHtmlAttr(canonical)}" />`,
+    `<meta property="og:title" content="${escapeHtmlAttr(title)}" />`,
+    `<meta property="og:description" content="${escapeHtmlAttr(description)}" />`,
+    `<meta property="og:type" content="article" />`,
+    `<meta property="og:url" content="${escapeHtmlAttr(canonical)}" />`,
+    `<meta property="og:image" content="${escapeHtmlAttr(ogImage)}" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${escapeHtmlAttr(title)}" />`,
+    `<meta name="twitter:description" content="${escapeHtmlAttr(description)}" />`,
+    `<meta name="twitter:image" content="${escapeHtmlAttr(ogImage)}" />`,
+    `<meta name="robots" content="index,follow" />`,
+    `<script type="application/ld+json">${escapeJsonForScript([articleLd, breadcrumbLd])}</script>`,
+  ].join('\n');
+}
