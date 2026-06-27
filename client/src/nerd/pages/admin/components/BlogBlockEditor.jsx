@@ -73,20 +73,88 @@ function LinkModalFields({ linkUrl, onLinkUrlChange }) {
   );
 }
 
-function ImageModalFields({ imageAlt, imageCaption, imageUploading, onAltChange, onCaptionChange, onFileChange }) {
+function ImageModalFields({
+  mode,
+  onModeChange,
+  imageUrl,
+  imageAlt,
+  imageCaption,
+  libraryAssets,
+  libraryLoading,
+  libraryError,
+  selectedAssetId,
+  onUrlChange,
+  onAltChange,
+  onCaptionChange,
+  onPickAsset,
+}) {
   return (
     <>
-      <div className="ndx-admin-field">
-        <span>Image file</span>
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="ndx-admin-input"
-          disabled={imageUploading}
-          onChange={(e) => onFileChange(e.target.files?.[0] || null)}
-        />
-        <p className="ndx-admin-field-hint">JPEG, PNG, WebP, or GIF — uploaded to Cloudinary on insert.</p>
+      <div className="ndx-blog-editor-image-modes" role="tablist" aria-label="Image source">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'url'}
+          className={`ndx-blog-editor-image-mode${mode === 'url' ? ' is-active' : ''}`}
+          onClick={() => onModeChange('url')}
+        >
+          Paste URL
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'library'}
+          className={`ndx-blog-editor-image-mode${mode === 'library' ? ' is-active' : ''}`}
+          onClick={() => onModeChange('library')}
+        >
+          From Media library
+        </button>
       </div>
+
+      {mode === 'url' ? (
+        <label className="ndx-admin-field">
+          <span>Image URL (required)</span>
+          <input
+            className="ndx-admin-input"
+            type="url"
+            value={imageUrl}
+            onChange={(e) => onUrlChange(e.target.value)}
+            placeholder="Paste image URL from Media library"
+            autoFocus
+          />
+          <p className="ndx-admin-field-hint">
+            Upload images in <strong>Admin → Media</strong>, then click <strong>Copy URL</strong> and paste here.
+          </p>
+        </label>
+      ) : (
+        <div className="ndx-admin-field">
+          <span>Pick from your library</span>
+          <div className="ndx-blog-editor-media-picker">
+            {libraryLoading ? (
+              <p className="ndx-blog-editor-media-empty">Loading library…</p>
+            ) : libraryError ? (
+              <p className="ndx-blog-editor-media-empty">{libraryError}</p>
+            ) : libraryAssets.length === 0 ? (
+              <p className="ndx-blog-editor-media-empty">
+                No images yet. Upload images in Admin → Media first.
+              </p>
+            ) : (
+              libraryAssets.map((asset) => (
+                <button
+                  key={asset.id}
+                  type="button"
+                  className={`ndx-blog-editor-media-pick${selectedAssetId === asset.id ? ' is-selected' : ''}`}
+                  onClick={() => onPickAsset(asset)}
+                  title={asset.alt || asset.secure_url}
+                >
+                  <img src={asset.secure_url} alt={asset.alt || ''} loading="lazy" />
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       <label className="ndx-admin-field">
         <span>Alt text (required)</span>
         <input
@@ -94,7 +162,6 @@ function ImageModalFields({ imageAlt, imageCaption, imageUploading, onAltChange,
           value={imageAlt}
           onChange={(e) => onAltChange(e.target.value)}
           placeholder="Describe the image for SEO and accessibility"
-          disabled={imageUploading}
         />
       </label>
       <label className="ndx-admin-field">
@@ -104,7 +171,6 @@ function ImageModalFields({ imageAlt, imageCaption, imageUploading, onAltChange,
           value={imageCaption}
           onChange={(e) => onCaptionChange(e.target.value)}
           placeholder="Shown below the image"
-          disabled={imageUploading}
         />
       </label>
     </>
@@ -243,10 +309,14 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [imageOpen, setImageOpen] = useState(false);
+  const [imageMode, setImageMode] = useState('url'); // 'url' | 'library'
+  const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
   const [imageCaption, setImageCaption] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUploading, setImageUploading] = useState(false);
+  const [libraryAssets, setLibraryAssets] = useState([]);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryError, setLibraryError] = useState('');
+  const [selectedAssetId, setSelectedAssetId] = useState(null);
   const [htmlOpen, setHtmlOpen] = useState(false);
   const [htmlInput, setHtmlInput] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
@@ -264,9 +334,7 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
   );
 
   const closeLink = useCallback(() => setLinkOpen(false), []);
-  const closeImage = useCallback(() => {
-    if (!imageUploading) setImageOpen(false);
-  }, [imageUploading]);
+  const closeImage = useCallback(() => setImageOpen(false), []);
   const closeHtml = useCallback(() => setHtmlOpen(false), []);
   const closeAlert = useCallback(() => setAlertOpen(false), []);
 
@@ -287,54 +355,81 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
     setLinkOpen(false);
   }, [editor, linkUrl]);
 
+  /** Lazy-load the Media library once when the user switches to that tab. */
+  const loadLibrary = useCallback(async () => {
+    if (!token) {
+      setLibraryError('Sign in to browse the media library.');
+      return;
+    }
+    setLibraryLoading(true);
+    setLibraryError('');
+    try {
+      const res = await fetch(apiUrl('/api/media'), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not load media library');
+      setLibraryAssets(Array.isArray(data.assets) ? data.assets : []);
+    } catch (e) {
+      setLibraryError(e.message || 'Could not load media library');
+    } finally {
+      setLibraryLoading(false);
+    }
+  }, [token]);
+
   const openImage = useCallback(() => {
+    setImageMode('url');
+    setImageUrl('');
     setImageAlt('');
     setImageCaption('');
-    setImageFile(null);
+    setSelectedAssetId(null);
+    setLibraryError('');
     setImageOpen(true);
   }, []);
 
-  const confirmImage = useCallback(async () => {
+  const onModeChange = useCallback(
+    (next) => {
+      setImageMode(next);
+      if (next === 'library' && libraryAssets.length === 0 && !libraryLoading) {
+        loadLibrary();
+      }
+    },
+    [libraryAssets.length, libraryLoading, loadLibrary],
+  );
+
+  const onPickAsset = useCallback((asset) => {
+    setSelectedAssetId(asset.id);
+    setImageUrl(asset.secure_url);
+    setImageAlt((prev) => prev || asset.alt || '');
+    setImageCaption((prev) => prev || asset.caption || '');
+  }, []);
+
+  const confirmImage = useCallback(() => {
     if (!editor) return;
-    if (!imageFile) {
-      notify('Choose an image file first.');
+    const url = imageUrl.trim();
+    if (!url) {
+      notify('Paste an image URL or pick from the library first.');
       return;
     }
-    if (!token) {
-      notify('You must be signed in to upload images.');
+    if (!/^https?:\/\//i.test(url)) {
+      notify('Image URL must start with http:// or https://');
       return;
     }
     if (!imageAlt.trim()) {
       notify('Alt text is required for SEO.');
       return;
     }
-    setImageUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      formData.append('folder', 'balochdev/blog');
-      const res = await fetch(apiUrl('/api/uploads/image'), {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-      const secureUrl = data.secureUrl;
-      if (!secureUrl) throw new Error('Upload succeeded but no image URL was returned.');
-      const inserted = insertBlogFigure(editor, {
-        src: secureUrl,
-        alt: imageAlt.trim(),
-        caption: imageCaption.trim(),
-      });
-      if (!inserted) throw new Error('Could not insert image into the editor.');
-      setImageOpen(false);
-    } catch (error) {
-      notify(error.message || 'Image upload failed.');
-    } finally {
-      setImageUploading(false);
+    const inserted = insertBlogFigure(editor, {
+      src: url,
+      alt: imageAlt.trim(),
+      caption: imageCaption.trim(),
+    });
+    if (!inserted) {
+      notify('Could not insert image into the editor.');
+      return;
     }
-  }, [editor, imageAlt, imageCaption, imageFile, notify, token]);
+    setImageOpen(false);
+  }, [editor, imageAlt, imageCaption, imageUrl, notify]);
 
   const openHtml = useCallback(() => {
     setHtmlInput('');
@@ -516,30 +611,38 @@ export function BlogEditorToolbar({ editor, token, onNotify }) {
       <AdminEditorModal
         open={imageOpen}
         title="Insert inline image"
+        wide
         onClose={closeImage}
         footer={
           <>
-            <button type="button" className="ndx-btn" disabled={imageUploading} onClick={closeImage}>
+            <button type="button" className="ndx-btn" onClick={closeImage}>
               Cancel
             </button>
             <button
               type="button"
               className="ndx-btn ndx-btn-primary"
-              disabled={imageUploading || !imageFile}
+              disabled={!imageUrl.trim() || !imageAlt.trim()}
               onClick={confirmImage}
             >
-              {imageUploading ? 'Uploading…' : 'Insert'}
+              Insert
             </button>
           </>
         }
       >
         <ImageModalFields
+          mode={imageMode}
+          onModeChange={onModeChange}
+          imageUrl={imageUrl}
           imageAlt={imageAlt}
           imageCaption={imageCaption}
-          imageUploading={imageUploading}
+          libraryAssets={libraryAssets}
+          libraryLoading={libraryLoading}
+          libraryError={libraryError}
+          selectedAssetId={selectedAssetId}
+          onUrlChange={setImageUrl}
           onAltChange={setImageAlt}
           onCaptionChange={setImageCaption}
-          onFileChange={setImageFile}
+          onPickAsset={onPickAsset}
         />
       </AdminEditorModal>
 

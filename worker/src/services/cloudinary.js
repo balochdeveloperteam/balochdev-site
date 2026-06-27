@@ -79,3 +79,35 @@ export async function uploadImage(file, { folder, publicId }, env) {
     format: data.format,
   };
 }
+
+/**
+ * Destroy a Cloudinary asset by public_id. Signed REST call (no SDK).
+ * Returns Cloudinary's `result` string: 'ok' when destroyed, 'not found'
+ * when the asset is already gone (caller can treat as soft-success).
+ *
+ * @param {string} publicId
+ * @param {object} env Worker env bindings
+ */
+export async function destroyImage(publicId, env) {
+  assertConfigured(env);
+  if (!publicId) throw new Error('Missing public_id');
+
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  const signedParams = { public_id: publicId, timestamp };
+  const signature = await signParams(signedParams, env.CLOUDINARY_API_SECRET);
+
+  const form = new FormData();
+  form.append('public_id', publicId);
+  form.append('api_key', env.CLOUDINARY_API_KEY);
+  form.append('timestamp', timestamp);
+  form.append('signature', signature);
+
+  const url = `https://api.cloudinary.com/v1_1/${encodeURIComponent(env.CLOUDINARY_CLOUD_NAME)}/image/destroy`;
+  const res = await fetch(url, { method: 'POST', body: form });
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `Cloudinary destroy failed (${res.status})`);
+  }
+  return data.result || 'ok';
+}

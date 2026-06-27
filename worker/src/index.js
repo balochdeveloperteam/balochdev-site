@@ -13,6 +13,7 @@ import { publicAds, adminAds } from './routes/ads.js';
 import estimate from './routes/estimate.js';
 import forms, { formLimiter, legacyContactHandler } from './routes/forms.js';
 import uploads from './routes/uploads.js';
+import media from './routes/media.js';
 import projects from './routes/projects.js';
 import { analytics, adminAnalytics } from './routes/analytics.js';
 
@@ -70,6 +71,7 @@ app.route('/api/projects', projects);
 app.route('/api/estimate', estimate);
 app.route('/api/forms', forms);
 app.route('/api/uploads', uploads);
+app.route('/api/media', media);
 app.route('/api/analytics', analytics);
 app.route('/api/analytics', adminAnalytics);
 

@@ -13,8 +13,8 @@ const NAV = [
   { to: '/admin/overview', label: 'Overview', end: false },
   { to: '/admin/posts', label: 'Blog Posts', end: false },
   { to: '/admin/ads', label: 'Ads', end: false },
+  { to: '/admin/media', label: 'Media', end: false },
   { to: '/admin/analytics', label: 'Analytics', soon: true },
-  { to: '/admin/media', label: 'Media', soon: true },
 ];
 
 function NavItems({ className, itemClassName, crossLinkClassName, showTeamLink }) {
