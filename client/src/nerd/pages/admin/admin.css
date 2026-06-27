@@ -748,6 +748,14 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   margin: 0.65rem 0;
 }
 
+.ndx-blog-editor-content .ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ndx-blog-editor-content .ProseMirror ol {
+  list-style-type: decimal;
+}
+
 .ndx-blog-editor-content .ProseMirror blockquote {
   border-left: 3px solid var(--ndx-accent);
   padding-left: 1rem;
@@ -797,6 +805,7 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   margin: 1.35rem auto;
   max-width: 100%;
   text-align: center;
+  position: relative;
 }
 
 .ndx-blog-editor-content .ProseMirror figure.blog-figure img {
@@ -855,6 +864,40 @@ html[data-theme='dark'] .ndx-admin-sidebar {
 
 .ndx-blog-editor-content .ProseMirror figure.blog-figure figcaption.is-empty {
   display: none;
+}
+
+.blog-figure-delete {
+  display: none;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 20, 30, 0.75);
+  color: #f8fafc;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+.blog-figure-delete:hover {
+  background: rgba(220, 50, 50, 0.85);
+  border-color: rgba(220, 50, 50, 0.6);
+}
+
+.ndx-blog-editor-content .ProseMirror figure.blog-figure.ProseMirror-selectednode .blog-figure-delete {
+  display: flex;
+}
+
+.ndx-blog-editor-content .ProseMirror figure.blog-figure.ProseMirror-selectednode {
+  outline: 2px solid var(--ndx-accent);
+  outline-offset: 3px;
+  border-radius: 12px;
 }
 
 .ndx-admin-cover-preview {

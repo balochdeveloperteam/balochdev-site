@@ -129,6 +129,46 @@ async function fetchBlogSlugLastmods() {
   return slugToYM;
 }
 
+/**
+ * Fetch published blog posts for llms.txt enumeration so AI crawlers
+ * (ChatGPT, Perplexity, ClaudeBot, etc.) can discover every published article.
+ * Returns posts ordered by published_at desc; empty array if Supabase unavailable.
+ */
+async function fetchPublishedBlogPostsForLlms() {
+  /** @type {Array<{ slug: string, title: string, summary: string }>} */
+  const posts = [];
+
+  const client = tryCreateSupabaseBuildClient(() => {});
+  if (!client) return posts;
+
+  try {
+    const { data, error } = await client
+      .from('blog_posts')
+      .select('slug, title, summary, excerpt, meta_description, published_at')
+      .eq('published', true)
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      console.warn(`[seo:files] blog_posts llms query failed (${error.message}) — llms.txt blog list omitted.`);
+      return posts;
+    }
+
+    for (const row of Array.isArray(data) ? data : []) {
+      const slug = typeof row?.slug === 'string' ? row.slug.trim() : '';
+      const title = typeof row?.title === 'string' ? row.title.trim() : '';
+      if (!slug || !title) continue;
+      const rawSummary = row?.summary || row?.excerpt || row?.meta_description || '';
+      const summary = String(rawSummary).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+      posts.push({ slug, title, summary });
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`[seo:files] blog_posts llms query threw (${msg}) — llms.txt blog list omitted.`);
+  }
+
+  return posts;
+}
+
 function assertNoPrivateInPublicUrls(publicAbsUrls, publicPathnames) {
   for (let i = 0; i < publicAbsUrls.length; i += 1) {
     const u = publicAbsUrls[i];
@@ -179,8 +219,8 @@ function buildRobotsTxt() {
   return lines.join('\n');
 }
 
-function buildLlmsTxt() {
-  return `# BalochDev
+function buildLlmsTxt(blogPosts = []) {
+  const header = `# BalochDev
 
 BalochDev is an AI-first software studio. The team ships custom web apps, mobile apps, AI agents, RAG systems, LLM-powered chatbots, and related integrations for global clients (including the US, UK, and Canada).
 
@@ -190,13 +230,28 @@ Statements above are factual product and scope summaries for retrieval and citat
 
 ## Key URLs
 
-- ${SITE_URL}/ — Home  
-- ${SITE_URL}/services — Services  
-- ${SITE_URL}/about — About  
-- ${SITE_URL}/technologies — Technologies  
-- ${SITE_URL}/blog — Blog  
-- ${SITE_URL}/contact — Contact  
+- [Home](${SITE_URL}/) — Studio overview, services, and recent work.
+- [Services](${SITE_URL}/services) — Web, mobile, AI, automation, and integration services.
+- [Technologies](${SITE_URL}/technologies) — Stack we work with (React, Next.js, Node, Supabase, AI tooling).
+- [Portfolio](${SITE_URL}/portfolio) — Selected client and partner projects.
+- [Apps](${SITE_URL}/apps) — BalochDev-built apps and tools.
+- [About](${SITE_URL}/about) — Who we are.
+- [Blog](${SITE_URL}/blog) — Articles, notes, and updates.
+- [Advertise](${SITE_URL}/advertise) — Reach the BalochDev audience.
+- [Estimate](${SITE_URL}/estimate) — AI-assisted project estimate.
+- [Contact](${SITE_URL}/contact) — Get in touch.
 `;
+
+  if (!blogPosts.length) return header;
+
+  const lines = [header, '## Articles', ''];
+  for (const post of blogPosts) {
+    const url = `${SITE_URL}/blog/${post.slug}`;
+    const summary = post.summary ? ` — ${post.summary}` : '';
+    lines.push(`- [${post.title}](${url})${summary}`);
+  }
+  lines.push('');
+  return lines.join('\n');
 }
 
 async function main() {
@@ -264,7 +319,14 @@ async function main() {
   const sitemapXml = urlFragments.join('\n');
   await fsPromises.writeFile(path.join(DIST, 'sitemap.xml'), sitemapXml, 'utf8');
   await fsPromises.writeFile(path.join(DIST, 'robots.txt'), buildRobotsTxt(), 'utf8');
-  await fsPromises.writeFile(path.join(DIST, 'llms.txt'), buildLlmsTxt(), 'utf8');
+
+  const blogPostsForLlms = await fetchPublishedBlogPostsForLlms();
+  await fsPromises.writeFile(path.join(DIST, 'llms.txt'), buildLlmsTxt(blogPostsForLlms), 'utf8');
+
+  const blogCount = publicUrls.filter((u) => /\/blog\/[^/]+$/.test(pathnameFromAbsoluteUrl(u))).length;
+  console.info(
+    `[seo:files] wrote sitemap.xml (${publicUrls.length} URLs, ${blogCount} blog posts), robots.txt, llms.txt (${blogPostsForLlms.length} articles).`,
+  );
 }
 
 main().catch((err) => {
