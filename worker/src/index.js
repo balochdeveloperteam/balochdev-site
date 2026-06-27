@@ -40,10 +40,21 @@ app.use(
   }),
 );
 
-// Health check — used by uptime monitors and CI smoke tests
+// Health check — used by uptime monitors and CI smoke tests.
+// Reports secret PRESENCE only (boolean) — never the secret value itself.
 app.get('/api/health', (c) => {
   const admin = getAdmin(c);
-  return c.json({ ok: true, db: !!admin });
+  const has = (key) => !!String(c.env[key] || '').trim();
+  return c.json({
+    ok: true,
+    db: !!admin,
+    cloudinary: {
+      cloud_name: has('CLOUDINARY_CLOUD_NAME'),
+      api_key: has('CLOUDINARY_API_KEY'),
+      api_secret: has('CLOUDINARY_API_SECRET'),
+    },
+    gemini: has('GEMINI_API_KEY'),
+  });
 });
 
 // Public + admin routes

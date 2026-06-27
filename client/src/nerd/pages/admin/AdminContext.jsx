@@ -44,6 +44,12 @@ export function AdminProvider({ children }) {
     setProfile({ name: data.name, role: data.role });
   }, []);
 
+  /**
+   * Bootstrap session — never imperatively navigate from here. AdminGate handles
+   * the declarative redirect (<Navigate to="/admin/login">) once loading flips
+   * to false. Two simultaneous redirects (imperative here + declarative in Gate)
+   * can race in some browsers and land on the wrong route.
+   */
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -60,7 +66,6 @@ export function AdminProvider({ children }) {
       setSession(s);
       if (!s) {
         setLoading(false);
-        navigate('/admin/login', { replace: true });
         return;
       }
 
@@ -75,7 +80,6 @@ export function AdminProvider({ children }) {
         setSession(s);
         if (!s) {
           setProfile(null);
-          navigate('/admin/login', { replace: true });
           return;
         }
         await Promise.all([loadProfile(s.access_token), loadTeamMembership(s.user.id)]);
@@ -86,7 +90,7 @@ export function AdminProvider({ children }) {
       cancelled = true;
       sub.subscription.unsubscribe();
     };
-  }, [loadProfile, loadTeamMembership, navigate]);
+  }, [loadProfile, loadTeamMembership]);
 
   const signOut = useCallback(async () => {
     await supabase?.auth.signOut();
