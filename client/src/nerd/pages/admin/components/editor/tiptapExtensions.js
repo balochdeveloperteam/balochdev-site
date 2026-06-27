@@ -215,6 +215,8 @@ export function createBlogEditorExtensions() {
       codeBlock: {
         HTMLAttributes: { class: 'blog-code-block' },
       },
+      // StarterKit v3 bundles Link; disable so our configured Link below wins.
+      link: false,
     }),
     Link.configure({
       openOnClick: false,
