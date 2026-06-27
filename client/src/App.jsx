@@ -38,6 +38,7 @@ import AdminOverview from './nerd/pages/admin/AdminOverview';
 import AdminPostsList from './nerd/pages/admin/AdminPostsList';
 import AdminPostEditor from './nerd/pages/admin/AdminPostEditor';
 import AdminAds from './nerd/pages/admin/AdminAds';
+import AdminMedia from './nerd/pages/admin/AdminMedia';
 import TeamGuard from './nerd/pages/team/TeamGuard';
 import TeamLayout from './nerd/pages/team/TeamLayout';
 import TeamDashboard from './nerd/pages/team/TeamDashboard';
@@ -92,6 +93,7 @@ function AppRoutes() {
               <Route path="posts/new" element={<AdminPostEditor />} />
               <Route path="posts/:id/edit" element={<AdminPostEditor />} />
               <Route path="ads" element={<AdminAds />} />
+              <Route path="media" element={<AdminMedia />} />
             </Route>
             <Route path="/team" element={<TeamGuard />}>
               <Route element={<TeamLayout />}>
