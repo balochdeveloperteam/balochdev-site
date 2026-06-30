@@ -61,7 +61,7 @@ function TeamGuardInner() {
         if (cancelled) return;
 
         if (!data.session) {
-          nav('/admin/login', { replace: true, state: { from: location.pathname } });
+          nav('/login', { replace: true, state: { from: location.pathname } });
           return;
         }
 
@@ -81,7 +81,7 @@ function TeamGuardInner() {
         if (cancelled) return;
 
         if (!s) {
-          nav('/admin/login', { replace: true, state: { from: location.pathname } });
+          nav('/login', { replace: true, state: { from: location.pathname } });
           return;
         }
 
@@ -108,7 +108,7 @@ function TeamGuardInner() {
 
   const signOut = useCallback(async () => {
     await supabase?.auth.signOut();
-    nav('/admin/login', { replace: true });
+    nav('/login', { replace: true });
   }, [nav]);
 
   const accessRole = member?.access_role ?? null;

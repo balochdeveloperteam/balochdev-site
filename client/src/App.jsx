@@ -85,7 +85,8 @@ function AppRoutes() {
             <Route path="/terms" element={<NTerms />} />
             <Route path="/refund" element={<NRefund />} />
             <Route path="/fulfilment" element={<NFulfilment />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<Navigate to="/login" replace />} />
             <Route path="/admin" element={<AdminGuard />}>
               <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<AdminOverview />} />

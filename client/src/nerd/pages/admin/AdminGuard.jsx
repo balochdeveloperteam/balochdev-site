@@ -1,9 +1,10 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { AdminProvider, useAdmin } from './AdminContext';
 import AdminLayout from './AdminLayout';
 
 function AdminGate() {
+  const location = useLocation();
   const { loading, denied, session } = useAdmin();
 
   if (!supabase) {
@@ -27,7 +28,7 @@ function AdminGate() {
   }
 
   if (!session || denied) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   return (

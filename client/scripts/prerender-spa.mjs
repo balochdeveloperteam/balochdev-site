@@ -590,6 +590,12 @@ async function main() {
   console.info('[prerender] Non-blog-style URLs to snapshot:', visits.filter((x) => !/^\/blog\/.+$/.test(x.path)).length);
   console.info('[prerender] URLs to snapshot (total):', visits.length);
 
+  if (manifestBlogSlugCount > 0 && scheduledBlogSnapshots === 0) {
+    throw new Error(
+      `[prerender] FATAL: Manifest has ${manifestBlogSlugCount} blog slug(s) but 0 snapshots scheduled — Supabase fetch likely failed (query ok=${querySucceeded}, loaded=${supabasePosts.size}); refusing to deploy a site with no blog snapshots.`,
+    );
+  }
+
   const eligiblePostsForMock = new Map();
   for (const slug of blogSlugWhitelist) eligiblePostsForMock.set(slug, supabasePosts.get(slug));
 

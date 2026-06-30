@@ -90,7 +90,7 @@ export default function ShellHeader() {
         <NavLink to="/proposal" onClick={() => setOpen(false)}>
           Send proposal
         </NavLink>
-        <NavLink to="/admin/login" onClick={() => setOpen(false)}>
+        <NavLink to="/login" onClick={() => setOpen(false)}>
           Admin
         </NavLink>
       </div>

@@ -5,14 +5,15 @@ export const SITE_URL = 'https://balochdev.com';
  * Non-public routes: no sitemap entries; disallow in robots.txt when generation is added.
  *
  * Non-indexed surfaces must remain private:
- * - `/admin`, `/admin/login`, `/admin/*`
+ * - `/login` (admin sign-in — SPA-only, noindex via `<Seo />`)
+ * - `/admin`, `/admin/*`
  * - `/team`, `/team/*` (internal team workspace)
  *
  * Consumers: omit matching URLs from sitemap builders; robots Disallow for each root.
  */
 export const PRIVATE_ROUTES = Object.freeze({
   ADMIN_ROOT: '/admin',
-  ADMIN_LOGIN: '/admin/login',
+  ADMIN_LOGIN: '/login',
   TEAM_ROOT: '/team',
 });
 
@@ -23,6 +24,7 @@ function isUnderRoot(pathname, root) {
 /** `true` when `pathname` must never appear in a public crawl/sitemap listing. */
 export function isPrivateSitePath(pathname) {
   const p = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  if (p === PRIVATE_ROUTES.ADMIN_LOGIN) return true;
   return isUnderRoot(p, PRIVATE_ROUTES.ADMIN_ROOT) || isUnderRoot(p, PRIVATE_ROUTES.TEAM_ROOT);
 }
 
