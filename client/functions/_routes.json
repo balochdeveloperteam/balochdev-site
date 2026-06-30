@@ -3,7 +3,11 @@
   "include": ["/blog/*"],
   "exclude": [
     "/blog",
+    "/login",
+    "/login/*",
+    "/admin",
     "/admin/*",
+    "/team",
     "/team/*",
     "/api/*",
     "/assets/*",

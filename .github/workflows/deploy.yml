@@ -61,7 +61,11 @@ jobs:
         run: npm run prerender && npm run seo:files
 
       - name: Verify dist artifact
-        run: test -f dist/index.html
+        run: |
+          test -f dist/index.html
+          test -f dist/spa-shell.html
+          test -f dist/_redirects
+          grep -q 'spa-shell.html' dist/_redirects
 
       - name: Require CLOUDFLARE_PAGES_PROJECT_NAME variable
         run: |

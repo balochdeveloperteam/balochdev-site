@@ -533,6 +533,15 @@ function countManifestIndividualBlogUrls(urlArr) {
   return urlArr.filter((u) => /^\/blog\/.+$/.test(pathnameFromAbsoluteUrl(String(u).trim()))).length;
 }
 
+/** Bare Vite shell for Cloudflare _redirects SPA rewrites (must not be /index.html — CF 308s that to /). */
+async function ensureSpaShellHtml() {
+  const indexPath = path.join(DIST, 'index.html');
+  const shellPath = path.join(DIST, 'spa-shell.html');
+  const shell = await fs.readFile(indexPath, 'utf8');
+  await fs.writeFile(shellPath, shell, 'utf8');
+  console.info('[prerender] wrote spa-shell.html (bare shell for /login, /admin, /team _redirects)');
+}
+
 async function main() {
   hydrateProcessEnvFromClientDotEnv();
 
@@ -541,6 +550,8 @@ async function main() {
     console.error('[prerender] dist/ missing — run vite build first (npm run prerender wraps this)');
     process.exit(1);
   });
+
+  await ensureSpaShellHtml();
 
   const { bySlug: supabasePosts, querySucceeded } = await loadSanitizedBlogPostsMap();
   console.info(
