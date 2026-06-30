@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 import { loadSanitizedBlogPostsMap } from './lib/blogPrerenderData.mjs';
+import { collectPrivateSpaShellPathnames } from './lib/collectPrivateSpaShellPaths.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CLIENT_ROOT = path.join(__dirname, '..');
@@ -533,13 +534,38 @@ function countManifestIndividualBlogUrls(urlArr) {
   return urlArr.filter((u) => /^\/blog\/.+$/.test(pathnameFromAbsoluteUrl(String(u).trim()))).length;
 }
 
-/** Bare Vite shell for Cloudflare _redirects SPA rewrites (must not be /index.html — CF 308s that to /). */
+/** Inject noindex for private shells (not in public sitemap). */
+function withNoindexRobotsMeta(html) {
+  if (/<meta\s+[^>]*name=["']robots["']/i.test(html)) {
+    return html.replace(
+      /(<meta\s+[^>]*name=["']robots["'][^>]*content=["'])[^"']*(["'])/i,
+      '$1noindex$2',
+    );
+  }
+  return html.replace(/<head(\s[^>]*)?>/i, '<head$1>\n    <meta name="robots" content="noindex" />');
+}
+
+/** Bare Vite shell (post-build index.html before homepage snapshot overwrites dist/index.html). */
 async function ensureSpaShellHtml() {
   const indexPath = path.join(DIST, 'index.html');
   const shellPath = path.join(DIST, 'spa-shell.html');
-  const shell = await fs.readFile(indexPath, 'utf8');
+  const shell = withNoindexRobotsMeta(await fs.readFile(indexPath, 'utf8'));
   await fs.writeFile(shellPath, shell, 'utf8');
-  console.info('[prerender] wrote spa-shell.html (bare shell for /login, /admin, /team _redirects)');
+  console.info('[prerender] wrote spa-shell.html (bare private-route shell template)');
+  return shell;
+}
+
+/** Static dist/<path>/index.html shells — Cloudflare serves these without .html rewrite 308s. */
+async function writePrivateSpaShellIndexes(shellHtml) {
+  const pathnames = collectPrivateSpaShellPathnames();
+  for (const pathname of pathnames) {
+    const outFile = diskPathForPathname(pathname);
+    await fs.mkdir(path.dirname(outFile), { recursive: true });
+    await fs.writeFile(outFile, shellHtml, 'utf8');
+  }
+  console.info(
+    `[prerender] wrote ${pathnames.length} private SPA shell(s): ${pathnames.join(', ')}`,
+  );
 }
 
 async function main() {
@@ -551,7 +577,7 @@ async function main() {
     process.exit(1);
   });
 
-  await ensureSpaShellHtml();
+  const privateShellHtml = await ensureSpaShellHtml();
 
   const { bySlug: supabasePosts, querySucceeded } = await loadSanitizedBlogPostsMap();
   console.info(
@@ -758,6 +784,8 @@ async function main() {
     const siteUrl = data.siteUrl || 'https://balochdev.com';
     await writeStatic404Html(page, base, siteUrl);
     written += 1;
+
+    await writePrivateSpaShellIndexes(privateShellHtml);
 
     await browser.close();
     previewProc.kill('SIGTERM');

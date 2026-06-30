@@ -1,13 +1,3 @@
-# Auth-gated SPA routes — rewrite to bare Vite shell (spa-shell.html), keep 200 so hard refresh works.
-# Do NOT target /index.html: Cloudflare Pages 308-redirects index.html → / and strips /login, /admin, etc.
-# spa-shell.html is copied from the post-build index.html before prerender overwrites dist/index.html.
-# No prerendered shells exist for /admin or /team (see enumerate-routes isPrivateSitePath).
+# /login, /admin, /team use static dist/<path>/index.html SPA shells (prerender-spa.mjs).
+# Do NOT rewrite private routes to .html files — Cloudflare Pages 308-strips .html targets.
 # ABSOLUTELY NO global /* rule — unknown public URLs fall through to 404.html (HTTP 404).
-/login      /spa-shell.html   200
-/login/     /spa-shell.html   200
-/admin      /spa-shell.html   200
-/admin/     /spa-shell.html   200
-/admin/*    /spa-shell.html   200
-/team       /spa-shell.html   200
-/team/      /spa-shell.html   200
-/team/*     /spa-shell.html   200

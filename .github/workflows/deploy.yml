@@ -64,8 +64,15 @@ jobs:
         run: |
           test -f dist/index.html
           test -f dist/spa-shell.html
+          test -f dist/login/index.html
+          test -f dist/admin/index.html
+          test -f dist/admin/overview/index.html
           test -f dist/_redirects
-          grep -q 'spa-shell.html' dist/_redirects
+          if grep -vE '^\s*#' dist/_redirects | grep -qE '\s+/\S+\.html\s'; then
+            echo "::error::_redirects must not rewrite routes to .html files (Cloudflare 308 bug)"
+            cat dist/_redirects
+            exit 1
+          fi
 
       - name: Require CLOUDFLARE_PAGES_PROJECT_NAME variable
         run: |

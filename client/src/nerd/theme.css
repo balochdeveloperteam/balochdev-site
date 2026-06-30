@@ -651,6 +651,7 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
 .ndx-social-links__icons {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.45rem;
 }
 
@@ -675,6 +676,16 @@ html[data-theme="dusk"] .ndx-mobile-drawer {
 
 .ndx-social-links--footer {
   margin-top: 1.25rem;
+  align-items: center;
+}
+
+.ndx-social-links--footer .ndx-social-link {
+  line-height: 0;
+}
+
+.ndx-social-links--footer .ndx-social-link svg {
+  display: block;
+  vertical-align: middle;
 }
 
 /* ---------- Page shell ---------- */
