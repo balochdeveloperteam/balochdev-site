@@ -53,9 +53,12 @@ estimate.post(
     const {
       name,
       email,
+      phone,
       company,
       budget,
       timeline,
+      projectType,
+      project_type,
       brief: briefField,
       message,
       visitor_key,
@@ -87,6 +90,8 @@ estimate.post(
         );
       }
 
+      const phoneClean = phone ? String(phone).trim().slice(0, 40) : null;
+
       const leadSnapshot = {
         visitor_key: validVisitorKey,
         ip_hash: ipHash,
@@ -103,9 +108,12 @@ estimate.post(
       try {
         ({ report, model } = await generateEstimate(c.env, {
           name: leadSnapshot.name,
+          email: leadSnapshot.email,
+          phone: phoneClean,
           company: leadSnapshot.company,
           budget: leadSnapshot.budget,
           timeline: leadSnapshot.timeline,
+          projectType: projectType || project_type || null,
           brief: leadSnapshot.brief,
         }));
       } catch (err) {
@@ -119,6 +127,11 @@ estimate.post(
           return c.json({ error: 'AI temporarily unavailable, please try again.' }, 503);
         }
         throw err;
+      }
+
+      // Phone lives in report.meta (jsonb) — no schema migration required.
+      if (phoneClean && report?.meta) {
+        report.meta.userPhone = phoneClean;
       }
 
       const { error: insertErr } = await admin.from('estimate_usage').insert({
