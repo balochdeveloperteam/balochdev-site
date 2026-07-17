@@ -6,10 +6,12 @@ import sanitizeHtml from 'sanitize-html';
 
 import { tryCreateSupabaseBuildClient } from './supabaseBuildClient.mjs';
 
-const BLOG_POST_SELECT_WITH_SUMMARY =
-  'id, slug, title, body_html, content_html, excerpt, summary, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs';
+const BLOG_POST_META_WITH_SUMMARY =
+  'id, slug, title, excerpt, summary, published, post_type, cover_image_url, cover_image_alt, meta_title, meta_description, og_image_url, reading_time_minutes, author_name, author_member_id, published_at, updated_at, like_count, comment_count, tags, category, related_slugs';
 
-const BLOG_POST_SELECT_LEGACY = BLOG_POST_SELECT_WITH_SUMMARY.replace(', summary', '');
+const BLOG_POST_META_LEGACY = BLOG_POST_META_WITH_SUMMARY.replace(', summary', '');
+
+const BLOG_POST_BODY_FIELDS = 'id, slug, body_html';
 
 function isMissingSummaryColumnError(message) {
   return /summary.*does not exist|column.*summary/i.test(String(message || ''));
@@ -17,6 +19,45 @@ function isMissingSummaryColumnError(message) {
 
 async function fetchPublishedBlogPosts(client, selectFields) {
   return client.from('blog_posts').select(selectFields).eq('published', true);
+}
+
+async function fetchBlogBodiesByIds(client, ids) {
+  /** @type {Map<string, { body_html?: string, content_html?: string }>} */
+  const byId = new Map();
+  if (!ids.length) return byId;
+
+  for (const id of ids) {
+    for (let attempt = 1; attempt <= SUPABASE_FETCH_MAX_ATTEMPTS; attempt += 1) {
+      try {
+        const { data, error } = await client
+          .from('blog_posts')
+          .select(BLOG_POST_BODY_FIELDS)
+          .eq('id', id)
+          .maybeSingle();
+        if (error) {
+          const msg = error.message || String(error);
+          if (attempt < SUPABASE_FETCH_MAX_ATTEMPTS && isRetryableSupabaseError(msg)) {
+            await sleep(attempt * 500);
+            continue;
+          }
+          console.warn(`[prerender] blog body fetch failed for ${id} (${msg})`);
+          break;
+        }
+        if (data) byId.set(id, data);
+        break;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (attempt < SUPABASE_FETCH_MAX_ATTEMPTS && isRetryableSupabaseError(msg)) {
+          await sleep(attempt * 500);
+          continue;
+        }
+        console.warn(`[prerender] blog body fetch threw for ${id} (${msg})`);
+        break;
+      }
+    }
+  }
+
+  return byId;
 }
 
 const SUPABASE_FETCH_MAX_ATTEMPTS = 3;
@@ -186,14 +227,14 @@ export async function loadSanitizedBlogPostsMap() {
 
   for (let attempt = 1; attempt <= SUPABASE_FETCH_MAX_ATTEMPTS; attempt += 1) {
     try {
-      let selectFields = BLOG_POST_SELECT_WITH_SUMMARY;
+      let selectFields = BLOG_POST_META_WITH_SUMMARY;
       let { data, error } = await fetchPublishedBlogPosts(client, selectFields);
 
       if (error && isMissingSummaryColumnError(error.message)) {
         console.warn(
           '[prerender] blog_posts.summary column missing — retrying without summary (apply 007_blog_summary.sql).',
         );
-        selectFields = BLOG_POST_SELECT_LEGACY;
+        selectFields = BLOG_POST_META_LEGACY;
         ({ data, error } = await fetchPublishedBlogPosts(client, selectFields));
       }
 
@@ -210,14 +251,18 @@ export async function loadSanitizedBlogPostsMap() {
         return { bySlug, querySucceeded: false };
       }
 
-      const rows = Array.isArray(data) ? data : [];
-      const postIds = rows.map((r) => r.id).filter(Boolean);
-      const commentsByPost = await loadCommentsByPostIds(client, postIds);
+      const metaRows = Array.isArray(data) ? data : [];
+      const postIds = metaRows.map((r) => r.id).filter(Boolean);
+      const [bodiesById, commentsByPost] = await Promise.all([
+        fetchBlogBodiesByIds(client, postIds),
+        loadCommentsByPostIds(client, postIds),
+      ]);
 
-      for (const row of rows) {
+      for (const row of metaRows) {
         const slug = typeof row?.slug === 'string' ? row.slug.trim() : '';
         if (!slug) continue;
-        const post = mapPrerenderPost(row);
+        const body = bodiesById.get(row.id) || {};
+        const post = mapPrerenderPost({ ...row, ...body });
         if (!post.title) continue;
         const comments = commentsByPost.get(row.id) || [];
         bySlug.set(slug, { post, comments });
