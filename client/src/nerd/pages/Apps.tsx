@@ -17,6 +17,7 @@ import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
 import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import RichSectionIntro from "../components/RichSectionIntro";
 import AppsHeroPhoneIllustration from "../components/AppsHeroPhoneIllustration";
+import AiEstimatePromo from "../components/AiEstimatePromo";
 import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 import { stackToolLandingPath } from "../data/stackLandings";
 
@@ -615,6 +616,8 @@ export default function AppsPage() {
             ))}
           </div>
         </div>
+
+        <AiEstimatePromo />
 
         <div className="ndx-rich-cta-box" style={{ marginTop: "2.25rem" }}>
           <div>

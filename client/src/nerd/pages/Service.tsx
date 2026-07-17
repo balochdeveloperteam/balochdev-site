@@ -52,6 +52,7 @@ import {
   TbSparkles,
 } from "react-icons/tb";
 import RichSectionIntro from "../components/RichSectionIntro";
+import AiEstimatePromo from "../components/AiEstimatePromo";
 import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
 
 type ServiceItem = {
@@ -1192,6 +1193,8 @@ export default function ServicesPage() {
             ))}
           </div>
         </div>
+
+        <AiEstimatePromo />
 
         <div className="ndx-rich-cta-box">
           <div>

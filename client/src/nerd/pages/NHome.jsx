@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import VantaNetBackground from '../components/home/VantaNetBackground';
 import PartnerBrandsGrid from '../components/PartnerBrandsGrid';
+import AiEstimatePromo from '../components/AiEstimatePromo';
 import Seo from '../seo/Seo';
 import { organizationJsonLd } from '../seo/siteSeo';
 
@@ -432,6 +433,8 @@ export default function NHome() {
           <PartnerBrandsGrid className="ndx-home-partners__logoGrid" />
         </div>
       </section>
+
+      <AiEstimatePromo />
 
       <section className="ndx-section ndx-section-tight ndx-home-about-cta">
         <div className="ndx-container ndx-home-about-cta__box">

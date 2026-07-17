@@ -33,6 +33,7 @@ import { stackToolLandingPath } from "../data/stackLandings";
 import { selectedWorkTeasers } from "../data/selectedWorkTeasers";
 import PartnerBrandsGrid from "../components/PartnerBrandsGrid";
 import RichSectionIntro from "../components/RichSectionIntro";
+import AiEstimatePromo from "../components/AiEstimatePromo";
 
 const TECH_INDEX_SEO = STATIC_PUBLIC_PAGES_SEO["/technologies"];
 
@@ -780,6 +781,8 @@ export default function TechnologiesPage() {
             ))}
           </div>
         </div>
+
+        <AiEstimatePromo />
 
         <div className="ndx-rich-cta-box" style={{ position: "relative", overflow: "hidden" }}>
           <div

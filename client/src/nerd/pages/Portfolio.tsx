@@ -7,6 +7,7 @@ import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
 import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import projects, { type Project } from "../data/projects";
 import portfolioVideo from "../../assets/BalochDevLogo/portfolio.mp4";
+import AiEstimatePromo from "../components/AiEstimatePromo";
 
 /* ─── Static data ────────────────────────────────────────────────────────── */
 
@@ -498,6 +499,8 @@ export default function PortfolioPage() {
             ))}
           </div>
         </div>
+
+        <AiEstimatePromo />
 
         {/* ── Bottom CTA ───────────────────────────────────────────────── */}
         <div

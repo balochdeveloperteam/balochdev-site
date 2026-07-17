@@ -1,0 +1,55 @@
+.ndx-ai-promo {
+  border-block: 1px solid var(--ndx-border);
+  background:
+    radial-gradient(ellipse 70% 120% at 0% 50%, color-mix(in srgb, var(--ndx-accent) 14%, transparent), transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--ndx-surface) 88%, var(--ndx-bg)), var(--ndx-bg));
+  padding: 1.35rem 0;
+}
+
+.ndx-ai-promo__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.35rem;
+}
+
+.ndx-ai-promo__icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: block;
+}
+
+.ndx-ai-promo__copy {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.ndx-ai-promo__eyebrow {
+  margin: 0 0 0.25rem;
+  font-family: var(--ndx-font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+}
+
+.ndx-ai-promo__line {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--ndx-text);
+  max-width: 42rem;
+}
+
+.ndx-ai-promo__cta {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .ndx-ai-promo__cta {
+    width: 100%;
+    text-align: center;
+  }
+}
