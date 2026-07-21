@@ -1,55 +1,183 @@
 .ndx-ai-promo {
-  border-block: 1px solid var(--ndx-border);
-  background:
-    radial-gradient(ellipse 70% 120% at 0% 50%, color-mix(in srgb, var(--ndx-accent) 14%, transparent), transparent 55%),
-    linear-gradient(180deg, color-mix(in srgb, var(--ndx-surface) 88%, var(--ndx-bg)), var(--ndx-bg));
-  padding: 1.35rem 0;
+  --ai-promo-orange: #f59e0b;
+  --ai-promo-orange-soft: #fb923c;
+  --ai-promo-amber: #fbbf24;
+  --ai-promo-peek: 2.35rem;
+  margin-block: 1.15rem 2.25rem;
+  padding-block: 0;
+  overflow: visible;
 }
 
-.ndx-ai-promo__inner {
+/* Home — less air above the bot strip */
+.ndx-home > .ndx-ai-promo {
+  margin-block: 0.35rem 2rem;
+  --ai-promo-peek: 2.1rem;
+}
+
+/* Portfolio / Services / Apps / Technologies — tighter after project blocks */
+.ndx-container > .ndx-ai-promo {
+  margin-inline: 0;
+  margin-block: 0.85rem 1.75rem;
+}
+
+.ndx-container > .ndx-ai-promo .ndx-ai-promo__wrap {
+  max-width: none;
+  width: 100%;
+  padding-inline: 0;
+  margin-inline: 0;
+}
+
+.ndx-ai-promo__wrap {
+  padding-block: 0;
+  padding-top: var(--ai-promo-peek);
+  overflow: visible;
+}
+
+.ndx-ai-promo__card {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem 1.35rem;
+  gap: 1.5rem 2.25rem;
+  padding: 1.6rem 2rem 1.6rem 11rem;
+  min-height: 6.75rem;
+  overflow: visible;
+  border-radius: calc(var(--ndx-radius-lg) + 6px);
+  border: none;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ai-promo-orange) 18%, transparent) 0%,
+      color-mix(in srgb, var(--ai-promo-amber) 10%, transparent) 42%,
+      color-mix(in srgb, var(--ndx-surface) 88%, transparent) 100%
+    ),
+    color-mix(in srgb, var(--ndx-surface) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 18px 48px color-mix(in srgb, var(--ai-promo-orange) 18%, transparent),
+    0 8px 24px var(--ndx-shadow-card);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
 }
 
+/*
+  Legs on the card bottom; height = card + peek so the head
+  always rises a bit above the box (not tucked inside).
+*/
 .ndx-ai-promo__icon {
-  width: 56px;
-  height: 56px;
-  flex-shrink: 0;
-  border-radius: 14px;
+  position: absolute;
+  left: 0.25rem;
+  bottom: 0;
+  top: auto;
+  width: 9.75rem;
+  height: calc(100% + var(--ai-promo-peek));
+  max-height: none;
   display: block;
+  object-fit: contain;
+  object-position: bottom center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  filter: drop-shadow(0 14px 22px rgba(120, 53, 15, 0.28));
+  z-index: 3;
+  pointer-events: none;
 }
 
 .ndx-ai-promo__copy {
   flex: 1 1 16rem;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-block: 0.15rem;
 }
 
 .ndx-ai-promo__eyebrow {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-family: var(--ndx-font-mono);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ndx-dim);
+  color: color-mix(in srgb, var(--ai-promo-orange-soft) 75%, var(--ndx-dim));
+}
+
+.ndx-ai-promo__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ndx-text);
+  letter-spacing: -0.02em;
 }
 
 .ndx-ai-promo__line {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: var(--ndx-text);
-  max-width: 42rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ndx-dim);
+  max-width: 38rem;
 }
 
 .ndx-ai-promo__cta {
   flex-shrink: 0;
+  margin-left: auto;
+  padding-inline: 1.5rem;
+  min-height: 3rem;
+  align-self: center;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
+  .ndx-ai-promo {
+    --ai-promo-peek: 2.35rem;
+    margin-block: 1.75rem 1.5rem;
+  }
+
+  .ndx-container > .ndx-ai-promo {
+    margin-block: 0.65rem 1.35rem;
+  }
+
+  .ndx-ai-promo__card {
+    gap: 1.1rem;
+    min-height: 0;
+    padding: 5.5rem 1.25rem 1.35rem;
+  }
+
+  .ndx-ai-promo__icon {
+    left: 50%;
+    bottom: auto;
+    top: calc(-1 * var(--ai-promo-peek));
+    width: 8rem;
+    height: 8rem;
+    transform: translateX(-50%);
+    object-position: center;
+  }
+
   .ndx-ai-promo__cta {
     width: 100%;
+    margin-left: 0;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ndx-ai-promo {
+    --ai-promo-peek: 2.5rem;
+  }
+
+  .ndx-ai-promo__card {
+    padding: 5.75rem 1.1rem 1.2rem;
+  }
+
+  .ndx-ai-promo__icon {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+
+  .ndx-ai-promo__title {
+    font-size: 1.15rem;
+  }
+
+  .ndx-ai-promo__line {
+    font-size: 0.95rem;
   }
 }

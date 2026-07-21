@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { IconType } from "react-icons";
 import {
@@ -15,6 +15,7 @@ import {
   TbShieldCheck,
 } from "react-icons/tb";
 import Seo from "../seo/Seo";
+import FaqAccordion from "../components/FaqAccordion";
 import { SITE_URL } from "../seo/siteSeo";
 import { capDescription, capTitle } from "../seo/seoFromData";
 import {
@@ -80,19 +81,6 @@ function PracticeIntroPanel({ config, PracticeIcon }: { config: ServicePracticeL
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function LandingFaqItem({ q, a, index }: { q: string; a: string; index: number }) {
-  const [open, setOpen] = useState(index === 0);
-  return (
-    <div className="ndx-faq-item">
-      <button type="button" className="ndx-faq-q" onClick={() => setOpen(!open)}>
-        <span>{q}</span>
-        <span style={{ color: "var(--ndx-accent)", fontSize: "1.35rem" }}>{open ? "−" : "+"}</span>
-      </button>
-      {open ? <div className="ndx-faq-a">{a}</div> : null}
     </div>
   );
 }
@@ -336,9 +324,7 @@ export default function ServicePracticeLanding() {
             Questions specific to this practice
           </h2>
           <div className="ndx-tech-landing__faq">
-            {page.faq.map((item, index) => (
-              <LandingFaqItem key={item.q} q={item.q} a={item.a} index={index} />
-            ))}
+            <FaqAccordion items={page.faq} />
           </div>
         </section>
 

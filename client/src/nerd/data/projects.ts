@@ -1,10 +1,45 @@
-import mango1 from "../../assets/Projects/ManGo/1.png";
-import mango2 from "../../assets/Projects/ManGo/2.png";
-import mango3 from "../../assets/Projects/ManGo/3.png";
-import toy1 from "../../assets/Projects/TheoryOfYou/4-j.png";
-import toy2 from "../../assets/Projects/TheoryOfYou/5-j.png";
-import toy3 from "../../assets/Projects/TheoryOfYou/6-j.png";
-import toy4 from "../../assets/Projects/TheoryOfYou/7-j.png";
+import mango1 from "../../assets/Projects/ManGo/1.webp";
+import mango2 from "../../assets/Projects/ManGo/2.webp";
+import mango3 from "../../assets/Projects/ManGo/3.webp";
+import toy1 from "../../assets/Projects/TheoryOfYou/4-j.webp";
+import toy2 from "../../assets/Projects/TheoryOfYou/5-j.webp";
+import toy3 from "../../assets/Projects/TheoryOfYou/6-j.webp";
+import toy4 from "../../assets/Projects/TheoryOfYou/7-j.webp";
+import doch1 from "../../assets/Projects/Doch.com/1.webp";
+import doch2 from "../../assets/Projects/Doch.com/2.webp";
+import doch3 from "../../assets/Projects/Doch.com/3.webp";
+import doch4 from "../../assets/Projects/Doch.com/4.webp";
+import doch5 from "../../assets/Projects/Doch.com/5.webp";
+import iinta1 from "../../assets/Projects/iinta.ca/1.webp";
+import iinta2 from "../../assets/Projects/iinta.ca/2.webp";
+import iinta3 from "../../assets/Projects/iinta.ca/3.webp";
+import iinta4 from "../../assets/Projects/iinta.ca/4.webp";
+import iinta5 from "../../assets/Projects/iinta.ca/5.webp";
+import iinta6 from "../../assets/Projects/iinta.ca/6.webp";
+import iinta7 from "../../assets/Projects/iinta.ca/7.webp";
+import iinta8 from "../../assets/Projects/iinta.ca/8.webp";
+import iinta9 from "../../assets/Projects/iinta.ca/9.webp";
+import iinta10 from "../../assets/Projects/iinta.ca/10.webp";
+import soroz1 from "../../assets/Projects/Soroz.ai/1.webp";
+import soroz2 from "../../assets/Projects/Soroz.ai/2.webp";
+import soroz3 from "../../assets/Projects/Soroz.ai/3.webp";
+import soroz4 from "../../assets/Projects/Soroz.ai/4.webp";
+import soroz5 from "../../assets/Projects/Soroz.ai/5.webp";
+import soroz6 from "../../assets/Projects/Soroz.ai/6.webp";
+import soroz7 from "../../assets/Projects/Soroz.ai/7.webp";
+import soroz8 from "../../assets/Projects/Soroz.ai/8.webp";
+import toledo1 from "../../assets/Projects/Toledo/1.webp";
+import toledo2 from "../../assets/Projects/Toledo/2.webp";
+import toledo3 from "../../assets/Projects/Toledo/3.webp";
+import toledo4 from "../../assets/Projects/Toledo/4.webp";
+import toledo5 from "../../assets/Projects/Toledo/5.webp";
+import shabash1 from "../../assets/Projects/shabash/1.webp";
+import shabash2 from "../../assets/Projects/shabash/2.webp";
+import shabash3 from "../../assets/Projects/shabash/3.webp";
+import shabash4 from "../../assets/Projects/shabash/4.webp";
+import shabash5 from "../../assets/Projects/shabash/5.webp";
+import shabash6 from "../../assets/Projects/shabash/6.webp";
+import shabash7 from "../../assets/Projects/shabash/7.webp";
 
 export interface ProjectTeamMember {
   name: string;
@@ -24,16 +59,86 @@ export interface Project {
   images?: string[];
   stack?: string[];
   featured?: boolean;
+  /** Full-width top row on the portfolio grid */
+  featuredHero?: boolean;
   live?: boolean;
+  /** Public preview / production URL (no repo when private) */
+  liveUrl?: string;
+  underDevelopment?: boolean;
   challenge?: string;
   solution?: string[];
   features?: string[];
   results?: string[];
+  /** One image + copy panel on the case study page (main gallery stays unchanged) */
+  caseStudyPanel?: {
+    image: string;
+    heading: string;
+    body: string;
+  };
   seoDescription?: string;
   team?: ProjectTeamMember[];
 }
 
 const projects: Project[] = [
+  {
+    slug: "soroz",
+    title: "Soroz AI",
+    tagline:
+      "AI music generation for any language — with stronger results for languages and traditions that tools like Suno underserve. Built and powered by BalochDev; still under active development.",
+    category: "balochdev",
+    industry: "AI · Music",
+    year: "2025–2026",
+    cover: soroz1,
+    images: [
+      soroz1,
+      soroz2,
+      soroz3,
+      soroz4,
+      soroz5,
+      soroz6,
+      soroz7,
+      soroz8,
+    ],
+    stack: ["Large-level LLM model for music"],
+    featured: true,
+    featuredHero: true,
+    underDevelopment: true,
+    live: false,
+    liveUrl: "https://zahirok-ai-frontend-bwhlov9xg-jaberb281-arts-projects.vercel.app/",
+    seoDescription:
+      "Soroz AI by BalochDev — under-development AI music generation for any language, with stronger results for languages and traditions global tools like Suno often miss. Powered by a large-level LLM model for music.",
+    challenge:
+      "Global AI music tools generate songs in many languages — but quality collapses for languages, dialects, and musical traditions they under-train. Creators who need Balochi, Makkuran, coastal folk, and other underserved voices are left with generic pastiche or nothing usable at all.",
+    solution: [
+      "Building a music LLM product that can generate in any language, while specializing where mainstream tools are weakest.",
+      "Investing depth in Balochi and related coastal folk instruments and forms — Dambora, Suroz, Doholl — so those outputs are markedly better than one-size-fits-all generators.",
+      "Designing mood-, lyric-, and instrument-first creation so anyone can draft a track without studio expertise.",
+      "Shipping The Drift and a full studio surface while the model and language coverage keep improving — powered by BalochDev.",
+    ],
+    features: [
+      "Large-level LLM model for music (in development)",
+      "Any-language song generation",
+      "Stronger results for languages Suno-style tools miss",
+      "Balochi & coastal folk depth where it matters",
+      "The Drift — capture-to-song flow",
+      "Studio workspace & listening surface",
+      "Powered by BalochDev",
+    ],
+    results: [
+      "Flagship BalochDev product — multilingual AI music, still under active development",
+      "Live product preview while the music model and language coverage deepen",
+      "Built to fill the gap left by global generators on underserved languages and sounds",
+    ],
+    caseStudyPanel: {
+      image: soroz3,
+      heading: "Any language. Better where others fail.",
+      body: "Soroz is not only a Balochi music tool — it generates songs across languages from a mood, a lyric, or an instrument cue. The product goal is simple: usable drafts for creators who today get weak or empty results from global generators.\n\nWhere Suno-style platforms underserve certain languages, dialects, and folk traditions, Soroz is built to go deeper — Balochi and coastal folk sound included, without locking the product to one culture only. The Drift, studio flows, and listening surface are shipping while the music LLM keeps improving.\n\nPowered by BalochDev. Still under active development — the live preview shows the direction, not a finished catalogue of every language yet.",
+    },
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
+  },
   {
     slug: "mango-restaurant",
     title: "ManGo Restaurant",
@@ -203,56 +308,237 @@ const projects: Project[] = [
     ],
   },
   {
-    slug: null,
-    title: "Balochi Academy App",
+    slug: "doch",
+    title: "DOCH",
     tagline:
-      "Cross-platform mobile learning application for the Balochi language — structured lesson modules, native audio pronunciation, spaced-repetition practice, and real-time progress tracking.",
-    category: "partner",
-    industry: "EdTech · Language Technology",
-    year: "2025",
-    cover: null,
-    stack: ["Flutter", "Firebase", "Dart", "Firestore", "Firebase Auth"],
-    featured: false,
-    live: false,
-  },
-  {
-    slug: null,
-    title: "Multi-vendor E-commerce Platform",
-    tagline:
-      "Headless storefront with AI-powered product recommendations, multi-vendor management, Stripe checkout, and a seller analytics dashboard.",
+      "Bilingual English–Balochi editorial home for Balochi hand embroidery — from Instagram DMs to a digital heritage house.",
     category: "client",
-    industry: "E-commerce",
+    industry: "Craft · Heritage Fashion",
     year: "2025",
-    cover: null,
-    stack: ["Next.js", "Supabase", "Stripe", "Tailwind CSS", "TypeScript", "Cloudflare"],
-    featured: false,
-    live: false,
+    cover: doch1,
+    images: [doch1, doch2, doch3, doch4, doch5],
+    stack: ["HTML", "CSS", "JavaScript", "Bilingual EN / Balochi"],
+    featured: true,
+    live: true,
+    seoDescription:
+      "DOCH — a bilingual English–Balochi editorial website for Balochi hand embroidery, built by BalochDev. Region-as-atlas collections (Makrani, Rakhshani, Kalati), craft depth storytelling, bilingual toggle, and WhatsApp-native commerce. Hand-coded static site.",
+    challenge:
+      "DOCH's brand lived entirely on Instagram and WhatsApp — beautiful work, zero permanence. There was no durable home for the craft's regional depth, no discoverability beyond social algorithms, and no credibility layer for a heritage fashion house that deserved more than a feed and a DM thread.",
+    solution: [
+      "Designed the site as a digital heritage house: collections organised as a region-as-atlas (Makrani, Rakhshani, Kalati) so buyers and readers navigate by geography and stitch tradition, not generic product grids.",
+      "Built a craft-depth section that explains technique, materials, and regional identity — giving the embroidery cultural weight beyond product photography.",
+      "Implemented a bilingual English–Balochi experience with a clear language toggle, treating Balochi as a first-class reading mode rather than an afterthought translation.",
+      "Added a Feature Your Dress CTA so wearers and makers can contribute into the brand's editorial surface.",
+      "Kept commerce WhatsApp-native — the site informs and converts trust; ordering stays where the community already buys.",
+      "Hand-coded a static site in HTML, CSS, and JavaScript — fast, maintainable, and free of CMS overhead for a content-led heritage brand.",
+    ],
+    features: [
+      "Region-as-atlas collections (Makrani / Rakhshani / Kalati)",
+      "Craft depth & heritage storytelling",
+      "Bilingual English–Balochi toggle",
+      "Feature your dress contribution CTA",
+      "WhatsApp-native purchase flow",
+      "Hand-coded static site — no CMS bloat",
+      "Editorial-first visual presentation",
+      "Mobile-first browsing experience",
+    ],
+    results: [
+      "Brand moved from ephemeral Instagram DMs to a permanent, searchable digital home",
+      "Regional embroidery traditions presented as structured collections instead of scattered posts",
+      "Bilingual EN / Balochi reading experience live for diaspora and local audiences",
+      "WhatsApp commerce retained — site builds trust without forcing a checkout rebuild",
+      "Lightweight static delivery keeps the heritage house fast and easy to maintain",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
   },
   {
-    slug: null,
-    title: "Mobile Courier & Delivery App",
+    slug: "iinta",
+    title: "iinta.ca",
     tagline:
-      "Cross-platform courier application with real-time GPS tracking, smart driver assignment, push notifications, and customer ETA estimation.",
+      "Magazine + marketplace + membership in one fully custom digital platform — designed, built, and managed by BalochDev since 2022.",
     category: "client",
-    industry: "Logistics & Delivery",
-    year: "2026",
-    cover: null,
-    stack: ["React Native", "Node.js", "PostgreSQL", "Supabase", "Google Maps API"],
-    featured: false,
-    live: false,
+    industry: "Media · Marketplace",
+    year: "2022–2025",
+    duration: "Ongoing since 2022",
+    cover: iinta1,
+    images: [
+      iinta1,
+      iinta2,
+      iinta3,
+      iinta4,
+      iinta5,
+      iinta6,
+      iinta7,
+      iinta8,
+      iinta9,
+      iinta10,
+    ],
+    stack: [
+      "Liquid",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Custom Shopify Storefront",
+      "Apple Pay",
+      "Google Pay",
+      "PayPal",
+    ],
+    featured: true,
+    live: true,
+    liveUrl: "https://iinta.ca/",
+    seoDescription:
+      "iinta.ca — a custom magazine, marketplace, and membership platform designed, built, and managed by BalochDev since 2022. Zero-theme Liquid storefront, mega-menu IA across 20+ verticals, editorial as first-class content, and My Union Rewards membership. Hand-coded Shopify storefront with Apple Pay, Google Pay, and PayPal.",
+    challenge:
+      "iinta needed an identity no off-the-shelf theme could hold: editorial and commerce at equal weight, twenty-plus verticals under one roof, and a membership roadmap that template apps would only approximate. A standard Shopify theme would either bury the magazine or flatten the marketplace — neither was acceptable.",
+    solution: [
+      "Built a zero-theme, hand-coded Liquid storefront so every layout decision served iinta's hybrid identity rather than a theme author's defaults.",
+      "Designed mega-menu information architecture spanning 20+ verticals — buyers and readers can jump into any lane without drowning in a single infinite grid.",
+      "Treated editorial as a first-class surface: magazine issues and stories sit alongside commerce, not as blog afterthoughts.",
+      "Layered marketplace commerce with Apple Pay, Google Pay, and PayPal for frictionless checkout across the community.",
+      "Introduced My Union Rewards as a native membership layer — loyalty and belonging built into the platform, not bolted on as a third-party widget.",
+      "Ongoing design, build, and management partnership since 2022 — the platform evolves with the brand rather than shipping once and walking away.",
+    ],
+    features: [
+      "Zero-theme custom Liquid storefront",
+      "Mega-menu IA across 20+ verticals",
+      "Editorial magazine as first-class content",
+      "Marketplace commerce checkout",
+      "My Union Rewards membership",
+      "Apple Pay · Google Pay · PayPal",
+      "Hand-coded Shopify storefront",
+      "Ongoing platform management since 2022",
+    ],
+    results: [
+      "Grown into a six-figure business on the custom platform",
+      "7+ magazine editions shipped through the editorial system",
+      "20+ marketplace verticals live under one storefront",
+      "8,300+ Instagram community connected to the digital home",
+      "Continuously designed, built, and managed by BalochDev since 2022",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
   },
   {
-    slug: null,
-    title: "BalochDev Studio",
+    slug: "toledo-locks",
+    title: "Toledo & Co.",
     tagline:
-      "Internal project management and client portal — milestone tracking, invoice generation, delivery timelines, and team workload visibility in one place.",
-    category: "balochdev",
-    industry: "SaaS · Internal Tooling",
-    year: "2026",
-    cover: null,
-    stack: ["React", "Supabase", "Cloudflare Workers", "TypeScript", "Tailwind CSS"],
-    featured: false,
-    live: false,
+      "Security hardware e-commerce for Caribbean B2B buyers — category-first catalog, dense inventory browsing, downloadable PDF catalog.",
+    category: "client",
+    industry: "Hardware · B2B E-commerce",
+    year: "2025",
+    cover: toledo1,
+    images: [toledo1, toledo2, toledo3, toledo4, toledo5],
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "UX / UI", "Product Discovery"],
+    featured: true,
+    live: true,
+    liveUrl: "https://toledolocks.com/",
+    seoDescription:
+      "Toledo & Co. (toledolocks.com) — security hardware e-commerce rebuilt by BalochDev for Caribbean B2B buyers. Category-first homepage, dense 354+ SKU catalog with grid/list views, downloadable PDF catalog, collections layer, and credibility-focused About. Next.js, TypeScript, Tailwind CSS.",
+    challenge:
+      "Toledo & Co. exports locks, deadbolts, padlocks, and related hardware across the Caribbean. Their buyers are sourcing professionals — not casual shoppers — navigating 354+ SKUs, offline procurement habits, and the need to trust a 20+ year distributor. A standard product-grid storefront would either overwhelm or hide inventory behind navigation buyers would never find.",
+    solution: [
+      "Led with a category-first homepage — Deadbolts, Knobs, Door Locks, Electronic Locks, Padlocks — so a buyer who knows what they need is one click from their lane.",
+      "Built a dense All Products catalog with product count, per-page controls, alphabetical sort, and grid/list toggles — closer to a distributor inventory system than a D2C shop page.",
+      "Added a downloadable PDF catalog for offline procurement: forward internally, compare suppliers, decide away from the browser.",
+      "Layered collections for curated entry points alongside the full inventory browse.",
+      "Designed a credibility-focused About experience that signals two decades of export history across dozens of markets.",
+      "Optimised mobile for floor buyers checking stock and specs on the warehouse floor, not only desktop procurement desks.",
+    ],
+    features: [
+      "Category-first homepage navigation",
+      "Dense 354+ SKU catalog — grid & list",
+      "Downloadable PDF product catalog",
+      "Collections layer for curated browsing",
+      "Credibility-focused About page",
+      "Mobile-ready for floor / field buyers",
+      "Product discovery tuned for B2B sourcing",
+      "Live at toledolocks.com",
+    ],
+    results: [
+      "Storefront live at toledolocks.com serving Puerto Rico, Panama, Dominican Republic, Jamaica, Costa Rica, and 25+ Caribbean markets",
+      "Buyers can jump by category or browse the full dense inventory without losing their place",
+      "PDF catalog supports offline procurement workflows that pure web catalogs miss",
+      "Site reads as an established distributor — not a template storefront — matching 20+ years of export credibility",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
+  },
+  {
+    slug: "shabash",
+    title: "Shbash",
+    tagline:
+      "Custom e-commerce platform for Bahrain mobile accessories — storefront, admin, NestJS API, rewards, BenefitPay.",
+    category: "client",
+    industry: "E-commerce · Retail",
+    year: "2025",
+    clientLocation: "Bahrain",
+    cover: shabash1,
+    images: [
+      shabash1,
+      shabash2,
+      shabash3,
+      shabash4,
+      shabash5,
+      shabash6,
+      shabash7,
+    ],
+    stack: [
+      "NestJS",
+      "Next.js Storefront",
+      "Next.js Admin",
+      "Supabase",
+      "Railway",
+      "Vercel",
+      "Cloudinary",
+      "Resend",
+      "next-intl",
+      "BenefitPay",
+      "Apple Pay",
+    ],
+    featured: true,
+    live: true,
+    liveUrl: "https://shbash.co/",
+    seoDescription:
+      "Shbash — custom e-commerce platform for a Bahrain mobile accessories brand, built by BalochDev. Three-repo stack: NestJS API, Next.js storefront, Next.js admin. Native rewards, guest order tracking, BenefitPay + Apple Pay, bilingual AR/EN, security audit with 87 findings resolved. Supabase, Railway, Vercel, Cloudinary, Resend.",
+    challenge:
+      "Shbash had outgrown Shopify. Editorial curated-drop merchandising, a native points/rewards system with social earning, Bahrain-specific payments (BenefitPay), BHD formatting, and guest order tracking were all fighting the theme-and-app ceiling. The brand needed to own its schema, checkout, and roadmap — not rent them.",
+    solution: [
+      "Rebuilt as a three-repo custom platform: NestJS API, Next.js storefront, and Next.js admin — deployed on Railway, Vercel, and Supabase.",
+      "Designed editorial merchandising (trending designs, curated collections, drop framing) so cases feel collectible, not commodity.",
+      "Built rewards natively into identity — points balance, lifetime spend, and social-account earning (Instagram, TikTok, X) on one data model.",
+      "Shipped guest-accessible Track Your Drop order tracking with no login required.",
+      "Integrated BenefitPay alongside Apple Pay and cards for Bahrain-native checkout rails.",
+      "Completed a full security audit resolving 87 findings before carrying live customer and payment data.",
+      "Delivered bilingual Arabic / English via next-intl, Cloudinary avatars, Resend email, and an ops admin dashboard with loyalty as first-class tooling.",
+    ],
+    features: [
+      "Three-repo custom platform (API · storefront · admin)",
+      "Editorial curated-drop merchandising",
+      "Native rewards & social earning",
+      "Guest order tracking — no login",
+      "BenefitPay · Apple Pay · cards",
+      "Bilingual Arabic / English (next-intl)",
+      "Ops admin — revenue, stock, tickets, loyalty",
+      "Security audit — 87 findings resolved",
+    ],
+    results: [
+      "Owned stack — schema, auth, checkout, and roadmap no longer rented from Shopify",
+      "Admin operations dashboard answering same-day questions: revenue, pending orders, low stock, support",
+      "Loyalty treated as first-class on both storefront and admin — not a bolted-on app",
+      "Bahrain-native payments and bilingual AR / EN experience live for the Gulf customer base",
+      "Security-hardened platform ready for live customer and payment data",
+    ],
+    team: [
+      { name: "Adeel Baloch", role: "Project Manager · Full Stack Developer" },
+      { name: "Shams Baloch", role: "UI / UX Design" },
+    ],
   },
 ];
 

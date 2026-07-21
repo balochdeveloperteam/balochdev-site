@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" role="img" aria-label="Adam Holland Marketing">
+  <rect width="320" height="72" rx="10" fill="#0f172a"/>
+  <text x="20" y="32" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="700" fill="#f8fafc">Adam Holland</text>
+  <text x="20" y="54" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" letter-spacing="0.18em" fill="#94a3b8">MARKETING</text>
+  <circle cx="286" cy="36" r="14" fill="#22c55e"/>
+  <path d="M279 36l5 5 9-10" fill="none" stroke="#052e16" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

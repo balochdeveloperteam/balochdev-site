@@ -2,95 +2,10 @@ import { useState, useMemo } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import projects from "../data/projects";
+import { initialsFromName, reviewsForProject } from "../data/projectReviews";
 import Seo from "../seo/Seo";
 import { SITE_URL } from "../seo/siteSeo";
 import { capDescription, capTitle } from "../seo/seoFromData";
-
-/* ─── Animated border square ─────────────────────────────────────────────── */
-/*
- * A single large rounded square whose border appears to carry a wave of
- * coloured light travelling clockwise — two strokes at different offsets
- * and colours give the "wave" effect. The SVG viewBox is 16:9 to match
- * the carousel so the border hugs it when the SVG is stretched to fill.
- */
-
-const VB_W = 800;
-const VB_H = 450;
-const RX = 28;          // border-radius of the square
-const SQ_X = 5;
-const SQ_Y = 5;
-const SQ_W = VB_W - 10;
-const SQ_H = VB_H - 10;
-// Perimeter of rounded rect (approx)
-const PERIM = Math.round(2 * (SQ_W - 2 * RX) + 2 * (SQ_H - 2 * RX) + 2 * Math.PI * RX);
-// PERIM ≈ 2*(790-56) + 2*(440-56) + 175.9 = 1468 + 768 + 176 ≈ 2412
-const DASH1 = 200;   // primary light length
-const DASH2 = 90;    // secondary (trailing) light length
-
-/*
- * Animation strategy — "move, ease, pause, move":
- *   keyTimes  0 ─────────────── 0.72 ──── 1
- *   values    PERIM ────────→   0    ────  0   (stays at 0 = pause)
- *   easing    cubic ease-in-out on the travel segment, instant hold at end
- *
- * The light accelerates slowly from rest, reaches full speed mid-path,
- * then gently brakes to a stop, holds for ~28% of the cycle, then restarts.
- * Both lights share identical easing — orange is bold, blue is thin.
- */
-const TRAVEL_STOP = "0.72"; // 72 % of cycle is travel, 28 % is pause
-
-function AnimatedBorderSquare() {
-  const sharedAnimate = (dur: string, begin: string) => (
-    <animate
-      attributeName="stroke-dashoffset"
-      values={`${PERIM};0;0`}
-      keyTimes={`0;${TRAVEL_STOP};1`}
-      keySplines="0.42 0.0 0.58 1.0;0 0 1 1"
-      calcMode="spline"
-      dur={dur}
-      begin={begin}
-      repeatCount="indefinite"
-    />
-  );
-
-  return (
-    <svg
-      aria-hidden
-      width="100%"
-      height="100%"
-      viewBox={`0 0 ${VB_W} ${VB_H}`}
-      fill="none"
-      preserveAspectRatio="none"
-      style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
-    >
-      {/* Dim static base — shows the full rounded square outline at all times */}
-      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="#f97316" strokeWidth="0.8" strokeOpacity="0.12" />
-
-      {/* Orange light — primary beam */}
-      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="#f97316"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeDasharray={`${DASH1} ${PERIM - DASH1}`}
-        strokeOpacity="0.88"
-      >
-        {sharedAnimate("9s", "0s")}
-      </rect>
-
-      {/* Blue light — trailing beam, half-cycle offset */}
-      <rect x={SQ_X} y={SQ_Y} width={SQ_W} height={SQ_H} rx={RX} ry={RX}
-        stroke="#3b82f6"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeDasharray={`${DASH2} ${PERIM - DASH2}`}
-        strokeOpacity="0.82"
-      >
-        {sharedAnimate("9s", "-4.5s")}
-      </rect>
-    </svg>
-  );
-}
 
 /* ─── Image carousel ─────────────────────────────────────────────────────── */
 
@@ -100,16 +15,7 @@ function Carousel({ images }: { images: string[] }) {
   const next = () => setIdx((i) => (i + 1) % images.length);
 
   return (
-    /*
-     * Outer wrapper: padding of 18px top/bottom, 56px left/right.
-     * The extra horizontal padding creates a zone where the prev/next
-     * buttons live — completely outside the image area.
-     * The animated border fills inset:0 (the full outer wrapper).
-     */
-    <div style={{ position: "relative", padding: "18px 56px" }}>
-      <AnimatedBorderSquare />
-
-      {/* Prev / Next — outside the image, in the horizontal padding zone */}
+    <div className="ndx-project-carousel">
       {images.length > 1 &&
         ([
           { fn: prev, side: "left" as const, label: "Previous", icon: "‹" },
@@ -120,13 +26,14 @@ function Carousel({ images }: { images: string[] }) {
             type="button"
             onClick={fn}
             aria-label={`${label} screenshot`}
+            className="ndx-project-carousel__nav"
             style={{
               position: "absolute",
-              [side]: 10,
+              [side]: 4,
               top: "50%",
               transform: "translateY(-50%)",
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               borderRadius: "50%",
               border: "1px solid var(--ndx-border)",
               background: "var(--ndx-bg-elev)",
@@ -135,34 +42,24 @@ function Carousel({ images }: { images: string[] }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "1.2rem",
+              fontSize: "1.25rem",
               zIndex: 3,
               lineHeight: 1,
-              transition: "background 0.18s, transform 0.18s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "var(--ndx-bg)";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-50%) scale(1.08)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "var(--ndx-bg-elev)";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-50%) scale(1)";
             }}
           >
             {icon}
           </button>
         ))}
 
-      {/* Carousel shell — image only, no overlapping buttons */}
       <div
         style={{
           position: "relative",
           width: "100%",
           borderRadius: "var(--ndx-radius-lg)",
           overflow: "hidden",
-          background: "transparent",
+          background: "var(--ndx-bg-elev)",
           aspectRatio: "16 / 9",
-          zIndex: 1,
+          border: "1px solid var(--ndx-border)",
         }}
       >
         {/* Slides */}
@@ -278,6 +175,8 @@ export default function ProjectPage() {
 
   if (!project) return <Navigate to="/portfolio" replace />;
 
+  const clientReviews = reviewsForProject(project.slug);
+
   return (
     <section className="ndx-section ndx-page-rich ndx-page-rich--apps" style={{ paddingTop: "1.65rem", paddingBottom: "3.5rem" }}>
       {seoHead ? (
@@ -359,7 +258,15 @@ export default function ProjectPage() {
                 </div>
               ))}
 
-              {project.live && (
+              {project.underDevelopment ? (
+                <div>
+                  <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ndx-dim)", fontFamily: "var(--ndx-font-mono)", marginBottom: "0.25rem" }}>Status</p>
+                  <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#d97706", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#d97706", display: "inline-block" }} />
+                    Under development
+                  </p>
+                </div>
+              ) : project.live ? (
                 <div>
                   <p style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ndx-dim)", fontFamily: "var(--ndx-font-mono)", marginBottom: "0.25rem" }}>Status</p>
                   <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#22c55e", display: "flex", alignItems: "center", gap: "0.35rem" }}>
@@ -367,7 +274,7 @@ export default function ProjectPage() {
                     Live in production
                   </p>
                 </div>
-              )}
+              ) : null}
             </motion.div>
 
             <motion.div
@@ -376,7 +283,21 @@ export default function ProjectPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : 0.22 }}
             >
-              <Link to="/proposal" className="ndx-btn ndx-btn-primary">Build something similar →</Link>
+              {project.liveUrl ? (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ndx-btn ndx-btn-primary"
+                >
+                  Open live preview →
+                </a>
+              ) : (
+                <Link to="/proposal" className="ndx-btn ndx-btn-primary">Build something similar →</Link>
+              )}
+              {project.liveUrl ? (
+                <Link to="/proposal" className="ndx-btn">Build something similar →</Link>
+              ) : null}
               <Link to="/contact" className="ndx-btn">Get in touch</Link>
             </motion.div>
           </div>
@@ -407,7 +328,7 @@ export default function ProjectPage() {
               <span className="ndx-rich-pill-dot" aria-hidden />
               Screenshots &amp; previews
             </p>
-            <h2 className="ndx-h2" style={{ maxWidth: "30rem", marginBottom: "1.5rem" }}>
+            <h2 className="ndx-h2" style={{ maxWidth: "42rem", marginBottom: "1.5rem" }}>
               See it <em>in action.</em>
             </h2>
             <Carousel images={project.images} />
@@ -417,6 +338,84 @@ export default function ProjectPage() {
           </div>
         )}
 
+        {/* ── Image + text spotlight (one panel; gallery above stays as-is) ─ */}
+        {(() => {
+          const panel = project.caseStudyPanel ?? (
+            project.images && project.images.length > 1 && project.challenge
+              ? {
+                  image: project.images[1],
+                  heading: "Inside the product",
+                  body: project.challenge.length > 340
+                    ? `${project.challenge.slice(0, 340).trim()}…`
+                    : project.challenge,
+                }
+              : null
+          );
+          if (!panel) return null;
+          return (
+            <div
+              className="ndx-rich-block ndx-glass-section"
+              style={{
+                marginTop: "2.5rem",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+                gap: "1.75rem",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: "var(--ndx-radius-lg)",
+                  overflow: "hidden",
+                  border: "1px solid var(--ndx-border)",
+                  background: "var(--ndx-bg-elev)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.65rem",
+                  minHeight: 200,
+                }}
+              >
+                <img
+                  src={panel.image}
+                  alt=""
+                  loading="lazy"
+                  style={{
+                    width: "100%",
+                    maxHeight: 320,
+                    height: "auto",
+                    objectFit: "contain",
+                    display: "block",
+                  }}
+                />
+              </div>
+              <div>
+                <p className="ndx-rich-pill ndx-rich-pill--minimal" style={{ marginBottom: "0.85rem" }}>
+                  <span className="ndx-rich-pill-dot" aria-hidden />
+                  Case study
+                </p>
+                <h2 className="ndx-h2" style={{ maxWidth: "28rem", marginBottom: "0.85rem" }}>
+                  {panel.heading}
+                </h2>
+                {panel.body.split(/\n\n+/).map((para, i) => (
+                  <p
+                    key={i}
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: 1.75,
+                      color: "var(--ndx-muted)",
+                      margin: "0 0 0.85rem",
+                      maxWidth: "40rem",
+                    }}
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ── The challenge ────────────────────────────────────────────── */}
         {project.challenge && (
           <div className="ndx-rich-block ndx-glass-section" style={{ marginTop: "3rem" }}>
@@ -424,10 +423,10 @@ export default function ProjectPage() {
               <span className="ndx-rich-pill-dot" aria-hidden />
               The challenge
             </p>
-            <h2 className="ndx-h2" style={{ maxWidth: "36rem", marginBottom: "1.15rem" }}>
+            <h2 className="ndx-h2" style={{ maxWidth: "48rem", marginBottom: "1.15rem" }}>
               The problem we <em>set out to solve.</em>
             </h2>
-            <p style={{ fontSize: "0.9375rem", lineHeight: 1.8, color: "var(--ndx-muted)", maxWidth: "54rem" }}>
+            <p style={{ fontSize: "0.975rem", lineHeight: 1.8, color: "var(--ndx-muted)", maxWidth: "68rem" }}>
               {project.challenge}
             </p>
           </div>
@@ -440,10 +439,10 @@ export default function ProjectPage() {
               <span className="ndx-rich-pill-dot" aria-hidden />
               The solution
             </p>
-            <h2 className="ndx-h2" style={{ maxWidth: "36rem", marginBottom: "1.35rem" }}>
+            <h2 className="ndx-h2" style={{ maxWidth: "48rem", marginBottom: "1.35rem" }}>
               How we <em>engineered it.</em>
             </h2>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, maxWidth: "56rem" }}>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, maxWidth: "68rem" }}>
               {project.solution.map((item, i) => (
                 <motion.li
                   key={i}
@@ -513,13 +512,19 @@ export default function ProjectPage() {
           <div className="ndx-rich-block">
             <p className="ndx-rich-pill ndx-rich-pill--minimal" style={{ marginBottom: "1rem" }}>
               <span className="ndx-rich-pill-dot" aria-hidden />
-              Technology stack
+              {project.underDevelopment ? "Model" : "Technology stack"}
             </p>
             <h2 className="ndx-h2" style={{ maxWidth: "36rem", marginBottom: "0.65rem" }}>
-              Built with <em>the right tools.</em>
+              {project.underDevelopment ? (
+                <>Powered by <em>a music LLM.</em></>
+              ) : (
+                <>Built with <em>the right tools.</em></>
+              )}
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--ndx-muted)", maxWidth: "46rem", marginBottom: "1.35rem", lineHeight: 1.65 }}>
-              Every technology was chosen deliberately — either to maximise performance, eliminate infrastructure cost, or accelerate delivery without compromising production quality.
+              {project.underDevelopment
+                ? "Still under development — we are not listing a full engineering stack yet. The core is a large-level LLM model for music, built to generate in any language and excel where global tools fall short. Powered by BalochDev."
+                : "Every technology was chosen deliberately — either to maximise performance, eliminate infrastructure cost, or accelerate delivery without compromising production quality."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem" }}>
               {project.stack.map((s) => (
@@ -560,6 +565,44 @@ export default function ProjectPage() {
           </div>
         )}
 
+        {/* ── Client stories (dummy until platform links) ─────────────── */}
+        {clientReviews.length > 0 && (
+          <div className="ndx-rich-block ndx-glass-section ndx-project-reviews" style={{ marginTop: "3rem" }}>
+            <p className="ndx-rich-pill ndx-rich-pill--minimal" style={{ marginBottom: "1rem" }}>
+              <span className="ndx-rich-pill-dot" aria-hidden />
+              Client stories
+            </p>
+            <h2 className="ndx-h2" style={{ maxWidth: "36rem", marginBottom: "0.45rem" }}>
+              What clients said about <em>this build.</em>
+            </h2>
+            <p style={{ fontSize: "0.875rem", color: "var(--ndx-muted)", maxWidth: "40rem", marginBottom: "1.35rem", lineHeight: 1.65 }}>
+              Placeholder quotes for layout — we will replace these with live Clutch, Upwork, GoodFirms, Trustpilot, and Fiverr reviews.
+            </p>
+            <div className="ndx-project-reviews__grid">
+              {clientReviews.map((r) => (
+                <blockquote key={r.id} className="ndx-project-reviews__card">
+                  <p className="ndx-project-reviews__stars" aria-label={`${r.rating} out of 5`}>
+                    {"★".repeat(r.rating)}
+                  </p>
+                  <p className="ndx-project-reviews__quote">“{r.quote}”</p>
+                  <footer className="ndx-project-reviews__author">
+                    <span className="ndx-project-reviews__avatar" aria-hidden>
+                      {initialsFromName(r.name)}
+                    </span>
+                    <span>
+                      <strong>{r.name}</strong>
+                      <span>
+                        {r.role} — {r.company}
+                      </span>
+                      <span className="ndx-project-reviews__platform">{r.platform} · draft</span>
+                    </span>
+                  </footer>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Team ─────────────────────────────────────────────────────── */}
         {project.team && project.team.length > 0 && (
           <div className="ndx-rich-block">
@@ -588,34 +631,75 @@ export default function ProjectPage() {
             <span className="ndx-rich-pill-dot" aria-hidden />
             More work
           </p>
-          <h2 className="ndx-h2" style={{ maxWidth: "32rem", marginBottom: "1.35rem" }}>
+          <h2 className="ndx-h2" style={{ maxWidth: "42rem", marginBottom: "1.35rem" }}>
             Explore <em>other projects.</em>
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "0.75rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
+              gap: "1rem",
+            }}
+          >
             {projects
-              .filter((p) => p.slug !== slug)
-              .slice(0, 3)
+              .filter((p) => p.slug && p.slug !== slug && p.cover)
+              .slice(0, 4)
               .map((p) => (
-                <div
-                  key={p.title}
-                  className="ndx-card"
-                  style={{ padding: "1rem 1.1rem" }}
+                <Link
+                  key={p.slug}
+                  to={`/projects/${p.slug}`}
+                  className="ndx-card ndx-card-link"
+                  style={{ overflow: "hidden", padding: 0, display: "block", textDecoration: "none" }}
                 >
-                  <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ndx-accent)", fontFamily: "var(--ndx-font-mono)", marginBottom: "0.4rem" }}>
-                    {p.industry}
-                  </p>
-                  <h3 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "var(--ndx-text)", marginBottom: "0.35rem" }}>{p.title}</h3>
-                  <p style={{ fontSize: "0.78rem", color: "var(--ndx-muted)", lineHeight: 1.55, marginBottom: "0.75rem" }}>
-                    {p.tagline.slice(0, 90)}…
-                  </p>
-                  {p.slug ? (
-                    <Link to={`/projects/${p.slug}`} style={{ fontSize: "0.78rem", color: "var(--ndx-accent)", textDecoration: "none", fontWeight: 600 }}>
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "4 / 3",
+                      background: "var(--ndx-bg-elev)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0.65rem",
+                    }}
+                  >
+                    <img
+                      src={p.cover!}
+                      alt=""
+                      loading="lazy"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        maxHeight: 148,
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                  <div style={{ padding: "0.85rem 0.95rem 1rem" }}>
+                    <p
+                      style={{
+                        fontSize: "0.62rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "var(--ndx-accent)",
+                        fontFamily: "var(--ndx-font-mono)",
+                        marginBottom: "0.35rem",
+                      }}
+                    >
+                      {p.industry}
+                    </p>
+                    <h3 style={{ fontSize: "0.9375rem", fontWeight: 700, color: "var(--ndx-text)", marginBottom: "0.35rem" }}>
+                      {p.title}
+                    </h3>
+                    <p style={{ fontSize: "0.78rem", color: "var(--ndx-muted)", lineHeight: 1.55, marginBottom: "0.55rem" }}>
+                      {p.tagline.length > 90 ? `${p.tagline.slice(0, 90)}…` : p.tagline}
+                    </p>
+                    <span style={{ fontSize: "0.75rem", color: "var(--ndx-accent)", fontWeight: 600 }}>
                       View case study →
-                    </Link>
-                  ) : (
-                    <span style={{ fontSize: "0.72rem", color: "var(--ndx-dim)", fontFamily: "var(--ndx-font-mono)" }}>Coming soon</span>
-                  )}
-                </div>
+                    </span>
+                  </div>
+                </Link>
               ))}
           </div>
         </div>

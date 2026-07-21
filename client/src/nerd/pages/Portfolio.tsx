@@ -78,13 +78,32 @@ const techCategories = [
 
 /* ─── Sub-components ─────────────────────────────────────────────────────── */
 
-function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolean | null }) {
+function ProjectCard({
+  p,
+  i,
+  reduced,
+  layout = "card",
+}: {
+  p: Project;
+  i: number;
+  reduced: boolean | null;
+  layout?: "card" | "hero";
+}) {
   const isComingSoon = !p.slug;
+  const isHero = layout === "hero";
 
   return (
     <motion.div
       className="ndx-card"
-      style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", position: "relative" }}
+      style={{
+        padding: 0,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: isHero ? "row" : "column",
+        flexWrap: isHero ? "wrap" : undefined,
+        position: "relative",
+        gridColumn: isHero ? "1 / -1" : undefined,
+      }}
       initial={reduced ? false : { opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduced ? 0 : 0.42, delay: reduced ? 0 : 0.05 * i }}
@@ -92,13 +111,22 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
       {/* Cover image / placeholder */}
       <div
         style={{
-          width: "100%",
-          aspectRatio: "16 / 9",
+          width: isHero ? "min(100%, 50%)" : "100%",
+          flex: isHero ? "1 1 420px" : undefined,
+          aspectRatio: isHero ? "16 / 10" : "16 / 9",
+          minHeight: isHero ? 260 : undefined,
+          maxHeight: isHero ? 360 : undefined,
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
+          display: isHero ? "flex" : undefined,
+          alignItems: isHero ? "center" : undefined,
+          justifyContent: isHero ? "center" : undefined,
+          padding: isHero ? "1.15rem 1.05rem" : undefined,
           background: p.cover
-            ? "transparent"
+            ? isHero
+              ? "var(--ndx-bg-elev)"
+              : "transparent"
             : "linear-gradient(135deg, rgba(100,116,139,0.08) 0%, rgba(100,116,139,0.04) 100%)",
         }}
       >
@@ -109,8 +137,9 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
             loading="lazy"
             style={{
               width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              height: isHero ? "auto" : "100%",
+              maxHeight: isHero ? 320 : undefined,
+              objectFit: isHero ? "contain" : "cover",
               display: "block",
               transition: "transform 0.4s ease",
             }}
@@ -134,10 +163,30 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
       </div>
 
       {/* Body */}
-      <div style={{ padding: "0.85rem 1.1rem 1.2rem", flex: 1, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          padding: isHero ? "1.5rem 1.6rem 1.6rem" : "0.85rem 1.1rem 1.2rem",
+          flex: isHero ? "1 1 420px" : 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: isHero ? "min(100%, 320px)" : undefined,
+          justifyContent: isHero ? "center" : undefined,
+        }}
+      >
 
         {/* Badges row — below the image, no overlap */}
         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.6rem", alignItems: "center" }}>
+          {isHero && (
+            <span style={{
+              fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
+              background: "color-mix(in srgb, var(--ndx-accent) 12%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--ndx-accent) 35%, var(--ndx-border))",
+              borderRadius: 999, padding: "0.2rem 0.6rem", color: "var(--ndx-accent)",
+              fontFamily: "var(--ndx-font-mono)",
+            }}>
+              Featured
+            </span>
+          )}
           <span style={{
             fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
             border: "1px solid var(--ndx-border)", borderRadius: 999,
@@ -145,7 +194,18 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
           }}>
             {catLabel[p.category]}
           </span>
-          {p.live && (
+          {p.underDevelopment && (
+            <span style={{
+              fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+              background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.40)",
+              borderRadius: 999, padding: "0.2rem 0.6rem", color: "#d97706",
+              fontFamily: "var(--ndx-font-mono)", display: "flex", alignItems: "center", gap: "0.3rem",
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#d97706", flexShrink: 0 }} />
+              Under development
+            </span>
+          )}
+          {!p.underDevelopment && p.live && (
             <span style={{
               fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
               background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.35)",
@@ -170,12 +230,29 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
           )}
         </div>
 
-        <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--ndx-text)", marginBottom: "0.4rem", lineHeight: 1.3 }}>
+        <h3 style={{
+          fontSize: isHero ? "1.5rem" : "1rem",
+          fontWeight: 700,
+          color: "var(--ndx-text)",
+          marginBottom: "0.4rem",
+          lineHeight: 1.3,
+        }}>
           {p.title}
         </h3>
 
-        <p style={{ fontSize: "0.8125rem", color: "var(--ndx-muted)", lineHeight: 1.65, flex: 1, marginBottom: "0.9rem" }}>
-          {p.tagline.length > 130 ? p.tagline.slice(0, 130) + "…" : p.tagline}
+        <p style={{
+          fontSize: isHero ? "0.95rem" : "0.8125rem",
+          color: "var(--ndx-muted)",
+          lineHeight: 1.7,
+          flex: 1,
+          marginBottom: "0.9rem",
+          maxWidth: isHero ? "58ch" : undefined,
+        }}>
+          {isHero
+            ? p.tagline
+            : p.tagline.length > 130
+              ? p.tagline.slice(0, 130) + "…"
+              : p.tagline}
         </p>
 
         {/* Stack pills */}
@@ -200,15 +277,28 @@ function ProjectCard({ p, i, reduced }: { p: Project; i: number; reduced: boolea
           </div>
         )}
 
-        {p.slug ? (
-          <Link to={`/projects/${p.slug}`} className="ndx-btn ndx-btn-primary" style={{ fontSize: "0.8125rem", alignSelf: "flex-start" }}>
-            View case study →
-          </Link>
-        ) : (
-          <span style={{ fontSize: "0.72rem", color: "var(--ndx-dim)", fontFamily: "var(--ndx-font-mono)", letterSpacing: "0.06em" }}>
-            Case study coming soon
-          </span>
-        )}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem", alignItems: "center", marginTop: "auto" }}>
+          {p.slug ? (
+            <Link to={`/projects/${p.slug}`} className="ndx-btn ndx-btn-primary" style={{ fontSize: "0.8125rem", alignSelf: "flex-start" }}>
+              View case study →
+            </Link>
+          ) : (
+            <span style={{ fontSize: "0.72rem", color: "var(--ndx-dim)", fontFamily: "var(--ndx-font-mono)", letterSpacing: "0.06em" }}>
+              Case study coming soon
+            </span>
+          )}
+          {p.liveUrl && (
+            <a
+              href={p.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ndx-btn"
+              style={{ fontSize: "0.8125rem" }}
+            >
+              Open live preview →
+            </a>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -223,6 +313,16 @@ export default function PortfolioPage() {
   const filtered = useMemo(
     () => (active === "all" ? projects : projects.filter((p) => p.category === active)),
     [active],
+  );
+
+  const featuredHero = useMemo(
+    () => filtered.filter((p) => p.featuredHero),
+    [filtered],
+  );
+
+  const gridProjects = useMemo(
+    () => filtered.filter((p) => !p.featuredHero),
+    [filtered],
   );
 
   const seoTitle = useMemo(() => metaTitleFromPublicBrief(PORT_SEO.metaTitle), []);
@@ -308,6 +408,7 @@ export default function PortfolioPage() {
 
           {/* Bottom stats row — spans both columns */}
           <motion.div
+            className="ndx-portfolio-stats"
             style={{
               gridColumn: "1 / -1",
               borderTop: "1px solid var(--ndx-border)",
@@ -328,6 +429,7 @@ export default function PortfolioPage() {
             ].map((stat, i, arr) => (
               <div
                 key={stat.l}
+                className="ndx-portfolio-stats__item"
                 style={{
                   flex: "1 1 140px",
                   textAlign: "center",
@@ -335,7 +437,7 @@ export default function PortfolioPage() {
                   borderRight: i < arr.length - 1 ? "1px solid var(--ndx-border)" : "none",
                 }}
               >
-                <p style={{ fontSize: "1.85rem", fontWeight: 800, color: "var(--ndx-accent)", lineHeight: 1, marginBottom: "0.2rem", fontFamily: "var(--ndx-font-sans)" }}>
+                <p className="ndx-portfolio-stats__value" style={{ fontSize: "1.85rem", fontWeight: 800, color: "var(--ndx-accent)", lineHeight: 1, marginBottom: "0.2rem" }}>
                   {stat.v}
                 </p>
                 <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--ndx-text)", marginBottom: "0.15rem" }}>{stat.l}</p>
@@ -346,8 +448,8 @@ export default function PortfolioPage() {
         </div>
 
         {/* ── Filter + project grid ────────────────────────────────────── */}
-        <div className="ndx-rich-block">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "2rem", alignItems: "center" }}>
+        <div className="ndx-rich-block" style={{ borderTop: "none", paddingTop: 0, marginTop: "1.75rem" }}>
+          <div className="ndx-portfolio-filters" style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "2rem", alignItems: "center" }}>
             <span style={{ fontSize: "0.78rem", color: "var(--ndx-muted)", fontFamily: "var(--ndx-font-sans)", marginRight: "0.25rem" }}>Filter:</span>
             {filters.map((f) => (
               <button
@@ -370,12 +472,19 @@ export default function PortfolioPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gap: "1.25rem", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 480px), 1fr))" }}>
-            {filtered.map((p, i) => (
-              <ProjectCard key={p.slug ?? p.title} p={p} i={i} reduced={reduced} />
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            {featuredHero.map((p, i) => (
+              <ProjectCard key={p.slug ?? p.title} p={p} i={i} reduced={reduced} layout="hero" />
             ))}
+            <div style={{ display: "grid", gap: "1.25rem", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 480px), 1fr))" }}>
+              {gridProjects.map((p, i) => (
+                <ProjectCard key={p.slug ?? p.title} p={p} i={i + featuredHero.length} reduced={reduced} />
+              ))}
+            </div>
           </div>
         </div>
+
+        <AiEstimatePromo />
 
         {/* ── How we deliver ───────────────────────────────────────────── */}
         <div className="ndx-rich-block ndx-glass-section" style={{ marginTop: "3rem" }}>
@@ -389,7 +498,7 @@ export default function PortfolioPage() {
           <p style={{ fontSize: "0.9rem", color: "var(--ndx-muted)", maxWidth: "46rem", marginBottom: "1.75rem", lineHeight: 1.65 }}>
             The same four-phase approach on every engagement — whether it is a one-month MVP or a six-month production platform. No surprises, no scope creep, no mystery invoices.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
+          <div className="ndx-portfolio-process-grid">
             {process.map((step, i) => (
               <motion.div
                 key={step.num}
@@ -499,8 +608,6 @@ export default function PortfolioPage() {
             ))}
           </div>
         </div>
-
-        <AiEstimatePromo />
 
         {/* ── Bottom CTA ───────────────────────────────────────────────── */}
         <div

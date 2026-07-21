@@ -18,11 +18,12 @@ export default function SmoothScroll() {
       if (cancelled) return;
       try {
         lenis = new Lenis({
-          lerp: 0.22,
+          lerp: 0.34,
           smoothWheel: true,
           anchors: true,
           autoRaf: true,
-          wheelMultiplier: 1.12,
+          wheelMultiplier: 1.35,
+          duration: 0.9,
         });
         window.ndxLenis = lenis;
       } catch (e) {

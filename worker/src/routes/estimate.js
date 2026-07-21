@@ -9,15 +9,39 @@ import {
   safeError,
 } from '../utils.js';
 
-function startOfTodayUtcIso() {
+function startOfTodayUtc() {
   const d = new Date();
   d.setUTCHours(0, 0, 0, 0);
+  return d;
+}
+
+function startOfTodayUtcIso() {
+  return startOfTodayUtc().toISOString();
+}
+
+function utcDayKey() {
+  return startOfTodayUtc().toISOString().slice(0, 10);
+}
+
+function nextUtcMidnightIso() {
+  const d = startOfTodayUtc();
+  d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString();
 }
 
 function dailyLimit(env) {
   const n = parseInt(env.ESTIMATE_DAILY_LIMIT || '3', 10);
   return Number.isFinite(n) && n > 0 ? n : 3;
+}
+
+function quotaPayload(limit, used) {
+  return {
+    limit,
+    used,
+    remaining: Math.max(0, limit - used),
+    day: utcDayKey(),
+    resetsAt: nextUtcMidnightIso(),
+  };
 }
 
 async function countTodayOkGenerations(admin, ipHash, visitorKey) {
@@ -36,6 +60,33 @@ async function countTodayOkGenerations(admin, ipHash, visitorKey) {
 }
 
 const estimate = new Hono();
+
+/** Current daily quota for this visitor / IP (used by the estimator UI). */
+estimate.get(
+  '/',
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    scope: 'estimate-quota',
+    message: { error: 'Too many requests. Please try again later.' },
+  }),
+  async (c) => {
+    const admin = getAdmin(c);
+    if (!admin) return c.json({ error: 'Database not configured' }, 503);
+
+    const visitorKey = String(c.req.query('visitor_key') || '').trim();
+    const validVisitorKey = isValidVisitorKey(visitorKey) ? visitorKey : null;
+    const ipHash = await hashClientIp(c);
+    const limit = dailyLimit(c.env);
+
+    try {
+      const used = await countTodayOkGenerations(admin, ipHash, validVisitorKey);
+      return c.json(quotaPayload(limit, used));
+    } catch (err) {
+      return safeError(c, 500, err.message);
+    }
+  },
+);
 
 estimate.post(
   '/',
@@ -83,8 +134,9 @@ estimate.post(
       if (used >= limit) {
         return c.json(
           {
-            error: `Daily limit reached (${limit} estimates per day). Try again tomorrow.`,
+            error: `Daily limit reached (${limit} estimates per day). Resets at UTC midnight — try again tomorrow.`,
             limit_reached: true,
+            ...quotaPayload(limit, used),
           },
           429,
         );
@@ -145,7 +197,7 @@ estimate.post(
       return c.json({
         report,
         model,
-        remaining: Math.max(0, limit - used - 1),
+        ...quotaPayload(limit, used + 1),
       });
     } catch (err) {
       return safeError(c, 500, err.message);

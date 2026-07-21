@@ -73,7 +73,9 @@ function AppRoutes() {
             <Route path="/apps" element={<NApps />} />
             {/* <Route path="/industries" element={<NIndustries />} /> */}{/* hidden for now */}
             <Route path="/portfolio" element={<NPortfolio />} />
+            <Route path="/projects" element={<Navigate to="/portfolio" replace />} />
             <Route path="/projects/:slug" element={<NProjectPage />} />
+            <Route path="/industries" element={<Navigate to="/services" replace />} />
             <Route path="/about" element={<NAbout />} />
             <Route path="/blog" element={<NBlog />} />
             <Route path="/blog/:slug" element={<NBlogPostRoute />} />

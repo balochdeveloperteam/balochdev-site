@@ -1,7 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { IconType } from "react-icons";
+import RichSectionIntro from "../components/RichSectionIntro";
+import SelectedWorkGrid from "../components/SelectedWorkGrid";
 import Seo from "../seo/Seo";
+import FaqAccordion from "../components/FaqAccordion";
 import { capDescription, capTitle } from "../seo/seoFromData";
 import { getStackLandingPage, isValidStackCategory, STACK_CATEGORY_LABELS } from "../data/stackLandings";
 import { TECH_ICON_MAP } from "../data/technologyIcons";
@@ -208,19 +211,6 @@ const PLACEHOLDER_REVIEWS = [
   },
 ];
 
-function LandingFaqItem({ q, a, index }: { q: string; a: string; index: number }) {
-  const [open, setOpen] = useState(index === 0);
-  return (
-    <div className="ndx-faq-item">
-      <button type="button" className="ndx-faq-q" onClick={() => setOpen(!open)}>
-        <span>{q}</span>
-        <span style={{ color: "var(--ndx-accent)", fontSize: "1.35rem" }}>{open ? "−" : "+"}</span>
-      </button>
-      {open ? <div className="ndx-faq-a">{a}</div> : null}
-    </div>
-  );
-}
-
 export default function TechnologyAiLanding() {
   const { category, slug } = useParams<{ category: string; slug: string }>();
   const categoryOk = !!(category && isValidStackCategory(category));
@@ -379,9 +369,7 @@ export default function TechnologyAiLanding() {
             What buyers ask BalochDev before a build
           </h2>
           <div className="ndx-tech-landing__faq">
-            {page.faq.map((item, index) => (
-              <LandingFaqItem key={item.q} q={item.q} a={item.a} index={index} />
-            ))}
+            <FaqAccordion items={page.faq} />
           </div>
         </section>
 

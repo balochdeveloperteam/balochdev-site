@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import Seo from "../seo/Seo";
 import { aboutPageJsonLd } from "../seo/siteSeo";
+import FaqAccordion from "../components/FaqAccordion";
 import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
 import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 
@@ -217,19 +218,6 @@ function TeamPhotoPlaceholder({ name, hiring }: { name: string; hiring?: boolean
           photo soon
         </span>
       )}
-    </div>
-  );
-}
-
-function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }) {
-  const [open, setOpen] = useState(index === 0);
-  return (
-    <div className="ndx-faq-item">
-      <button type="button" className="ndx-faq-q" onClick={() => setOpen(!open)}>
-        <span>{item.q}</span>
-        <span style={{ color: "var(--ndx-accent)", fontSize: "1.35rem", lineHeight: 1 }}>{open ? "−" : "+"}</span>
-      </button>
-      {open && <div className="ndx-faq-a">{item.a}</div>}
     </div>
   );
 }
@@ -644,9 +632,7 @@ export default function AboutPage() {
             Questions, <em>plainly answered.</em>
           </h2>
           <div style={{ maxWidth: "52rem" }}>
-            {faqs.map((item, i) => (
-              <FAQItem key={item.q} item={item} index={i} />
-            ))}
+            <FaqAccordion items={faqs} />
           </div>
         </div>
 

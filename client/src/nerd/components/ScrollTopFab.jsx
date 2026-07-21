@@ -19,7 +19,7 @@ export default function ScrollTopFab() {
     const lenis = typeof window !== "undefined" ? window.ndxLenis : null;
     if (lenis && typeof lenis.scrollTo === "function") {
       try {
-        lenis.scrollTo(0, { duration: 0.75 });
+        lenis.scrollTo(0, { duration: 0.5 });
         return;
       } catch {
         /* Lenis may be mid-teardown (Strict Mode / HMR); fall through */

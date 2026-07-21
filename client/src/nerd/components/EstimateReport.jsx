@@ -1,5 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import botLogo from '../../assets/BalochDevLogo/botlogo.webp';
 import './estimate.css';
 
 function formatUsd(n) {
@@ -15,7 +16,6 @@ function formatUsd(n) {
 function normalizeReport(report) {
   if (!report) return null;
 
-  // New contract
   if (Array.isArray(report.lineItems) && report.totals) {
     const recs = Array.isArray(report.recommendations)
       ? report.recommendations.map((r) =>
@@ -34,10 +34,10 @@ function normalizeReport(report) {
       market: report.market || {},
       recommendations: recs.filter((r) => r.title),
       nextStep: report.nextStep || null,
+      generatedAt: report.meta?.generatedAt || null,
     };
   }
 
-  // Legacy freeform (pre-catalog) — minimal display so old saved reports still open
   return {
     schema: 'legacy',
     projectTitle: report.project_title || 'Project estimate',
@@ -66,7 +66,26 @@ function normalizeReport(report) {
       typeof r === 'string' ? { title: r, detail: '' } : { title: r?.title || '', detail: r?.detail || '' },
     ),
     nextStep: null,
+    generatedAt: null,
   };
+}
+
+function CostRangeChart({ low, high }) {
+  const lo = Number(low);
+  const hi = Number(high);
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi <= 0) return null;
+
+  return (
+    <div className="ndx-estimate-range" role="img" aria-label={`Cost range ${formatUsd(lo)} to ${formatUsd(hi)}`}>
+      <div className="ndx-estimate-range__track">
+        <div className="ndx-estimate-range__fill" />
+      </div>
+      <div className="ndx-estimate-range__labels">
+        <span>{formatUsd(lo)}</span>
+        <span>{formatUsd(hi)}</span>
+      </div>
+    </div>
+  );
 }
 
 function MacroSeriesChart({ series }) {
@@ -100,9 +119,27 @@ function slugifyFilename(title) {
     .slice(0, 60);
 }
 
+function formatDocDate(iso) {
+  if (!iso) return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Document-style estimate report (invoice / proposal cost-breakdown layout).
+ */
 const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadStart, onDownloadEnd }, ref) {
   const data = normalizeReport(report);
   if (!data) return null;
+
+  const timeframeLabel =
+    data.timeframe?.label ||
+    (data.timeframe?.calendarDaysLow != null
+      ? `${data.timeframe.calendarDaysLow}–${data.timeframe.calendarDaysHigh} calendar days`
+      : '—');
 
   const handleDownloadPdf = useCallback(async () => {
     const node = ref?.current;
@@ -157,8 +194,23 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
   }, [data.projectTitle, onDownloadEnd, onDownloadStart, ref]);
 
   return (
-    <div ref={ref} className="ndx-estimate-report">
-      <header>
+    <article ref={ref} className="ndx-estimate-report">
+      <header className="ndx-estimate-report__doc-head">
+        <div className="ndx-estimate-report__brand">
+          <img src={botLogo} alt="" width={44} height={44} decoding="async" />
+          <p className="ndx-estimate-report__brand-meta">
+            <strong>BalochDev</strong>
+            <span>Project estimate</span>
+          </p>
+        </div>
+        <p className="ndx-estimate-report__doc-label">
+          Document
+          <br />
+          {formatDocDate(data.generatedAt)}
+        </p>
+      </header>
+
+      <div className="ndx-estimate-report__body">
         <h2 className="ndx-estimate-report__title">{data.projectTitle}</h2>
         <div>
           {data.projectType ? <span className="ndx-estimate-pill">{data.projectType}</span> : null}
@@ -171,143 +223,138 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
         <p className="ndx-lead" style={{ marginTop: '1rem', marginBottom: 0 }}>
           {data.summary}
         </p>
-      </header>
 
-      {data.lineItems.length > 0 ? (
         <section className="ndx-estimate-report__section">
-          <h3 className="ndx-estimate-report__section-title">Line items</h3>
-          <div className="ndx-estimate-table-wrap">
-            <table className="ndx-estimate-table">
-              <thead>
-                <tr>
-                  <th>Package</th>
-                  <th>Low</th>
-                  <th>High</th>
-                  <th>Timeline</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.lineItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <strong>{item.label}</strong>
-                      {item.billing === 'monthly' ? (
-                        <span className="ndx-estimate-table__hint"> / mo</span>
-                      ) : null}
-                    </td>
-                    <td>{formatUsd(item.low)}</td>
-                    <td>{formatUsd(item.high)}</td>
-                    <td>
-                      {item.calendarDaysLow != null && item.calendarDaysHigh != null
-                        ? `${item.calendarDaysLow}–${item.calendarDaysHigh}d`
-                        : item.billing === 'monthly'
-                          ? 'Monthly'
-                          : '—'}
-                    </td>
+          <h3 className="ndx-estimate-report__section-title">At a glance</h3>
+          <div className="ndx-estimate-stat-grid">
+            <div className="ndx-estimate-stat">
+              <span className="ndx-estimate-stat__label">Low</span>
+              <span className="ndx-estimate-stat__value">{formatUsd(data.totals?.low)}</span>
+            </div>
+            <div className="ndx-estimate-stat">
+              <span className="ndx-estimate-stat__label">High</span>
+              <span className="ndx-estimate-stat__value ndx-estimate-stat__value--accent">{formatUsd(data.totals?.high)}</span>
+            </div>
+            <div className="ndx-estimate-stat">
+              <span className="ndx-estimate-stat__label">Timeframe</span>
+              <span className="ndx-estimate-stat__value" style={{ fontSize: '0.95rem' }}>
+                {timeframeLabel}
+              </span>
+            </div>
+          </div>
+          <CostRangeChart low={data.totals?.low} high={data.totals?.high} />
+          {data.totals?.notes ? <p className="ndx-estimate-stat__hint" style={{ marginTop: '0.85rem' }}>{data.totals.notes}</p> : null}
+          {data.totals?.requiresCall ? (
+            <p className="ndx-estimate-stat__hint" style={{ color: 'var(--ndx-accent)' }}>
+              Scope likely needs a scoping call before a firm quote.
+            </p>
+          ) : null}
+        </section>
+
+        {data.lineItems.length > 0 ? (
+          <section className="ndx-estimate-report__section">
+            <h3 className="ndx-estimate-report__section-title">Line items</h3>
+            <div className="ndx-estimate-table-wrap">
+              <table className="ndx-estimate-table">
+                <thead>
+                  <tr>
+                    <th>Package</th>
+                    <th>Low</th>
+                    <th>High</th>
+                    <th>Timeline</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
+                </thead>
+                <tbody>
+                  {data.lineItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.label}</strong>
+                        {item.billing === 'monthly' ? <span className="ndx-estimate-table__hint"> / mo</span> : null}
+                      </td>
+                      <td>{formatUsd(item.low)}</td>
+                      <td>{formatUsd(item.high)}</td>
+                      <td>
+                        {item.calendarDaysLow != null && item.calendarDaysHigh != null
+                          ? `${item.calendarDaysLow}–${item.calendarDaysHigh}d`
+                          : item.billing === 'monthly'
+                            ? 'Monthly'
+                            : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
 
-      <section className="ndx-estimate-report__section">
-        <h3 className="ndx-estimate-report__section-title">Totals</h3>
-        <div className="ndx-estimate-cost-figures">
-          <span>
-            <strong>{formatUsd(data.totals?.low)}</strong>
-            Low
-          </span>
-          <span>
-            <em>{formatUsd(data.totals?.high)}</em>
-            High
-          </span>
+        {(data.market?.sizeNote || data.market?.audience || data.market?.monetization) && (
+          <section className="ndx-estimate-report__section">
+            <h3 className="ndx-estimate-report__section-title">Market</h3>
+            <div className="ndx-estimate-market-grid">
+              {data.market.sizeNote ? (
+                <div className="ndx-estimate-market-cell">
+                  <strong>Size</strong>
+                  {data.market.sizeNote}
+                </div>
+              ) : null}
+              {data.market.audience ? (
+                <div className="ndx-estimate-market-cell">
+                  <strong>Audience</strong>
+                  {data.market.audience}
+                </div>
+              ) : null}
+              {data.market.monetization ? (
+                <div className="ndx-estimate-market-cell">
+                  <strong>Monetization</strong>
+                  {data.market.monetization}
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )}
+
+        {Array.isArray(data.market?.macroSeries) && data.market.macroSeries.length > 0 ? (
+          <section className="ndx-estimate-report__section">
+            <h3 className="ndx-estimate-report__section-title">Signals</h3>
+            <MacroSeriesChart series={data.market.macroSeries} />
+          </section>
+        ) : null}
+
+        {data.recommendations.length > 0 ? (
+          <section className="ndx-estimate-report__section">
+            <h3 className="ndx-estimate-report__section-title">Recommendations</h3>
+            <ul className="ndx-estimate-list ndx-estimate-list--recs">
+              {data.recommendations.map((rec) => (
+                <li key={rec.title}>
+                  <strong style={{ color: 'var(--ndx-text)' }}>{rec.title}</strong>
+                  {rec.detail ? <span> — {rec.detail}</span> : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {data.nextStep ? (
+          <section className="ndx-estimate-report__section" style={{ borderTop: 'none', paddingTop: 0 }}>
+            <div className="ndx-estimate-next">
+              <h3 className="ndx-estimate-report__section-title">Next step</h3>
+              <p className="ndx-estimate-next__title">{data.nextStep.title}</p>
+              {data.nextStep.detail ? <p className="ndx-estimate-next__detail">{data.nextStep.detail}</p> : null}
+              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+                {data.nextStep.ctaLabel || 'Contact BalochDev'}
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
+        <div className="ndx-estimate-report__actions">
+          <button type="button" className="ndx-btn ndx-btn-primary" onClick={handleDownloadPdf}>
+            Download report (PDF)
+          </button>
         </div>
-        {data.totals?.notes ? (
-          <p style={{ marginTop: '0.85rem', fontSize: '0.875rem', color: 'var(--ndx-muted)' }}>{data.totals.notes}</p>
-        ) : null}
-        {data.totals?.requiresCall ? (
-          <p style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: 'var(--ndx-accent)' }}>
-            Scope likely needs a scoping call before a firm quote.
-          </p>
-        ) : null}
-      </section>
-
-      <section className="ndx-estimate-report__section">
-        <h3 className="ndx-estimate-report__section-title">Timeframe</h3>
-        <p style={{ margin: 0, color: 'var(--ndx-muted)', fontSize: '0.9375rem' }}>
-          {data.timeframe?.label ||
-            (data.timeframe?.calendarDaysLow != null
-              ? `${data.timeframe.calendarDaysLow}–${data.timeframe.calendarDaysHigh} calendar days`
-              : '—')}
-        </p>
-      </section>
-
-      {(data.market?.sizeNote || data.market?.audience || data.market?.monetization) && (
-        <section className="ndx-estimate-report__section">
-          <h3 className="ndx-estimate-report__section-title">Market</h3>
-          <div className="ndx-estimate-market-grid">
-            {data.market.sizeNote ? (
-              <div className="ndx-estimate-market-cell">
-                <strong>Size</strong>
-                {data.market.sizeNote}
-              </div>
-            ) : null}
-            {data.market.audience ? (
-              <div className="ndx-estimate-market-cell">
-                <strong>Audience</strong>
-                {data.market.audience}
-              </div>
-            ) : null}
-            {data.market.monetization ? (
-              <div className="ndx-estimate-market-cell">
-                <strong>Monetization</strong>
-                {data.market.monetization}
-              </div>
-            ) : null}
-          </div>
-        </section>
-      )}
-
-      {Array.isArray(data.market?.macroSeries) && data.market.macroSeries.length > 0 ? (
-        <section className="ndx-estimate-report__section">
-          <h3 className="ndx-estimate-report__section-title">Signals</h3>
-          <MacroSeriesChart series={data.market.macroSeries} />
-        </section>
-      ) : null}
-
-      {data.recommendations.length > 0 ? (
-        <section className="ndx-estimate-report__section">
-          <h3 className="ndx-estimate-report__section-title">Recommendations</h3>
-          <ul className="ndx-estimate-list ndx-estimate-list--recs">
-            {data.recommendations.map((rec) => (
-              <li key={rec.title}>
-                <strong style={{ color: 'var(--ndx-text)' }}>{rec.title}</strong>
-                {rec.detail ? <span> — {rec.detail}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {data.nextStep ? (
-        <section className="ndx-estimate-report__section ndx-estimate-next">
-          <h3 className="ndx-estimate-report__section-title">Next step</h3>
-          <p className="ndx-estimate-next__title">{data.nextStep.title}</p>
-          {data.nextStep.detail ? <p className="ndx-estimate-next__detail">{data.nextStep.detail}</p> : null}
-          <Link to="/contact" className="ndx-btn ndx-btn-primary">
-            {data.nextStep.ctaLabel || 'Contact BalochDev'}
-          </Link>
-        </section>
-      ) : null}
-
-      <div className="ndx-estimate-report__actions">
-        <button type="button" className="ndx-btn ndx-btn-primary" onClick={handleDownloadPdf}>
-          Download report (PDF)
-        </button>
       </div>
-    </div>
+    </article>
   );
 });
 

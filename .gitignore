@@ -40,7 +40,17 @@ Thumbs.db
 .vite/
 **/.vite/
 
+# Local prerender debug logs (CI regenerates dist; do not commit)
+client/prerender*.txt
+client/prerender*.log
+
 # Misc
 coverage/
 .nyc_output/
 *.tsbuildinfo
+
+# Portfolio case-study source docs (content lives in projects.ts)
+**/assets/Projects/**/*.md
+**/assets/Projects/**/*.docx
+**/assets/Projects/**/*.doc
+**/assets/Projects/**/*.txt

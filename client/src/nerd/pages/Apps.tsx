@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import type { IconType } from "react-icons";
@@ -18,7 +18,8 @@ import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import RichSectionIntro from "../components/RichSectionIntro";
 import AppsHeroPhoneIllustration from "../components/AppsHeroPhoneIllustration";
 import AiEstimatePromo from "../components/AiEstimatePromo";
-import { selectedWorkTeasers as selectedWork } from "../data/selectedWorkTeasers";
+import SelectedWorkGrid from "../components/SelectedWorkGrid";
+import FaqAccordion from "../components/FaqAccordion";
 import { stackToolLandingPath } from "../data/stackLandings";
 
 const APPS_INDEX_SEO = STATIC_PUBLIC_PAGES_SEO["/apps"];
@@ -237,19 +238,6 @@ const faqs: { q: string; a: string }[] = [
     a: "You do, per contract — repositories, signing assets, and deployment credentials are transferred at the agreed milestone.",
   },
 ];
-
-function FAQItem({ item, index }: { item: (typeof faqs)[number]; index: number }) {
-  const [open, setOpen] = useState(index === 0);
-  return (
-    <div className="ndx-faq-item">
-      <button type="button" className="ndx-faq-q" onClick={() => setOpen(!open)}>
-        <span>{item.q}</span>
-        <span style={{ color: "var(--ndx-accent)", fontSize: "1.35rem" }}>{open ? "−" : "+"}</span>
-      </button>
-      {open ? <div className="ndx-faq-a">{item.a}</div> : null}
-    </div>
-  );
-}
 
 export default function AppsPage() {
   const reduced = useReducedMotion();
@@ -484,8 +472,8 @@ export default function AppsPage() {
             Compliance, logistics, and operations vary — our industry hub ties mobile work to how your sector actually runs.
           </RichSectionIntro>
           <div className="ndx-hero-btns" style={{ marginTop: "1rem", flexWrap: "wrap" }}>
-            <Link to="/industries" className="ndx-btn ndx-btn-primary">
-              View industries →
+            <Link to="/services" className="ndx-btn ndx-btn-primary">
+              View services →
             </Link>
             <Link to="/services/practice/build" className="ndx-btn">
               Build practice →
@@ -561,15 +549,13 @@ export default function AppsPage() {
             Cost, stacks, store accounts, and ownership — ask anything missing on a call.
           </RichSectionIntro>
           <div style={{ marginTop: "1.25rem" }}>
-            {faqs.map((item, index) => (
-              <FAQItem key={item.q} item={item} index={index} />
-            ))}
+            <FaqAccordion items={faqs} />
           </div>
         </div>
 
         <div id="recent-work" className="ndx-rich-block ndx-glass-section ndx-glass-section--recent-work ndx-apps-recent-work scroll-mt-24">
           <RichSectionIntro eyebrow="Recent work" title="What shipping looks like">
-            Representative shapes — full case studies live on the portfolio.
+            Real client and BalochDev builds — open a case study for the full story.
           </RichSectionIntro>
           <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
             <Link to="/portfolio" className="ndx-btn">
@@ -579,42 +565,7 @@ export default function AppsPage() {
               Discuss yours →
             </Link>
           </div>
-          <div className="ndx-card-grid ndx-apps-recent-grid" style={{ marginTop: "1.5rem" }}>
-            {selectedWork.map((item, index) => (
-              <Link key={item.title} to="/portfolio" className="ndx-card ndx-card-link" style={{ overflow: "hidden", padding: 0, display: "block" }}>
-                <div
-                  style={{
-                    position: "relative",
-                    height: "12rem",
-                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 14%, transparent), color-mix(in srgb, var(--ndx-accent-2) 10%, transparent), color-mix(in srgb, var(--ndx-bg) 88%, transparent))`,
-                  }}
-                >
-                  <span className="ndx-pill" style={{ position: "absolute", left: "1.1rem", top: "1.1rem", color: "var(--ndx-accent)" }}>
-                    {item.tag}
-                  </span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      right: "1.1rem",
-                      bottom: "1rem",
-                      fontFamily: "var(--ndx-font-serif)",
-                      fontSize: "2.5rem",
-                      fontStyle: "italic",
-                      opacity: 0.45,
-                    }}
-                  >
-                    0{index + 1}
-                  </span>
-                </div>
-                <div style={{ padding: "1.4rem 1.45rem" }}>
-                  <h3 style={{ fontSize: "1.1rem" }}>{item.title}</h3>
-                  <p className="ndx-tech-blurb" style={{ marginTop: "0.4rem", lineHeight: 1.5 }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <SelectedWorkGrid className="ndx-card-grid ndx-apps-recent-grid" mediaHeight="12rem" />
         </div>
 
         <AiEstimatePromo />

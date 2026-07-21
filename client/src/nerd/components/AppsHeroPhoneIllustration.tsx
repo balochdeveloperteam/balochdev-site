@@ -1,7 +1,7 @@
-import mobileHero from "../../assets/BalochDevLogo/mobile_hero.png";
+import mobileHero from "../../assets/BalochDevLogo/mobile_hero.webp";
 
 /**
- * Hero visual for /apps — uses the mobile_hero.png asset.
+ * Hero visual for /apps — uses the mobile_hero.webp asset.
  */
 export default function AppsHeroPhoneIllustration() {
   return (

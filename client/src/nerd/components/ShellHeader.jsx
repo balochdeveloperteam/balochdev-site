@@ -4,10 +4,39 @@ import BrandLogo from './BrandLogo';
 import ThemeToggle from './ThemeToggle';
 
 const nav = [
-  { to: '/services', label: 'Services' },
-  { to: '/technologies', label: 'Technologies' },
-  { to: '/apps', label: 'Apps' },
-  // { to: '/industries', label: 'Industries' }, // hidden for now
+  {
+    to: '/services',
+    label: 'Services',
+    children: [
+      { to: '/services/practice/ai', label: 'AI & Intelligence' },
+      { to: '/services/practice/build', label: 'Build · Product' },
+      { to: '/services/practice/automate', label: 'Automate · Ops' },
+      { to: '/services/practice/design', label: 'Design · Craft' },
+      { to: '/services', label: 'View all services', viewAll: true },
+    ],
+  },
+  {
+    to: '/technologies',
+    label: 'Technologies',
+    children: [
+      { to: '/technologies#ai', label: 'AI & Intelligence' },
+      { to: '/technologies#frontend', label: 'Frontend' },
+      { to: '/technologies#backend', label: 'Backends & APIs' },
+      { to: '/technologies#data', label: 'Databases' },
+      { to: '/technologies#ops', label: 'Deploy & Ops' },
+      { to: '/technologies', label: 'View all technologies', viewAll: true },
+    ],
+  },
+  {
+    to: '/apps',
+    label: 'Apps',
+    children: [
+      { to: '/apps', label: 'Mobile apps overview' },
+      { to: '/services/android-app-development', label: 'Android development' },
+      { to: '/services/mvp-development', label: 'MVP builds' },
+      { to: '/apps', label: 'View all apps', viewAll: true },
+    ],
+  },
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/about', label: 'About' },
   { to: '/blog', label: 'Blog' },
@@ -15,11 +44,15 @@ const nav = [
 
 export default function ShellHeader() {
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(null);
+  const [desktopMenu, setDesktopMenu] = useState(null);
   const loc = useLocation();
 
   useEffect(() => {
     setOpen(false);
-  }, [loc.pathname]);
+    setMobileOpen(null);
+    setDesktopMenu(null);
+  }, [loc.pathname, loc.hash, loc.search]);
 
   return (
     <>
@@ -34,11 +67,51 @@ export default function ShellHeader() {
           <BrandLogo />
 
           <nav className="ndx-nav ndx-nav-desktop" aria-label="Primary">
-            {nav.map(({ to, label }) => (
-              <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'active' : '')}>
-                {label}
-              </NavLink>
-            ))}
+            {nav.map((item) =>
+              item.children ? (
+                <div
+                  key={item.to}
+                  className={`ndx-nav-item ndx-nav-item--has-menu${desktopMenu === item.to ? ' is-open' : ''}`}
+                  onMouseEnter={() => setDesktopMenu(item.to)}
+                  onMouseLeave={() => setDesktopMenu(null)}
+                >
+                  <NavLink
+                    to={item.to}
+                    className={({ isActive }) => `ndx-nav-link${isActive ? ' active' : ''}`}
+                    onClick={() => setDesktopMenu(null)}
+                  >
+                    {item.label}
+                    <span className="bx bx-chevron-down ndx-nav-caret" aria-hidden />
+                  </NavLink>
+                  <div className="ndx-nav-dropdown" role="menu">
+                    {item.children.map((child) => (
+                      <NavLink
+                        key={`${child.to}-${child.label}`}
+                        to={child.to}
+                        role="menuitem"
+                        onClick={() => setDesktopMenu(null)}
+                        className={({ isActive }) =>
+                          `ndx-nav-dropdown__link${child.viewAll ? ' ndx-nav-dropdown__link--all' : ''}${
+                            isActive && !child.viewAll ? ' active' : ''
+                          }`
+                        }
+                      >
+                        <span>{child.label}</span>
+                        {child.viewAll ? <span className="bx bx-right-arrow-alt" aria-hidden /> : null}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => `ndx-nav-link${isActive ? ' active' : ''}`}
+                >
+                  {item.label}
+                </NavLink>
+              ),
+            )}
           </nav>
 
           <div className="ndx-header-right">
@@ -76,11 +149,47 @@ export default function ShellHeader() {
         >
           <span className="bx bx-x" aria-hidden />
         </button>
-        {nav.map(({ to, label }) => (
-          <NavLink key={to} to={to} onClick={() => setOpen(false)}>
-            {label}
-          </NavLink>
-        ))}
+
+        {nav.map((item) =>
+          item.children ? (
+            <div key={item.to} className="ndx-mobile-nav-group">
+              <div className="ndx-mobile-nav-group__head">
+                <NavLink to={item.to} onClick={() => setOpen(false)}>
+                  {item.label}
+                </NavLink>
+                <button
+                  type="button"
+                  className="ndx-mobile-nav-group__toggle"
+                  aria-expanded={mobileOpen === item.to}
+                  aria-label={`${mobileOpen === item.to ? 'Hide' : 'Show'} ${item.label} links`}
+                  onClick={() => setMobileOpen((cur) => (cur === item.to ? null : item.to))}
+                >
+                  <span className={`bx ${mobileOpen === item.to ? 'bx-chevron-up' : 'bx-chevron-down'}`} aria-hidden />
+                </button>
+              </div>
+              {mobileOpen === item.to ? (
+                <div className="ndx-mobile-nav-group__list">
+                  {item.children.map((child) => (
+                    <NavLink
+                      key={`${child.to}-${child.label}`}
+                      to={child.to}
+                      onClick={() => setOpen(false)}
+                      className={child.viewAll ? 'ndx-mobile-nav-group__all' : undefined}
+                    >
+                      {child.label}
+                      {child.viewAll ? ' →' : ''}
+                    </NavLink>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
+              {item.label}
+            </NavLink>
+          ),
+        )}
+
         <NavLink to="/contact" onClick={() => setOpen(false)}>
           Contact
         </NavLink>

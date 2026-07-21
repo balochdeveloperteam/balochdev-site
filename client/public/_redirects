@@ -1,3 +1,12 @@
 # /login, /admin, /team use static dist/<path>/index.html SPA shells (prerender-spa.mjs).
 # Do NOT rewrite private routes to .html files — Cloudflare Pages 308-strips .html targets.
 # ABSOLUTELY NO global /* rule — unknown public URLs fall through to 404.html (HTTP 404).
+
+# GSC / legacy orphans → canonical public pages
+/projects  /portfolio  301
+/industries  /services  301
+/projects/shbash  /projects/shabash  301
+/projects/mango  /projects/mango-restaurant  301
+/projects/toledo  /projects/toledo-locks  301
+/projects/soroz-ai  /projects/soroz  301
+/projects/doch.com  /projects/doch  301

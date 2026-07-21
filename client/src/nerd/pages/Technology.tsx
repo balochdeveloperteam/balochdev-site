@@ -30,10 +30,11 @@ import {
 } from "../data/technologies";
 import { TECH_ICON_MAP } from "../data/technologyIcons";
 import { stackToolLandingPath } from "../data/stackLandings";
-import { selectedWorkTeasers } from "../data/selectedWorkTeasers";
 import PartnerBrandsGrid from "../components/PartnerBrandsGrid";
 import RichSectionIntro from "../components/RichSectionIntro";
 import AiEstimatePromo from "../components/AiEstimatePromo";
+import SelectedWorkGrid from "../components/SelectedWorkGrid";
+import FaqAccordion from "../components/FaqAccordion";
 
 const TECH_INDEX_SEO = STATIC_PUBLIC_PAGES_SEO["/technologies"];
 
@@ -428,19 +429,6 @@ function ToolCard({ item, landingHref }: { item: TechItem; landingHref?: string 
   return card;
 }
 
-function TechFaqItem({ item, index }: { item: (typeof faqItems)[number]; index: number }) {
-  const [open, setOpen] = useState(index === 0);
-  return (
-    <div className="ndx-faq-item">
-      <button type="button" className="ndx-faq-q" onClick={() => setOpen(!open)}>
-        <span>{item.q}</span>
-        <span style={{ color: "var(--ndx-accent)", fontSize: "1.35rem" }}>{open ? "−" : "+"}</span>
-      </button>
-      {open ? <div className="ndx-faq-a">{item.a}</div> : null}
-    </div>
-  );
-}
-
 export default function TechnologiesPage() {
   const reduced = useReducedMotion();
   const liteMotion = useLiteMotionProfile();
@@ -718,54 +706,21 @@ export default function TechnologiesPage() {
 
         <div id="recent-work" className="ndx-rich-block ndx-glass-section ndx-glass-section--recent-work scroll-mt-24">
           <RichSectionIntro eyebrow="Recent work" title="What shipping looks like">
-            Representative project shapes — case studies and credits live on the portfolio.
+            Real client and BalochDev builds — open a case study for the full story.
           </RichSectionIntro>
           <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
             <Link to="/portfolio" className="ndx-btn">
               Full portfolio →
             </Link>
           </div>
-          <div className="ndx-card-grid ndx-card-grid--cols-3" style={{ marginTop: "1.5rem" }}>
-            {selectedWorkTeasers.map((item, index) => (
-              <Link key={item.title} to="/portfolio" className="ndx-card ndx-card-link" style={{ overflow: "hidden", padding: 0, display: "block" }}>
-                <div
-                  style={{
-                    position: "relative",
-                    height: "11rem",
-                    background: `linear-gradient(135deg, color-mix(in srgb, var(--ndx-accent) 14%, transparent), color-mix(in srgb, var(--ndx-accent-2) 10%, transparent), color-mix(in srgb, var(--ndx-bg) 88%, transparent))`,
-                  }}
-                >
-                  <span className="ndx-pill" style={{ position: "absolute", left: "1.1rem", top: "1.1rem", color: "var(--ndx-accent)" }}>
-                    {item.tag}
-                  </span>
-                  <span
-                    style={{
-                      position: "absolute",
-                      right: "1.1rem",
-                      bottom: "1rem",
-                      fontFamily: "var(--ndx-font-serif)",
-                      fontSize: "2.5rem",
-                      fontStyle: "italic",
-                      opacity: 0.45,
-                    }}
-                  >
-                    0{index + 1}
-                  </span>
-                </div>
-                <div style={{ padding: "1.35rem" }}>
-                  <h3>{item.title}</h3>
-                  <p className="ndx-tech-blurb" style={{ marginTop: "0.35rem" }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <SelectedWorkGrid />
         </div>
 
+        <AiEstimatePromo />
+
         <div id="partners" className="ndx-rich-block scroll-mt-24">
-          <RichSectionIntro eyebrow="Collaborators" title="Organizations we’ve shipped with">
-            Language, publishing, AI platforms, and digital partners — hover a mark for its name; click to open the official site.
+          <RichSectionIntro eyebrow="Partners & clients" title="Organizations we’ve shipped with">
+            Academy partners, client brands, Amazon Ads, and Google Premier Partner 2026 — hover a mark for its name; click to open the official site.
           </RichSectionIntro>
           <PartnerBrandsGrid />
         </div>
@@ -775,14 +730,10 @@ export default function TechnologiesPage() {
             <p className="ndx-tech-meta">FAQ</p>
             <h2 className="ndx-h2">Quick answers before a call.</h2>
           </div>
-          <div style={{ marginTop: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {faqItems.map((item, index) => (
-              <TechFaqItem key={item.q} item={item} index={index} />
-            ))}
+          <div style={{ marginTop: "1.25rem" }}>
+            <FaqAccordion items={faqItems} />
           </div>
         </div>
-
-        <AiEstimatePromo />
 
         <div className="ndx-rich-cta-box" style={{ position: "relative", overflow: "hidden" }}>
           <div
