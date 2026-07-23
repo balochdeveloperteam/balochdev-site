@@ -8,6 +8,17 @@ import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import projects, { type Project } from "../data/projects";
 import portfolioVideo from "../../assets/BalochDevLogo/portfolio.mp4";
 import AiEstimatePromo from "../components/AiEstimatePromo";
+import ImageLightbox from "../components/ImageLightbox";
+
+function ZoomIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <path d="M11 8.5v5M8.5 11h5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 /* ─── Static data ────────────────────────────────────────────────────────── */
 
@@ -91,6 +102,15 @@ function ProjectCard({
 }) {
   const isComingSoon = !p.slug;
   const isHero = layout === "hero";
+  const gallery = (p.images?.length ? p.images : p.cover ? [p.cover] : []) as string[];
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openGallery = (start = 0) => {
+    if (!gallery.length) return;
+    setLightboxIndex(start);
+    setLightboxOpen(true);
+  };
 
   return (
     <motion.div
@@ -99,8 +119,8 @@ function ProjectCard({
         padding: 0,
         overflow: "hidden",
         display: "flex",
-        flexDirection: isHero ? "row" : "column",
-        flexWrap: isHero ? "wrap" : undefined,
+        /* Featured (Soroz): same top image + body stack as other cards — not a side panel */
+        flexDirection: "column",
         position: "relative",
         gridColumn: isHero ? "1 / -1" : undefined,
       }}
@@ -111,41 +131,60 @@ function ProjectCard({
       {/* Cover image / placeholder */}
       <div
         style={{
-          width: isHero ? "min(100%, 50%)" : "100%",
-          flex: isHero ? "1 1 420px" : undefined,
-          aspectRatio: isHero ? "16 / 10" : "16 / 9",
-          minHeight: isHero ? 260 : undefined,
-          maxHeight: isHero ? 360 : undefined,
+          width: "100%",
+          aspectRatio: isHero ? "16 / 9" : "16 / 9",
+          minHeight: isHero ? 220 : undefined,
+          maxHeight: isHero ? 420 : undefined,
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
-          display: isHero ? "flex" : undefined,
-          alignItems: isHero ? "center" : undefined,
-          justifyContent: isHero ? "center" : undefined,
-          padding: isHero ? "1.15rem 1.05rem" : undefined,
           background: p.cover
-            ? isHero
-              ? "var(--ndx-bg-elev)"
-              : "transparent"
+            ? "transparent"
             : "linear-gradient(135deg, rgba(100,116,139,0.08) 0%, rgba(100,116,139,0.04) 100%)",
         }}
       >
         {p.cover ? (
-          <img
-            src={p.cover}
-            alt={p.title}
-            loading="lazy"
-            style={{
-              width: "100%",
-              height: isHero ? "auto" : "100%",
-              maxHeight: isHero ? 320 : undefined,
-              objectFit: isHero ? "contain" : "cover",
-              display: "block",
-              transition: "transform 0.4s ease",
-            }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1)")}
-          />
+          <>
+            <button
+              type="button"
+              aria-label={`View ${p.title} screenshots`}
+              onClick={() => openGallery(0)}
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                padding: 0,
+                border: "none",
+                background: "transparent",
+                cursor: gallery.length ? "zoom-in" : "default",
+              }}
+            >
+              <img
+                src={p.cover}
+                alt={p.title}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                  transition: "transform 0.4s ease",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLImageElement).style.transform = "scale(1)")}
+              />
+            </button>
+            {gallery.length > 0 ? (
+              <button
+                type="button"
+                className="ndx-img-zoom"
+                aria-label="Open image larger"
+                onClick={() => openGallery(0)}
+              >
+                <ZoomIcon />
+              </button>
+            ) : null}
+          </>
         ) : (
           <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.4rem" }}>
             {/* subtle nested squares inside placeholder */}
@@ -165,12 +204,10 @@ function ProjectCard({
       {/* Body */}
       <div
         style={{
-          padding: isHero ? "1.5rem 1.6rem 1.6rem" : "0.85rem 1.1rem 1.2rem",
-          flex: isHero ? "1 1 420px" : 1,
+          padding: isHero ? "1.15rem 1.35rem 1.4rem" : "0.85rem 1.1rem 1.2rem",
+          flex: 1,
           display: "flex",
           flexDirection: "column",
-          minWidth: isHero ? "min(100%, 320px)" : undefined,
-          justifyContent: isHero ? "center" : undefined,
         }}
       >
 
@@ -300,6 +337,16 @@ function ProjectCard({
           )}
         </div>
       </div>
+
+      {lightboxOpen && gallery.length > 0 ? (
+        <ImageLightbox
+          images={gallery}
+          index={lightboxIndex}
+          alt={p.title}
+          onClose={() => setLightboxOpen(false)}
+          onIndexChange={setLightboxIndex}
+        />
+      ) : null}
     </motion.div>
   );
 }

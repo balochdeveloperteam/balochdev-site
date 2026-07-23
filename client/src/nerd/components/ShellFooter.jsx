@@ -7,6 +7,7 @@ const cols = [
     title: 'Company',
     links: [
       { to: '/about', label: 'About us' },
+      { to: '/faq', label: 'FAQ' },
       { to: '/apps', label: 'Apps & software' },
       { to: '/blog', label: 'Blog' },
       { to: '/advertise', label: 'Advertise' },

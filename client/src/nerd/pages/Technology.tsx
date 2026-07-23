@@ -248,7 +248,7 @@ function TechnologyHeroSurface({
   }, []);
 
   const ringTransition = (durationSec: number) =>
-    reduced ? { duration: 0 } : { duration: durationSec, repeat: Infinity, ease: "linear" as const };
+    reduced ? { duration: 0 } : { duration: durationSec, repeat: Infinity, repeatType: "loop" as const, ease: "linear" as const };
 
   const orbitTracks: { r: OrbitRadiusVar; opacity: number }[] = [
     { r: "--ndx-hero-orbit-a", opacity: 0.62 },
@@ -256,8 +256,8 @@ function TechnologyHeroSurface({
     { r: "--ndx-hero-orbit-c", opacity: 0.48 },
   ];
 
-  const pairedCwDur = 118;
-  const middleCcwDur = 76;
+  const pairedCwDur = 72;
+  const middleCcwDur = 48;
 
   const nPaired = TECH_HERO_PAIRED.length;
   const nMid = TECH_HERO_MIDDLE.length;
@@ -432,7 +432,7 @@ function ToolCard({ item, landingHref }: { item: TechItem; landingHref?: string 
 export default function TechnologiesPage() {
   const reduced = useReducedMotion();
   const liteMotion = useLiteMotionProfile();
-  const calmHeroMotion = !!reduced || liteMotion;
+  const calmHeroMotion = !!reduced;
   const groups = technologyGroups as TechGroup[];
 
   const totalTools = useMemo(() => groups.reduce((sum, g) => sum + g.items.length, 0), [groups]);

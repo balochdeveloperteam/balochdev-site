@@ -7,7 +7,13 @@ export const STATIC_PUBLIC_PAGES_SEO = {
     canonicalPath: '/about',
     metaTitle: 'About BalochDev \u2014 Our Team & Mission',
     metaDescription:
-      'BalochDev is a focused software team building AI products and web/mobile apps for global clients, and open Balochi language technology. Meet the people behind it.',
+      'BalochDev — remote-first software studio in Balochistan. 80+ web, mobile & AI projects for clients in the US, UK, Canada & EU. In-person meets in Qatar, Bahrain, UAE, Iran, Russia & Balochistan.',
+  },
+  '/faq': {
+    canonicalPath: '/faq',
+    metaTitle: 'FAQ \u2014 BalochDev Custom Software & AI',
+    metaDescription:
+      'Questions about building with BalochDev: AI agents, RAG, web and mobile, pricing, timelines, stack, ownership, and how to start. Plain answers — no gates.',
   },
   '/brand': {
     canonicalPath: '/brand',

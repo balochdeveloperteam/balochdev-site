@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
 import ThemeToggle from './ThemeToggle';
+import SocialLinksRow from './SocialLinksRow';
 
 const nav = [
   {
@@ -37,8 +38,30 @@ const nav = [
       { to: '/apps', label: 'View all apps', viewAll: true },
     ],
   },
-  { to: '/portfolio', label: 'Portfolio' },
-  { to: '/about', label: 'About' },
+  {
+    to: '/portfolio',
+    label: 'Portfolio',
+    children: [
+      { to: '/projects/soroz', label: 'Soroz AI' },
+      { to: '/projects/mango-restaurant', label: 'ManGo Restaurant' },
+      { to: '/projects/theory-of-you', label: 'Theory of You' },
+      { to: '/projects/doch', label: 'DOCH' },
+      { to: '/projects/iinta', label: 'iinta.ca' },
+      { to: '/projects/toledo-locks', label: 'Toledo & Co.' },
+      { to: '/projects/shabash', label: 'Shbash' },
+      { to: '/portfolio', label: 'View all portfolio', viewAll: true },
+    ],
+  },
+  {
+    to: '/about',
+    label: 'About',
+    children: [
+      { to: '/about', label: 'About us' },
+      { to: '/faq', label: 'FAQ' },
+      { to: '/contact', label: 'Contact us' },
+      { to: '/about', label: 'View all about', viewAll: true },
+    ],
+  },
   { to: '/blog', label: 'Blog' },
 ];
 
@@ -190,16 +213,33 @@ export default function ShellHeader() {
           ),
         )}
 
-        <NavLink to="/contact" onClick={() => setOpen(false)}>
-          Contact
-        </NavLink>
-        <NavLink to="/estimate" onClick={() => setOpen(false)}>
-          AI estimate
-        </NavLink>
-        <NavLink to="/proposal" onClick={() => setOpen(false)}>
-          Send proposal
-        </NavLink>
-        <NavLink to="/login" onClick={() => setOpen(false)}>
+        <div className="ndx-mobile-drawer__ctas">
+          <NavLink
+            to="/estimate"
+            className="ndx-btn ndx-btn-primary ndx-mobile-drawer__cta"
+            onClick={() => setOpen(false)}
+          >
+            AI estimate
+          </NavLink>
+          <NavLink
+            to="/proposal"
+            className="ndx-btn ndx-mobile-drawer__cta"
+            onClick={() => setOpen(false)}
+          >
+            Send proposal
+          </NavLink>
+        </div>
+
+        <div className="ndx-mobile-drawer__social">
+          <BrandLogo />
+          <SocialLinksRow
+            className="ndx-social-links--drawer"
+            label="Follow us"
+            showLabel
+          />
+        </div>
+
+        <NavLink to="/login" className="ndx-mobile-drawer__admin" onClick={() => setOpen(false)}>
           Admin
         </NavLink>
       </div>

@@ -18,6 +18,7 @@ import NIndustries from './nerd/pages/NIndustries';
 import NPortfolio from './nerd/pages/NPortfolio';
 import NProjectPage from './nerd/pages/NProjectPage';
 import NAbout from './nerd/pages/NAbout';
+import NFaq from './nerd/pages/NFaq';
 import NBlog from './nerd/pages/NBlog';
 import NBlogPost from './nerd/pages/NBlogPost';
 import NAdvertise from './nerd/pages/NAdvertise';
@@ -77,6 +78,7 @@ function AppRoutes() {
             <Route path="/projects/:slug" element={<NProjectPage />} />
             <Route path="/industries" element={<Navigate to="/services" replace />} />
             <Route path="/about" element={<NAbout />} />
+            <Route path="/faq" element={<NFaq />} />
             <Route path="/blog" element={<NBlog />} />
             <Route path="/blog/:slug" element={<NBlogPostRoute />} />
             <Route path="/advertise" element={<NAdvertise />} />

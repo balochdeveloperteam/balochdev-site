@@ -145,11 +145,17 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
     const node = ref?.current;
     if (!node) return;
     onDownloadStart?.();
+    let wrapper = null;
     try {
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
 
-      const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#ffffff;padding:32px;';
+      wrapper = document.createElement('div');
+      wrapper.setAttribute('aria-hidden', 'true');
+      wrapper.style.cssText =
+        'position:fixed;left:-9999px;top:0;width:800px;background:#ffffff;padding:32px;z-index:-1;';
       const clone = node.cloneNode(true);
       clone.classList.add('ndx-estimate-report--pdf');
       clone.style.background = '#ffffff';
@@ -161,9 +167,30 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
         scale: 2,
         backgroundColor: '#ffffff',
         useCORS: true,
+        allowTaint: true,
         logging: false,
+        foreignObjectRendering: false,
+        onclone: (_doc, el) => {
+          // Flatten modern CSS (color-mix / vars) that html2canvas cannot paint.
+          el.querySelectorAll('*').forEach((nodeEl) => {
+            if (!(nodeEl instanceof HTMLElement)) return;
+            const cs = window.getComputedStyle(nodeEl);
+            nodeEl.style.backgroundImage = 'none';
+            nodeEl.style.boxShadow = 'none';
+            nodeEl.style.backdropFilter = 'none';
+            nodeEl.style.webkitBackdropFilter = 'none';
+            nodeEl.style.filter = 'none';
+            // Prefer already-resolved computed colors over theme tokens
+            if (cs.color) nodeEl.style.color = cs.color;
+            if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+              nodeEl.style.backgroundColor = cs.backgroundColor;
+            }
+            if (cs.borderColor) nodeEl.style.borderColor = cs.borderColor;
+          });
+          el.style.background = '#ffffff';
+          el.style.color = '#0b1340';
+        },
       });
-      document.body.removeChild(wrapper);
 
       const img = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -186,9 +213,11 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
       }
 
       pdf.save(`BalochDev-Estimate-${slugifyFilename(data.projectTitle)}.pdf`);
-    } catch {
-      /* user can retry */
+    } catch (err) {
+      console.error('[estimate PDF]', err);
+      window.alert('Could not generate the PDF. Please try again.');
     } finally {
+      if (wrapper?.parentNode) wrapper.parentNode.removeChild(wrapper);
       onDownloadEnd?.();
     }
   }, [data.projectTitle, onDownloadEnd, onDownloadStart, ref]);

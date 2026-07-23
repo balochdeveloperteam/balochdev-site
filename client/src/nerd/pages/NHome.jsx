@@ -11,6 +11,10 @@ import Seo from '../seo/Seo';
 import { organizationJsonLd } from '../seo/siteSeo';
 import projects from '../data/projects';
 import { HOME_FAQS } from '../data/homeFaqs';
+import { TEAM_MEMBERS } from '../data/team.js';
+
+/** Face stack for the “Why it works” team card (photos only). */
+const WHY_TEAM_FACES = TEAM_MEMBERS.filter((m) => m.image).slice(0, 8);
 
 const HERO_WORDS = ['clarity.', 'speed.', 'craft.', 'trust.', 'impact.'];
 
@@ -212,21 +216,6 @@ const RECENT_WORK = RECENT_WORK_META.map((meta, index) => {
     n: String(index + 1).padStart(2, '0'),
   };
 }).filter(Boolean);
-
-const WHY_TEAM = [
-  { initials: 'AB', tone: '#ff6b4a', name: 'Adeel' },
-  { initials: 'FB', tone: '#7c5cff', name: 'Fazi' },
-  { initials: 'SB', tone: '#22c55e', name: 'Shees' },
-  { initials: 'So', tone: '#0ea5e9', name: 'Sohail' },
-  { initials: 'JA', tone: '#f59e0b', name: 'Jaber' },
-  { initials: 'Sh', tone: '#ec4899', name: 'Shams' },
-  { initials: 'MB', tone: '#14b8a6', name: 'Maryam' },
-  { initials: 'HB', tone: '#a78bfa', name: 'Hafsa' },
-  { initials: 'IB', tone: '#fb7185', name: 'Iqra' },
-  { initials: 'NB', tone: '#38bdf8', name: 'Nabeel' },
-  { initials: 'JB', tone: '#84cc16', name: 'Jwad' },
-  { initials: 'Af', tone: '#f97316', name: 'Afsheen' },
-];
 
 const WHY_PROTECTED = [
   { label: 'Code ownership', value: 'Your repo · day 1' },
@@ -588,14 +577,14 @@ export default function NHome() {
             <article className="ndx-home-why-card ndx-home-why-card--team">
               <p className="ndx-home-why-card__label">01 · The whole team</p>
               <div className="ndx-home-why-card__avatars" aria-hidden>
-                {WHY_TEAM.map((m) => (
+                {WHY_TEAM_FACES.map((m, i) => (
                   <span
                     key={m.name}
-                    className="ndx-home-why-card__avatar"
-                    style={{ background: m.tone }}
+                    className="ndx-home-why-card__avatar ndx-home-why-card__avatar--photo"
+                    style={{ zIndex: WHY_TEAM_FACES.length - i }}
                     title={m.name}
                   >
-                    {m.initials}
+                    <img src={m.image} alt="" loading="lazy" decoding="async" />
                   </span>
                 ))}
                 <span className="ndx-home-why-card__avatar ndx-home-why-card__avatar--more">14</span>

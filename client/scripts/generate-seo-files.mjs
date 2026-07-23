@@ -236,6 +236,7 @@ Statements above are factual product and scope summaries for retrieval and citat
 - [Portfolio](${SITE_URL}/portfolio) — Selected client and partner projects.
 - [Apps](${SITE_URL}/apps) — BalochDev-built apps and tools.
 - [About](${SITE_URL}/about) — Who we are.
+- [FAQ](${SITE_URL}/faq) — Common questions about services, pricing, and process.
 - [Blog](${SITE_URL}/blog) — Articles, notes, and updates.
 - [Advertise](${SITE_URL}/advertise) — Reach the BalochDev audience.
 - [Estimate](${SITE_URL}/estimate) — AI-assisted project estimate.

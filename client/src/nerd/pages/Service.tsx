@@ -454,7 +454,7 @@ const HERO_ORBIT_RINGS: OrbitRing[] = [
     id: "build",
     radiusVar: "--ndx-hero-orbit-a",
     layer: "a",
-    durationSec: 120,
+    durationSec: 70,
     clockwise: true,
     icons: [
       { Icon: SiNextdotjs, label: "NEXT" },
@@ -475,7 +475,7 @@ const HERO_ORBIT_RINGS: OrbitRing[] = [
     id: "ai",
     radiusVar: "--ndx-hero-orbit-b",
     layer: "b",
-    durationSec: 88,
+    durationSec: 52,
     clockwise: false,
     icons: [
       { Icon: SiOpenai, label: "OPENAI" },
@@ -495,7 +495,7 @@ const HERO_ORBIT_RINGS: OrbitRing[] = [
     id: "ship",
     radiusVar: "--ndx-hero-orbit-c",
     layer: "c",
-    durationSec: 62,
+    durationSec: 38,
     clockwise: true,
     icons: [
       { Icon: SiNodedotjs, label: "NODE" },
@@ -623,7 +623,7 @@ function HeroSurface({ reduced }: { reduced: boolean }) {
   const ringTransition = (durationSec: number) =>
     reduced
       ? { duration: 0 }
-      : { duration: durationSec, repeat: Infinity, ease: "linear" as const };
+      : { duration: durationSec, repeat: Infinity, repeatType: "loop" as const, ease: "linear" as const };
 
   const orbitTracks: { r: OrbitRing["radiusVar"]; opacity: number }[] = [
     { r: "--ndx-hero-orbit-a", opacity: 0.62 },

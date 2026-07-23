@@ -6,21 +6,46 @@ import { initialsFromName, reviewsForProject } from "../data/projectReviews";
 import Seo from "../seo/Seo";
 import { SITE_URL } from "../seo/siteSeo";
 import { capDescription, capTitle } from "../seo/seoFromData";
+import ImageLightbox from "../components/ImageLightbox";
 
 /* ─── Image carousel ─────────────────────────────────────────────────────── */
 
+function ZoomIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <path d="M11 8.5v5M8.5 11h5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function NavChevron({ dir }: { dir: "prev" | "next" }) {
+  const d = dir === "prev" ? "M14.5 6.5L9 12l5.5 5.5" : "M9.5 6.5L15 12l-5.5 5.5";
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden focusable="false">
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function Carousel({ images }: { images: string[] }) {
   const [idx, setIdx] = useState(0);
+  const [open, setOpen] = useState(false);
   const prev = () => setIdx((i) => (i - 1 + images.length) % images.length);
   const next = () => setIdx((i) => (i + 1) % images.length);
+  const openAt = (i: number) => {
+    setIdx(i);
+    setOpen(true);
+  };
 
   return (
     <div className="ndx-project-carousel">
       {images.length > 1 &&
         ([
-          { fn: prev, side: "left" as const, label: "Previous", icon: "‹" },
-          { fn: next, side: "right" as const, label: "Next", icon: "›" },
-        ] as const).map(({ fn, side, label, icon }) => (
+          { fn: prev, side: "left" as const, label: "Previous", dir: "prev" as const },
+          { fn: next, side: "right" as const, label: "Next", dir: "next" as const },
+        ] as const).map(({ fn, side, label, dir }) => (
           <button
             key={side}
             type="button"
@@ -39,19 +64,21 @@ function Carousel({ images }: { images: string[] }) {
               background: "var(--ndx-bg-elev)",
               color: "var(--ndx-text)",
               cursor: "pointer",
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "1.25rem",
               zIndex: 3,
-              lineHeight: 1,
+              padding: 0,
+              margin: 0,
+              lineHeight: 0,
             }}
           >
-            {icon}
+            <NavChevron dir={dir} />
           </button>
         ))}
 
       <div
+        className="ndx-project-carousel__frame"
         style={{
           position: "relative",
           width: "100%",
@@ -62,16 +89,24 @@ function Carousel({ images }: { images: string[] }) {
           border: "1px solid var(--ndx-border)",
         }}
       >
-        {/* Slides */}
+        {/* Slides — tap/click opens fullscreen gallery */}
         {images.map((src, i) => (
-          <div
+          <button
             key={src}
+            type="button"
+            className="ndx-project-carousel__slide"
+            aria-label={`Open screenshot ${i + 1} larger`}
+            onClick={() => openAt(i)}
             style={{
               position: "absolute",
               inset: 0,
               opacity: i === idx ? 1 : 0,
               transition: "opacity 0.42s ease",
               pointerEvents: i === idx ? "auto" : "none",
+              padding: 0,
+              border: "none",
+              background: "transparent",
+              cursor: "zoom-in",
             }}
           >
             <img
@@ -80,8 +115,17 @@ function Carousel({ images }: { images: string[] }) {
               loading={i === 0 ? "eager" : "lazy"}
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
-          </div>
+          </button>
         ))}
+
+        <button
+          type="button"
+          className="ndx-img-zoom"
+          aria-label="Open image larger"
+          onClick={() => openAt(idx)}
+        >
+          <ZoomIcon />
+        </button>
 
         {/* Dot indicators */}
         {images.length > 1 && (
@@ -137,6 +181,16 @@ function Carousel({ images }: { images: string[] }) {
           {idx + 1} / {images.length}
         </span>
       </div>
+
+      {open ? (
+        <ImageLightbox
+          images={images}
+          index={idx}
+          alt="Screenshot"
+          onClose={() => setOpen(false)}
+          onIndexChange={setIdx}
+        />
+      ) : null}
     </div>
   );
 }

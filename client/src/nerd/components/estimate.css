@@ -145,6 +145,7 @@
   padding: 1rem 1.15rem;
   border-bottom: 1px solid var(--ndx-border);
   background: color-mix(in srgb, var(--ndx-bg) 55%, var(--ndx-surface));
+  flex-wrap: wrap;
 }
 
 .ndx-estimate-chat__title {
@@ -168,6 +169,9 @@
   align-items: center;
   gap: 0.65rem;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
 }
 
 .ndx-estimate-chat__quota {
@@ -761,38 +765,88 @@
 }
 
 .ndx-estimate-report--pdf {
-  background: #ffffff;
-  color: #0b1340;
-  border-color: rgba(11, 19, 64, 0.12);
+  background: #ffffff !important;
+  color: #0b1340 !important;
+  border-color: rgba(11, 19, 64, 0.12) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+.ndx-estimate-report--pdf * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  background-image: none !important;
 }
 
 .ndx-estimate-report--pdf .ndx-estimate-report__doc-head {
-  background: #f8fafc;
+  background: #f8fafc !important;
 }
 
 .ndx-estimate-report--pdf .ndx-estimate-macro__label,
 .ndx-estimate-report--pdf .ndx-estimate-table th,
 .ndx-estimate-report--pdf .ndx-estimate-table td,
-.ndx-estimate-report--pdf .ndx-estimate-stat__hint {
-  color: #475569;
+.ndx-estimate-report--pdf .ndx-estimate-stat__hint,
+.ndx-estimate-report--pdf .ndx-lead {
+  color: #475569 !important;
 }
 
 .ndx-estimate-report--pdf .ndx-estimate-table td strong,
 .ndx-estimate-report--pdf .ndx-estimate-next__title,
-.ndx-estimate-report--pdf .ndx-estimate-stat__value {
-  color: #0b1340;
+.ndx-estimate-report--pdf .ndx-estimate-stat__value,
+.ndx-estimate-report--pdf .ndx-estimate-report__title,
+.ndx-estimate-report--pdf .ndx-estimate-report__section-title,
+.ndx-estimate-report--pdf .ndx-estimate-report__brand-meta strong {
+  color: #0b1340 !important;
 }
 
 .ndx-estimate-report--pdf .ndx-estimate-macro__track,
 .ndx-estimate-report--pdf .ndx-estimate-range__track {
-  background: rgba(11, 19, 64, 0.08);
+  background: rgba(11, 19, 64, 0.08) !important;
+}
+
+.ndx-estimate-report--pdf .ndx-estimate-range__fill,
+.ndx-estimate-report--pdf .ndx-estimate-macro__bar,
+.ndx-estimate-report--pdf .ndx-estimate-stat__value--accent {
+  background: #0d9488 !important;
+  color: #0d9488 !important;
+}
+
+.ndx-estimate-report--pdf .ndx-estimate-pill {
+  background: #eef2ff !important;
+  color: #312e81 !important;
+  border-color: #c7d2fe !important;
 }
 
 .ndx-estimate-report--pdf .ndx-btn {
-  display: none;
+  display: none !important;
 }
 
 @media (max-width: 520px) {
+  .ndx-estimate-chat__header {
+    align-items: flex-start;
+    row-gap: 0.55rem;
+  }
+
+  .ndx-estimate-chat__header-meta {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .ndx-estimate-chat__status {
+    order: -1;
+    flex-shrink: 0;
+  }
+
+  .ndx-estimate-chat__quota {
+    font-size: 0.65rem;
+    padding: 0.24rem 0.55rem;
+  }
+
   .ndx-estimate-chat__bubble {
     max-width: calc(100% - 3.2rem);
   }

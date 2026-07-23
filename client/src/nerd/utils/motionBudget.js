@@ -1,8 +1,9 @@
 /**
- * Functional-only tiering for heavy motion (orbit rings, Lenis). Cached per tab in sessionStorage
- * so we don't re-read device hints on every navigation. Not advertising/analytics — no consent banner required.
+ * Functional-only tiering for heavy motion extras (blurred bloom, Lenis).
+ * Orbit rings / marquees stay on unless the user prefers reduced motion.
+ * Cached per tab in sessionStorage so we don't re-read device hints on every navigation.
  */
-const STORAGE_KEY = "balochdev-lite-motion-v1";
+const STORAGE_KEY = "balochdev-lite-motion-v2";
 
 export function computeLiteMotion() {
   if (typeof window === "undefined") return false;
@@ -11,14 +12,15 @@ export function computeLiteMotion() {
 
   try {
     const dm = navigator.deviceMemory;
-    if (typeof dm === "number" && dm <= 4) return true;
+    /* Only very low-memory devices — 4GB was too aggressive and froze tech rings */
+    if (typeof dm === "number" && dm <= 2) return true;
   } catch {
     /* ignore */
   }
 
   try {
     const hc = navigator.hardwareConcurrency;
-    if (typeof hc === "number" && hc <= 4) return true;
+    if (typeof hc === "number" && hc <= 2) return true;
   } catch {
     /* ignore */
   }

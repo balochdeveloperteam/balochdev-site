@@ -9,8 +9,9 @@
  * JSON-LD, and #balochdev-blog-bootstrap — and the SPA hydrates on top without
  * a network round-trip.
  *
- * Env required on Cloudflare Pages: SUPABASE_URL, SUPABASE_ANON_KEY. Anon key +
- * RLS (already used by the client SPA for the same read) is sufficient.
+ * Env required on Cloudflare Pages for full SSR: SUPABASE_URL + SUPABASE_ANON_KEY
+ * (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY also accepted). If missing, the
+ * function serves the SPA index.html so refresh still works client-side.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -123,6 +124,28 @@ function notFoundHtml(slug) {
 export async function onRequestGet({ request, env, params }) {
   const slug = String(params?.slug || '').trim();
 
+  async function spaShell(status = 200) {
+    try {
+      const shellResp = await env.ASSETS.fetch(new URL('/index.html', request.url));
+      if (shellResp?.ok) {
+        return new Response(shellResp.body, {
+          status,
+          headers: {
+            'content-type': 'text/html; charset=utf-8',
+            'cache-control': 'no-store',
+            'x-robots-tag': status >= 400 ? 'noindex, nofollow' : 'index, follow',
+          },
+        });
+      }
+    } catch (e) {
+      console.error('[blog SSR] spa shell fetch failed', e?.message || e);
+    }
+    return new Response('Service unavailable', {
+      status: 503,
+      headers: { 'cache-control': 'no-store' },
+    });
+  }
+
   if (!slug) {
     return new Response(notFoundHtml(''), {
       status: 404,
@@ -134,14 +157,12 @@ export async function onRequestGet({ request, env, params }) {
     });
   }
 
-  const supaUrl = env.SUPABASE_URL;
-  const supaAnon = env.SUPABASE_ANON_KEY;
+  // Accept Pages secrets under either name (dashboard often only has VITE_* from GH).
+  const supaUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const supaAnon = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
   if (!supaUrl || !supaAnon) {
-    console.error('[blog SSR] missing SUPABASE_URL or SUPABASE_ANON_KEY env');
-    return new Response('Server misconfigured', {
-      status: 500,
-      headers: { 'cache-control': 'no-store' },
-    });
+    console.error('[blog SSR] missing SUPABASE_URL/ANON (or VITE_*) — serving SPA shell');
+    return spaShell(200);
   }
 
   const supabase = createClient(supaUrl, supaAnon, {
@@ -157,10 +178,7 @@ export async function onRequestGet({ request, env, params }) {
 
   if (error) {
     console.error('[blog SSR] supabase error', error.message);
-    return new Response('Upstream error', {
-      status: 502,
-      headers: { 'cache-control': 'no-store' },
-    });
+    return spaShell(200);
   }
 
   if (!data) {
@@ -190,17 +208,11 @@ export async function onRequestGet({ request, env, params }) {
     shellResp = await env.ASSETS.fetch(new URL('/index.html', request.url));
   } catch (e) {
     console.error('[blog SSR] ASSETS.fetch threw', e?.message || e);
-    return new Response('Server error', {
-      status: 500,
-      headers: { 'cache-control': 'no-store' },
-    });
+    return spaShell(200);
   }
   if (!shellResp || !shellResp.ok) {
     console.error('[blog SSR] index.html shell not fetched', shellResp?.status);
-    return new Response('Server error', {
-      status: 500,
-      headers: { 'cache-control': 'no-store' },
-    });
+    return spaShell(200);
   }
 
   let shell = await shellResp.text();
