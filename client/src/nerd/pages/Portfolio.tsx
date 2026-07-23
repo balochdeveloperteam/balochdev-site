@@ -114,12 +114,12 @@ function ProjectCard({
 
   return (
     <motion.div
-      className="ndx-card"
+      className={`ndx-card ndx-portfolio-project${isHero ? " ndx-portfolio-project--hero" : ""}`}
       style={{
         padding: 0,
         overflow: "hidden",
         display: "flex",
-        /* Featured (Soroz): same top image + body stack as other cards — not a side panel */
+        /* Default stack; hero uses CSS row on desktop (image left / text right) */
         flexDirection: "column",
         position: "relative",
         gridColumn: isHero ? "1 / -1" : undefined,
@@ -130,11 +130,10 @@ function ProjectCard({
     >
       {/* Cover image / placeholder */}
       <div
+        className="ndx-portfolio-project__media"
         style={{
           width: "100%",
-          aspectRatio: isHero ? "16 / 9" : "16 / 9",
-          minHeight: isHero ? 220 : undefined,
-          maxHeight: isHero ? 420 : undefined,
+          aspectRatio: "16 / 9",
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
@@ -203,11 +202,13 @@ function ProjectCard({
 
       {/* Body */}
       <div
+        className="ndx-portfolio-project__body"
         style={{
           padding: isHero ? "1.15rem 1.35rem 1.4rem" : "0.85rem 1.1rem 1.2rem",
           flex: 1,
           display: "flex",
           flexDirection: "column",
+          minWidth: 0,
         }}
       >
 

@@ -7401,6 +7401,34 @@ html[data-theme="light"] .ndx-home-reviews__rating {
   font-family: "Newsreader", Georgia, serif;
 }
 
+/* Portfolio featured (Soroz): desktop = image left / copy right; mobile stays stacked */
+@media (min-width: 900px) {
+  .ndx-portfolio-project--hero {
+    flex-direction: row !important;
+    align-items: stretch;
+  }
+
+  .ndx-portfolio-project--hero .ndx-portfolio-project__media {
+    width: 48% !important;
+    max-width: 520px;
+    min-height: 280px;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    align-self: stretch;
+  }
+
+  .ndx-portfolio-project--hero .ndx-portfolio-project__media img {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .ndx-portfolio-project--hero .ndx-portfolio-project__body {
+    width: 52%;
+    justify-content: center;
+    padding: 1.5rem 1.75rem 1.6rem !important;
+  }
+}
+
 /* —— Mobile polish: home / portfolio / project —— */
 @media (max-width: 720px) {
   .ndx-home > .ndx-section.ndx-home-flow,

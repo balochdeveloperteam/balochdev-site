@@ -1,17 +1,16 @@
 /**
  * On-demand SSR for /blog/:slug — Cloudflare Pages Function.
  *
- * Runs ONLY when no static prerendered HTML exists at dist/blog/<slug>/index.html
- * (Pages serves static assets first; Functions handle misses). For posts that
- * existed at the last build the function never fires — the prerendered file is
- * served directly. For freshly published posts, this returns full SSR HTML so
- * crawlers see the article body, canonical, OG/Twitter, Article + Breadcrumb
- * JSON-LD, and #balochdev-blog-bootstrap — and the SPA hydrates on top without
- * a network round-trip.
+ * Runs when no static prerendered HTML exists at dist/blog/<slug>/index.html
+ * (Pages serves static assets first; Functions handle misses). Freshly published
+ * posts get full SSR HTML: article body, canonical, OG/Twitter, Article +
+ * Breadcrumb JSON-LD, and #balochdev-blog-bootstrap for SPA hydration.
  *
- * Env required on Cloudflare Pages for full SSR: SUPABASE_URL + SUPABASE_ANON_KEY
- * (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY also accepted). If missing, the
- * function serves the SPA index.html so refresh still works client-side.
+ * Shell: always use dist/spa-shell.html (bare Vite empty #root + hashed assets),
+ * NEVER the prerendered homepage dist/index.html.
+ *
+ * Env: SUPABASE_URL + SUPABASE_ANON_KEY (or VITE_* equivalents). If missing,
+ * serves spa-shell so client-side fetch still works.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -121,25 +120,76 @@ function notFoundHtml(slug) {
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Post not found — BalochDev</title><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="${SITE_URL}/blog"></head><body><h1>Post not found</h1><p>The post <code>${escapeHtml(slug)}</code> doesn't exist or hasn't been published.</p><p><a href="/blog">All posts</a></p></body></html>`;
 }
 
+/** Prefer bare Vite shell; never use prerendered homepage index.html as the template. */
+async function fetchSpaShell(env, request) {
+  const candidates = ['/spa-shell.html', '/spa-shell'];
+  for (const path of candidates) {
+    try {
+      const resp = await env.ASSETS.fetch(new URL(path, request.url));
+      if (resp?.ok) return resp;
+    } catch (e) {
+      console.error('[blog SSR] shell fetch failed', path, e?.message || e);
+    }
+  }
+  return null;
+}
+
+/**
+ * Strip conflicting SEO tags, inject exactly one blog head set, fill #root with
+ * article HTML, and place #balochdev-blog-bootstrap after #root.
+ */
+function transformBlogHtml(shellResponse, { headHtml, articleHtml, bootstrapScript, status, headers }) {
+  const removeEl = {
+    element(element) {
+      element.remove();
+    },
+  };
+
+  return new HTMLRewriter()
+    .on('title', removeEl)
+    .on('link[rel="canonical"]', removeEl)
+    .on('meta[name="description"]', removeEl)
+    .on('meta[name="robots"]', removeEl)
+    .on('meta[property^="og:"]', removeEl)
+    .on('meta[name^="twitter:"]', removeEl)
+    .on('script[type="application/ld+json"]', removeEl)
+    .on('script#balochdev-blog-bootstrap', removeEl)
+    .on('head', {
+      element(element) {
+        element.append(headHtml, { html: true });
+      },
+    })
+    .on('div#root', {
+      element(element) {
+        // Clears any prior children (homepage markup if wrong shell) and injects article.
+        element.setInnerContent(articleHtml, { html: true });
+        element.after(bootstrapScript, { html: true });
+      },
+    })
+    .transform(
+      new Response(shellResponse.body, {
+        status,
+        headers,
+      }),
+    );
+}
+
 export async function onRequestGet({ request, env, params }) {
   const slug = String(params?.slug || '').trim();
 
   async function spaShell(status = 200) {
-    try {
-      const shellResp = await env.ASSETS.fetch(new URL('/index.html', request.url));
-      if (shellResp?.ok) {
-        return new Response(shellResp.body, {
-          status,
-          headers: {
-            'content-type': 'text/html; charset=utf-8',
-            'cache-control': 'no-store',
-            'x-robots-tag': status >= 400 ? 'noindex, nofollow' : 'index, follow',
-          },
-        });
-      }
-    } catch (e) {
-      console.error('[blog SSR] spa shell fetch failed', e?.message || e);
+    const shellResp = await fetchSpaShell(env, request);
+    if (shellResp) {
+      return new Response(shellResp.body, {
+        status,
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-store',
+          'x-robots-tag': status >= 400 ? 'noindex, nofollow' : 'index, follow',
+        },
+      });
     }
+    console.error('[blog SSR] spa-shell.html missing from ASSETS');
     return new Response('Service unavailable', {
       status: 503,
       headers: { 'cache-control': 'no-store' },
@@ -203,32 +253,20 @@ export async function onRequestGet({ request, env, params }) {
     related_posts: [],
   };
 
-  let shellResp;
-  try {
-    shellResp = await env.ASSETS.fetch(new URL('/index.html', request.url));
-  } catch (e) {
-    console.error('[blog SSR] ASSETS.fetch threw', e?.message || e);
+  const shellResp = await fetchSpaShell(env, request);
+  if (!shellResp) {
+    console.error('[blog SSR] spa-shell.html not fetched');
     return spaShell(200);
   }
-  if (!shellResp || !shellResp.ok) {
-    console.error('[blog SSR] index.html shell not fetched', shellResp?.status);
-    return spaShell(200);
-  }
-
-  let shell = await shellResp.text();
 
   const headHtml = buildBlogHeadHtml(post);
-  shell = shell.replace('</head>', `${headHtml}\n</head>`);
-
   const articleHtml = buildArticleBodyHtml(post);
   const bootstrapScript = buildBootstrapScript(post);
-  // index.html ships <div id="root"></div>; replace empty root with SSR content.
-  shell = shell.replace(
-    /<div id="root">\s*<\/div>/,
-    `<div id="root">${articleHtml}</div>\n    ${bootstrapScript}`,
-  );
 
-  return new Response(shell, {
+  return transformBlogHtml(shellResp, {
+    headHtml,
+    articleHtml,
+    bootstrapScript,
     status: 200,
     headers: {
       'content-type': 'text/html; charset=utf-8',

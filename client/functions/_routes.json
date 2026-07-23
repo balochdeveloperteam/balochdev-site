@@ -11,6 +11,8 @@
     "/team/*",
     "/api/*",
     "/assets/*",
+    "/spa-shell",
+    "/spa-shell.html",
     "/favicon.svg",
     "/og/*",
     "/brand/*",

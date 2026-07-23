@@ -545,23 +545,33 @@ function withNoindexRobotsMeta(html) {
   return html.replace(/<head(\s[^>]*)?>/i, '<head$1>\n    <meta name="robots" content="noindex" />');
 }
 
-/** Bare Vite shell (post-build index.html before homepage snapshot overwrites dist/index.html). */
+/**
+ * Bare Vite shell (post-build index.html before homepage snapshot overwrites dist/index.html).
+ * Kept WITHOUT noindex — blog Pages Function SSR uses this as the empty-#root template.
+ * Private routes (/login, /admin, /team) get noindex applied in writePrivateSpaShellIndexes.
+ */
 async function ensureSpaShellHtml() {
   const indexPath = path.join(DIST, 'index.html');
   const shellPath = path.join(DIST, 'spa-shell.html');
-  const shell = withNoindexRobotsMeta(await fs.readFile(indexPath, 'utf8'));
+  const shell = await fs.readFile(indexPath, 'utf8');
+  if (!/<div\s+id=["']root["']\s*>\s*<\/div>/i.test(shell)) {
+    console.warn(
+      '[prerender] spa-shell source index.html #root is not empty — blog SSR expects an empty root',
+    );
+  }
   await fs.writeFile(shellPath, shell, 'utf8');
-  console.info('[prerender] wrote spa-shell.html (bare private-route shell template)');
+  console.info('[prerender] wrote spa-shell.html (bare empty-#root shell for blog SSR + private routes)');
   return shell;
 }
 
 /** Static dist/<path>/index.html shells — Cloudflare serves these without .html rewrite 308s. */
 async function writePrivateSpaShellIndexes(shellHtml) {
   const pathnames = collectPrivateSpaShellPathnames();
+  const privateHtml = withNoindexRobotsMeta(shellHtml);
   for (const pathname of pathnames) {
     const outFile = diskPathForPathname(pathname);
     await fs.mkdir(path.dirname(outFile), { recursive: true });
-    await fs.writeFile(outFile, shellHtml, 'utf8');
+    await fs.writeFile(outFile, privateHtml, 'utf8');
   }
   console.info(
     `[prerender] wrote ${pathnames.length} private SPA shell(s): ${pathnames.join(', ')}`,
