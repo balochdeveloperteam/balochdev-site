@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import { motion, useReducedMotion } from "framer-motion";
 import type { IconType } from "react-icons";
 import {
@@ -760,9 +761,7 @@ export default function TechnologiesPage() {
             </p>
           </div>
           <div className="ndx-hero-btns" style={{ position: "relative", zIndex: 1 }}>
-            <Link to="/contact" className="ndx-btn ndx-btn-primary">
-              Book a call →
-            </Link>
+            <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
             <Link to="/services" className="ndx-btn">
               View services
             </Link>

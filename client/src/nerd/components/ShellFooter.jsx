@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
 import SocialLinksRow from './SocialLinksRow';
+import { useBookCall } from './bookCall/BookCallContext';
 
 const cols = [
   {
@@ -41,7 +42,7 @@ const cols = [
   {
     title: 'Contact',
     links: [
-      { to: '/contact', label: 'Book a call' },
+      { bookCall: true, label: 'Book a call' },
       { to: '/estimate', label: 'AI estimate' },
       { to: 'mailto:team@balochdev.com', label: 'team@balochdev.com', external: true },
       { to: 'mailto:support@balochdev.com', label: 'support@balochdev.com', external: true },
@@ -49,7 +50,15 @@ const cols = [
   },
 ];
 
-function ColLink({ to, label, external }) {
+function ColLink({ to, label, external, bookCall }) {
+  const { openBookCall } = useBookCall();
+  if (bookCall) {
+    return (
+      <button type="button" className="ndx-footer-book" onClick={openBookCall}>
+        {label}
+      </button>
+    );
+  }
   if (external) {
     return (
       <a href={to} rel="noopener noreferrer" target="_blank">
@@ -83,7 +92,7 @@ export default function ShellFooter() {
           <div key={col.title}>
             <h4>{col.title}</h4>
             {col.links.map((l) => (
-              <ColLink key={l.label + l.to} {...l} />
+              <ColLink key={l.label + (l.to || (l.bookCall ? 'book' : ''))} {...l} />
             ))}
           </div>
         ))}

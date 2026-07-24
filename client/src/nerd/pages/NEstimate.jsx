@@ -5,6 +5,7 @@ import { capDescription, metaTitleFromPublicBrief } from '../seo/seoFromData';
 import EstimateHero from '../components/EstimateHero';
 import EstimateReport from '../components/EstimateReport';
 import EstimateChat from '../components/estimate/EstimateChat';
+import EstimatePublicNotice from '../components/estimate/EstimatePublicNotice';
 import { apiUrl } from '../../lib/api';
 import { getVisitorKey } from '../lib/visitorKey';
 import {
@@ -89,9 +90,10 @@ export default function NEstimate() {
   return (
     <>
       <Seo title={seoTitle} description={seoDescription} canonicalPath={ESTIMATE_SEO.canonicalPath} />
+      <EstimatePublicNotice />
       <EstimateHero />
-      <section className="ndx-section" style={{ paddingTop: '2.5rem' }}>
-        <div className="ndx-container" style={{ maxWidth: '720px' }}>
+      <section className="ndx-section ndx-estimate-page" style={{ paddingTop: '2.5rem' }}>
+        <div className="ndx-container ndx-estimate-page__inner">
           {err ? (
             <p role="alert" className="ndx-estimate-chat__error">
               {err}

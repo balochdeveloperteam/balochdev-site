@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import { motion, useReducedMotion } from "framer-motion";
 import Seo from "../seo/Seo";
 import { aboutPageJsonLd } from "../seo/siteSeo";
@@ -603,9 +604,7 @@ export default function AboutPage() {
               <h2 className="ndx-about-cta-card__title">
                 Ready to ship something that ends with code in production?
               </h2>
-              <Link to="/contact" className="ndx-about-cta-card__btn ndx-about-cta-card__btn--solid">
-                Book a call →
-              </Link>
+              <BookCallButton className="ndx-about-cta-card__btn ndx-about-cta-card__btn--solid">Book a call →</BookCallButton>
             </motion.article>
 
             <motion.article

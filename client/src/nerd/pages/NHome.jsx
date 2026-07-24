@@ -6,6 +6,7 @@ import ClientStories from '../components/home/ClientStories';
 import PartnerBrandsGrid from '../components/PartnerBrandsGrid';
 import AiEstimatePromo from '../components/AiEstimatePromo';
 import SocialLinksRow from '../components/SocialLinksRow';
+import BookCallButton from '../components/bookCall/BookCallButton';
 import FaqAccordion, { faqPageJsonLd } from '../components/FaqAccordion';
 import Seo from '../seo/Seo';
 import { organizationJsonLd } from '../seo/siteSeo';
@@ -338,9 +339,7 @@ export default function NHome() {
             <Link to="/estimate" className="ndx-btn ndx-btn-primary ndx-home-hero__btn">
               AI estimate
             </Link>
-            <Link to="/contact" className="ndx-btn ndx-home-hero__btn">
-              Book a call
-            </Link>
+            <BookCallButton className="ndx-btn ndx-home-hero__btn">Book a call</BookCallButton>
             <Link to="/portfolio" className="ndx-btn ndx-home-hero__btn ndx-home-hero__btn--ghost">
               View work
             </Link>

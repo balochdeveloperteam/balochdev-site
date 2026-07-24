@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import Seo from "../seo/Seo";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import FaqAccordion, { faqPageJsonLd } from "../components/FaqAccordion";
 import { STATIC_PUBLIC_PAGES_SEO } from "../seo/staticPublicPagesSeo.js";
 import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
@@ -70,9 +71,7 @@ export default function FaqPage() {
               <Link to="/estimate" className="ndx-btn ndx-btn-primary">
                 Get AI estimate
               </Link>
-              <Link to="/contact" className="ndx-btn">
-                Get in touch
-              </Link>
+              <BookCallButton className="ndx-btn">Book a call</BookCallButton>
               <Link to="/about" className="ndx-btn">
                 About us
               </Link>
@@ -137,9 +136,7 @@ export default function FaqPage() {
               <Link to="/estimate" className="ndx-btn ndx-btn-primary">
                 Get AI estimate
               </Link>
-              <Link to="/contact" className="ndx-btn">
-                Get in touch
-              </Link>
+              <BookCallButton className="ndx-btn">Book a call</BookCallButton>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiUser } from 'react-icons/hi2';
+import { HiPaperAirplane, HiPaperClip, HiUser, HiXMark } from 'react-icons/hi2';
 import { apiUrl } from '../../../lib/api';
 import { getVisitorKey } from '../../lib/visitorKey';
 import {
@@ -14,7 +14,87 @@ import {
   utcDayKey,
 } from '../../lib/estimateSession';
 import { isSkip, validateEstimateField } from '../../lib/estimateValidation';
+import { useBookCall } from '../bookCall/BookCallContext';
 import botLogo from '../../../assets/BalochDevLogo/botlogo.webp';
+
+const MAX_ATTACHMENTS = 3;
+const MAX_FILE_BYTES = 120_000;
+const MAX_FILE_CONTEXT_CHARS = 7500;
+const TEXT_FILE_RE = /\.(txt|md|markdown|csv|json|html?|css|jsx?|tsx?|mjs|cjs|xml|ya?ml|log|sql|tsv)$/i;
+
+function looksLikeText(sample) {
+  if (!sample) return false;
+  let bad = 0;
+  const n = Math.min(sample.length, 800);
+  for (let i = 0; i < n; i += 1) {
+    const code = sample.charCodeAt(i);
+    if (code === 0) return false;
+    if (code < 9 || (code > 13 && code < 32)) bad += 1;
+  }
+  return bad / n < 0.08;
+}
+
+async function readAttachment(file) {
+  const name = String(file?.name || 'file').slice(0, 120);
+  const size = Number(file?.size) || 0;
+  const type = String(file?.type || 'application/octet-stream');
+  if (size > MAX_FILE_BYTES) {
+    return {
+      id: `${name}-${size}-${Date.now()}`,
+      name,
+      size,
+      type,
+      excerpt: `[File too large for chat context — max ${Math.round(MAX_FILE_BYTES / 1000)}KB text. Filename noted only.]`,
+    };
+  }
+
+  const preferText =
+    TEXT_FILE_RE.test(name) ||
+    type.startsWith('text/') ||
+    type === 'application/json' ||
+    type === 'application/xml' ||
+    type === 'application/javascript';
+
+  try {
+    const text = await file.text();
+    const cleaned = text.replace(/\u0000/g, '');
+    if (preferText || looksLikeText(cleaned)) {
+      const excerpt = cleaned.slice(0, 4000).trim();
+      return {
+        id: `${name}-${size}-${Date.now()}`,
+        name,
+        size,
+        type,
+        excerpt: excerpt || `[Empty file: ${name}]`,
+      };
+    }
+  } catch {
+    // fall through to binary note
+  }
+
+  return {
+    id: `${name}-${size}-${Date.now()}`,
+    name,
+    size,
+    type,
+    excerpt: `[Binary/unsupported for inline read — AI will use filename + type as reference only.]`,
+  };
+}
+
+function buildFileContext(attachments) {
+  if (!attachments?.length) return '';
+  let out = '';
+  for (let i = 0; i < attachments.length; i += 1) {
+    const a = attachments[i];
+    const block = `--- FILE ${i + 1}: ${a.name} (${a.type || 'unknown'}, ${a.size || 0} bytes) ---\n${a.excerpt || ''}\n`;
+    if (out.length + block.length > MAX_FILE_CONTEXT_CHARS) {
+      out += `\n[Additional file truncated: ${a.name}]\n`;
+      break;
+    }
+    out += block;
+  }
+  return out.trim();
+}
 
 const STEPS = [
   {
@@ -49,15 +129,15 @@ const STEPS = [
   },
   {
     id: 'budget',
-    bot: 'Any budget band in mind? Optional — helps us pick the right package size.',
-    placeholder: 'e.g. $5k–$15k (optional)',
+    bot: 'Any budget band in mind? Optional — helps us match our catalog (entry work from about $300).',
+    placeholder: 'e.g. $300–$2k or $5k–$15k (optional)',
     required: false,
     inputType: 'text',
     optional: true,
   },
   {
     id: 'brief',
-    bot: 'Last step: describe the product in a few sentences — users, must-haves, stack prefs, success metrics.',
+    bot: 'Last step: describe the product — users, must-haves, stack prefs. You can also attach notes/files (txt, md, json, csv…) for this chat only — we do not store uploads in our database.',
     placeholder: 'What are you building?',
     required: true,
     inputType: 'textarea',
@@ -172,10 +252,16 @@ export default function EstimateChat({
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(() => restored?.done ?? false);
   const [projects, setProjects] = useState(() => listEstimateProjects());
+  const [attachments, setAttachments] = useState([]);
+  const [attachBusy, setAttachBusy] = useState(false);
   const listRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const { openBookCall } = useBookCall();
 
   const step = STEPS[stepIndex];
+  // Allow attaching anytime during an open chat (used when the brief is submitted).
+  const canAttachFiles = !done;
   const dailyLimit = typeof limit === 'number' && limit > 0 ? limit : 3;
   const remainingCount = typeof remaining === 'number' ? remaining : null;
   const usedCount =
@@ -228,6 +314,7 @@ export default function EstimateChat({
     if (!id || id === projectId || loading) return;
     // Persist current chat before leaving
     saveEstimateSession({ stepIndex, answers, messages, draft, done });
+    setAttachments([]);
     setActiveEstimateProject(id);
     const next = getActiveEstimateProject();
     onReport?.(next?.report || null);
@@ -239,11 +326,36 @@ export default function EstimateChat({
   const startNewProject = () => {
     if (loading) return;
     saveEstimateSession({ stepIndex, answers, messages, draft, done });
+    setAttachments([]);
     const next = createEstimateProject();
     onReport?.(null);
     onError?.(null);
     onProjectChange?.(next.id);
     refreshProjects();
+  };
+
+  const onPickFiles = async (e) => {
+    const list = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!list.length || !canAttachFiles) return;
+    setAttachBusy(true);
+    try {
+      const room = Math.max(0, MAX_ATTACHMENTS - attachments.length);
+      const next = [];
+      for (const file of list.slice(0, room)) {
+        // eslint-disable-next-line no-await-in-loop -- sequential FileReader-friendly
+        next.push(await readAttachment(file));
+      }
+      if (next.length) setAttachments((prev) => [...prev, ...next].slice(0, MAX_ATTACHMENTS));
+    } catch {
+      onError?.('Could not read one of the files. Try a smaller text file.');
+    } finally {
+      setAttachBusy(false);
+    }
+  };
+
+  const removeAttachment = (id) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
   };
 
   const clearAllChats = () => {
@@ -252,6 +364,7 @@ export default function EstimateChat({
       'Clear all saved estimate chats on this device?\n\nYour daily limit is unchanged — used slots stay used until tomorrow (UTC).',
     );
     if (!ok) return;
+    setAttachments([]);
     const next = resetEstimateChats();
     onReport?.(null);
     onError?.(null);
@@ -287,6 +400,7 @@ export default function EstimateChat({
     setLoading(true);
     onError?.(null);
     try {
+      const fileContext = buildFileContext(attachments);
       const res = await fetch(apiUrl('/api/estimate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -297,6 +411,7 @@ export default function EstimateChat({
           budget: finalAnswers.budget || undefined,
           projectType: finalAnswers.projectType || undefined,
           brief: finalAnswers.brief,
+          ...(fileContext ? { fileContext } : {}),
           visitor_key: getVisitorKey(),
         }),
       });
@@ -313,13 +428,17 @@ export default function EstimateChat({
       const high = formatUsd(report?.totals?.high);
       const title = report?.meta?.projectTitle || 'your project';
       const left = typeof data.remaining === 'number' ? data.remaining : remainingCount;
+      const fileNote = attachments.length
+        ? ` I used your attached file${attachments.length > 1 ? 's' : ''} as chat context (not saved to our database).`
+        : '';
       append({
         role: 'bot',
-        text: `Here’s a catalog-based ballpark for ${title}: ${low}–${high} USD. Full breakdown is below — this isn’t a formal quote.${
+        text: `Here’s a catalog-based ballpark for ${title}: ${low}–${high} USD. Full breakdown is below — this isn’t a formal quote.${fileNote}${
           typeof left === 'number' ? ` You have ${left} of ${dailyLimit} free estimates left today.` : ''
         }`,
       });
       setDone(true);
+      setAttachments([]);
       saveEstimateSession({ report, done: true });
       onReport?.(report);
       refreshProjects();
@@ -347,7 +466,10 @@ export default function EstimateChat({
     }
 
     const stored = validation.value;
-    const display = validation.skipped || (step.optional && isSkip(raw)) ? 'Skip' : stored;
+    let display = validation.skipped || (step.optional && isSkip(raw)) ? 'Skip' : stored;
+    if (step.id === 'brief' && attachments.length) {
+      display = `${display}\n\n📎 Attached for this chat: ${attachments.map((a) => a.name).join(', ')}`;
+    }
     const nextAnswers = { ...answers, [step.id]: stored };
     setAnswers(nextAnswers);
     append({ role: 'user', text: display });
@@ -470,30 +592,90 @@ export default function EstimateChat({
 
         {!done ? (
           <form className="ndx-estimate-chat__composer" onSubmit={onFormSubmit}>
-            {step?.inputType === 'textarea' ? (
-              <textarea
-                ref={inputRef}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={step.placeholder}
-                rows={3}
-                disabled={loading}
-                aria-label={step.placeholder}
-              />
-            ) : (
-              <input
-                ref={inputRef}
-                type={step?.inputType || 'text'}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={step?.placeholder}
-                disabled={loading}
-                aria-label={step?.placeholder}
-              />
-            )}
-            <button type="submit" className="ndx-btn ndx-btn-primary ndx-estimate-chat__send" disabled={loading}>
-              Send
-            </button>
+            {canAttachFiles && attachments.length > 0 ? (
+              <ul className="ndx-estimate-chat__files" aria-label="Attached files for this chat">
+                {attachments.map((a) => (
+                  <li key={a.id} className="ndx-estimate-chat__file">
+                    <span className="ndx-estimate-chat__file-name" title={a.name}>
+                      {a.name}
+                    </span>
+                    <button
+                      type="button"
+                      className="ndx-estimate-chat__file-remove"
+                      onClick={() => removeAttachment(a.id)}
+                      aria-label={`Remove ${a.name}`}
+                      disabled={loading || attachBusy}
+                    >
+                      <HiXMark size={14} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <div className="ndx-estimate-chat__composer-row">
+              {canAttachFiles ? (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="ndx-estimate-chat__file-input"
+                    accept=".txt,.md,.markdown,.csv,.json,.html,.htm,.css,.js,.jsx,.ts,.tsx,.mjs,.cjs,.xml,.yml,.yaml,.log,.sql,.tsv,text/*,application/json"
+                    multiple
+                    onChange={onPickFiles}
+                    disabled={loading || attachBusy || attachments.length >= MAX_ATTACHMENTS}
+                  />
+                  <button
+                    type="button"
+                    className="ndx-estimate-chat__attach"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={loading || attachBusy || attachments.length >= MAX_ATTACHMENTS}
+                    title="Attach notes for this chat only (not saved to our database)"
+                    aria-label="Attach file"
+                  >
+                    <HiPaperClip size={18} aria-hidden />
+                    <span className="ndx-estimate-chat__attach-label">Attach</span>
+                  </button>
+                </>
+              ) : null}
+              {step?.inputType === 'textarea' ? (
+                <textarea
+                  ref={inputRef}
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={step.placeholder}
+                  rows={4}
+                  disabled={loading}
+                  aria-label={step.placeholder}
+                />
+              ) : (
+                <input
+                  ref={inputRef}
+                  type={step?.inputType || 'text'}
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={step?.placeholder}
+                  disabled={loading}
+                  aria-label={step?.placeholder}
+                />
+              )}
+              <button
+                type="submit"
+                className="ndx-btn ndx-btn-primary ndx-estimate-chat__send"
+                disabled={loading || attachBusy}
+                aria-label="Send"
+                title="Send"
+              >
+                <HiPaperAirplane size={18} aria-hidden className="ndx-estimate-chat__send-icon" />
+                <span className="ndx-estimate-chat__send-label">Send</span>
+              </button>
+            </div>
+            {canAttachFiles ? (
+              <p className="ndx-estimate-chat__attach-hint">
+                {step?.id === 'brief'
+                  ? 'Optional: attach notes (txt, md, json, csv…). Chat-only — not saved to our database.'
+                  : 'You can attach files anytime; they are sent with your final brief (not saved to our database).'}
+              </p>
+            ) : null}
           </form>
         ) : (
           <div className="ndx-estimate-chat__done-bar">
@@ -508,6 +690,14 @@ export default function EstimateChat({
             </p>
           </div>
         )}
+
+        <p className="ndx-estimate-chat__private-hint">
+          Prefer a private walkthrough?{' '}
+          <button type="button" className="ndx-estimate-chat__private-link" onClick={() => openBookCall()}>
+            Book a private call
+          </button>{' '}
+          — estimates here are public and not under NDA.
+        </p>
       </div>
 
       <p className="ndx-estimate-chat__meta">

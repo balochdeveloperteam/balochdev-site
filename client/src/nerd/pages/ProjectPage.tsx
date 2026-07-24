@@ -6,6 +6,7 @@ import { initialsFromName, reviewsForProject } from "../data/projectReviews";
 import Seo from "../seo/Seo";
 import { SITE_URL } from "../seo/siteSeo";
 import { capDescription, capTitle } from "../seo/seoFromData";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import ImageLightbox from "../components/ImageLightbox";
 
 /* ─── Image carousel ─────────────────────────────────────────────────────── */
@@ -352,7 +353,7 @@ export default function ProjectPage() {
               {project.liveUrl ? (
                 <Link to="/proposal" className="ndx-btn">Build something similar →</Link>
               ) : null}
-              <Link to="/contact" className="ndx-btn">Get in touch</Link>
+              <BookCallButton className="ndx-btn">Book a call</BookCallButton>
             </motion.div>
           </div>
 

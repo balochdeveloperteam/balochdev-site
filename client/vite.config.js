@@ -7,8 +7,9 @@ export default defineConfig({
   plugins: [tailwindcss(), react()],
   server: {
     proxy: {
+      // Local Worker: `cd worker && npm run dev` (wrangler default :8787)
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:8787',
         changeOrigin: true,
       },
     },

@@ -119,6 +119,33 @@ function slugifyFilename(title) {
     .slice(0, 60);
 }
 
+async function assetToDataUrl(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load asset (${res.status})`);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Failed to encode asset'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function waitForImages(root) {
+  const imgs = Array.from(root.querySelectorAll('img'));
+  return Promise.all(
+    imgs.map(
+      (img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise((resolve) => {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }),
+    ),
+  );
+}
+
 function formatDocDate(iso) {
   if (!iso) return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   try {
@@ -152,26 +179,63 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
         import('jspdf'),
       ]);
 
+      let logoDataUrl = '';
+      try {
+        logoDataUrl = await assetToDataUrl(botLogo);
+      } catch {
+        logoDataUrl = '';
+      }
+
       wrapper = document.createElement('div');
       wrapper.setAttribute('aria-hidden', 'true');
       wrapper.style.cssText =
-        'position:fixed;left:-9999px;top:0;width:800px;background:#ffffff;padding:32px;z-index:-1;';
+        'position:fixed;left:-10000px;top:0;width:800px;background:#ffffff;padding:32px;z-index:-1;color:#0b1340;';
       const clone = node.cloneNode(true);
       clone.classList.add('ndx-estimate-report--pdf');
       clone.style.background = '#ffffff';
       clone.style.color = '#0b1340';
+      clone.querySelectorAll('.ndx-estimate-report__actions').forEach((el) => {
+        el.style.display = 'none';
+      });
+      clone.querySelectorAll('a.ndx-btn').forEach((el) => {
+        el.style.display = 'none';
+      });
+      if (logoDataUrl) {
+        clone.querySelectorAll('img').forEach((img) => {
+          img.setAttribute('src', logoDataUrl);
+          img.removeAttribute('srcset');
+          img.crossOrigin = 'anonymous';
+        });
+      } else {
+        clone.querySelectorAll('img').forEach((img) => {
+          img.remove();
+        });
+      }
+      // Force solid printable colors (html2canvas struggles with color-mix / theme vars).
+      clone.querySelectorAll('*').forEach((nodeEl) => {
+        if (!(nodeEl instanceof HTMLElement)) return;
+        nodeEl.style.backgroundImage = 'none';
+        nodeEl.style.boxShadow = 'none';
+        nodeEl.style.backdropFilter = 'none';
+        nodeEl.style.webkitBackdropFilter = 'none';
+        nodeEl.style.filter = 'none';
+        nodeEl.style.textShadow = 'none';
+      });
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
+      await waitForImages(wrapper);
 
       const canvas = await html2canvas(wrapper, {
-        scale: 2,
+        scale: Math.min(2, window.devicePixelRatio || 1.5),
         backgroundColor: '#ffffff',
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
         foreignObjectRendering: false,
+        imageTimeout: 15000,
         onclone: (_doc, el) => {
-          // Flatten modern CSS (color-mix / vars) that html2canvas cannot paint.
+          el.style.background = '#ffffff';
+          el.style.color = '#0b1340';
           el.querySelectorAll('*').forEach((nodeEl) => {
             if (!(nodeEl instanceof HTMLElement)) return;
             const cs = window.getComputedStyle(nodeEl);
@@ -180,19 +244,24 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
             nodeEl.style.backdropFilter = 'none';
             nodeEl.style.webkitBackdropFilter = 'none';
             nodeEl.style.filter = 'none';
-            // Prefer already-resolved computed colors over theme tokens
             if (cs.color) nodeEl.style.color = cs.color;
             if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') {
               nodeEl.style.backgroundColor = cs.backgroundColor;
             }
             if (cs.borderColor) nodeEl.style.borderColor = cs.borderColor;
           });
-          el.style.background = '#ffffff';
-          el.style.color = '#0b1340';
         },
       });
 
+      if (!canvas.width || !canvas.height) {
+        throw new Error('Empty canvas from html2canvas');
+      }
+
       const img = canvas.toDataURL('image/png');
+      if (!img || img === 'data:,') {
+        throw new Error('Canvas export failed (likely tainted image)');
+      }
+
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
@@ -215,7 +284,9 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
       pdf.save(`BalochDev-Estimate-${slugifyFilename(data.projectTitle)}.pdf`);
     } catch (err) {
       console.error('[estimate PDF]', err);
-      window.alert('Could not generate the PDF. Please try again.');
+      window.alert(
+        `Could not generate the PDF${err?.message ? ` (${err.message})` : ''}. Try again, or use the browser print dialog.`,
+      );
     } finally {
       if (wrapper?.parentNode) wrapper.parentNode.removeChild(wrapper);
       onDownloadEnd?.();

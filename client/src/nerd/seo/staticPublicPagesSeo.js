@@ -41,9 +41,9 @@ export const STATIC_PUBLIC_PAGES_SEO = {
   },
   '/contact': {
     canonicalPath: '/contact',
-    metaTitle: 'Contact BalochDev \u2014 Start a Project',
+    metaTitle: 'Contact BalochDev \u2014 Book a Call or Write the Team',
     metaDescription:
-      'Talk to BalochDev about your web, mobile, AI or RAG project. Clear communication, scoped delivery, and timezone coverage for international clients.',
+      'Tell BalochDev what is on your roadmap. Book a 30-minute call or email team@balochdev.com — founder and senior engineers on the first conversation.',
   },
   '/estimate': {
     canonicalPath: '/estimate',

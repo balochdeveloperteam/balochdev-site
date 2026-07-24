@@ -71,19 +71,21 @@ estimate.get(
     message: { error: 'Too many requests. Please try again later.' },
   }),
   async (c) => {
+    const limit = dailyLimit(c.env);
     const admin = getAdmin(c);
-    if (!admin) return c.json({ error: 'Database not configured' }, 503);
+    // Soft-fail for UI polling: never break the chat page if DB/local secrets are missing.
+    if (!admin) return c.json(quotaPayload(limit, 0));
 
     const visitorKey = String(c.req.query('visitor_key') || '').trim();
     const validVisitorKey = isValidVisitorKey(visitorKey) ? visitorKey : null;
     const ipHash = await hashClientIp(c);
-    const limit = dailyLimit(c.env);
 
     try {
       const used = await countTodayOkGenerations(admin, ipHash, validVisitorKey);
       return c.json(quotaPayload(limit, used));
     } catch (err) {
-      return safeError(c, 500, err.message);
+      console.error('[estimate quota]', err?.message || err);
+      return c.json(quotaPayload(limit, 0));
     }
   },
 );
@@ -113,9 +115,15 @@ estimate.post(
       brief: briefField,
       message,
       visitor_key,
+      fileContext,
+      file_context,
     } = body;
 
     const brief = String(briefField ?? message ?? '').trim();
+    // Ephemeral chat attachments — used for the model only; never persisted as files.
+    const fileNotes = String(fileContext ?? file_context ?? '')
+      .trim()
+      .slice(0, 8000);
 
     if (!isValidEmail(email)) {
       return c.json({ error: 'A valid email is required.' }, 400);
@@ -167,6 +175,7 @@ estimate.post(
           timeline: leadSnapshot.timeline,
           projectType: projectType || project_type || null,
           brief: leadSnapshot.brief,
+          fileContext: fileNotes || null,
         }));
       } catch (err) {
         if (err?.message === 'AI_UNAVAILABLE') {

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import type { IconType } from "react-icons";
 import {
   TbApi,
@@ -344,9 +345,7 @@ export default function ServicePracticeLanding() {
             </h2>
           </div>
           <div className="ndx-hero-btns">
-            <Link to="/contact" className="ndx-btn ndx-btn-primary">
-              Book a call →
-            </Link>
+            <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
             <Link to="/estimate" className="ndx-btn">
               Get estimate
             </Link>

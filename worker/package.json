@@ -5,7 +5,8 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --local --port 8787 --ip 127.0.0.1",
+    "sync:dev-vars": "node scripts/sync-dev-vars.mjs",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail"
   },

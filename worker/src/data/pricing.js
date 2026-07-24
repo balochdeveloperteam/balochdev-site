@@ -8,6 +8,15 @@
 
 /** @type {PricingItem[]} */
 export const PRICING_CATALOG = [
+  // Starter / micro (entry from ~$300 — matches public “from $300” messaging)
+  { id: 'starter-landing', label: 'Single landing page (content-ready)', category: 'starter', low: 300, high: 1200, calendarDaysLow: 3, calendarDaysHigh: 10 },
+  { id: 'starter-site-lite', label: 'Lite brochure site (3–5 pages)', category: 'starter', low: 800, high: 2500, calendarDaysLow: 7, calendarDaysHigh: 21 },
+  { id: 'starter-fix-flow', label: 'Lead form + email notify', category: 'starter', low: 300, high: 900, calendarDaysLow: 2, calendarDaysHigh: 7 },
+  { id: 'starter-automation', label: 'Small automation (1–3 steps)', category: 'starter', low: 400, high: 1500, calendarDaysLow: 2, calendarDaysHigh: 10 },
+  { id: 'starter-chatbot-lite', label: 'Lite FAQ chatbot (single channel)', category: 'starter', low: 900, high: 3500, calendarDaysLow: 7, calendarDaysHigh: 21 },
+  { id: 'starter-brand-mini', label: 'Mini brand pack (logo + colors)', category: 'starter', low: 500, high: 1800, calendarDaysLow: 5, calendarDaysHigh: 14 },
+  { id: 'starter-fix', label: 'Quick fix / small change pack', category: 'starter', low: 300, high: 800, calendarDaysLow: 1, calendarDaysHigh: 5 },
+
   // Discovery / planning
   { id: 'discovery-web', label: 'Web planning sprint', category: 'discovery', low: 2500, high: 7000, calendarDaysLow: 7, calendarDaysHigh: 14 },
   { id: 'discovery-ai', label: 'AI discovery & written plan', category: 'discovery', low: 2500, high: 6000, calendarDaysLow: 7, calendarDaysHigh: 14 },
@@ -78,6 +87,30 @@ const BY_ID = new Map(PRICING_CATALOG.map((item) => [item.id, item]));
 
 export function getPricingItem(id) {
   return BY_ID.get(String(id || '')) || null;
+}
+
+/** Resolve catalog ids even if the model returns a close label or casing mismatch. */
+export function resolveCatalogIds(rawIds) {
+  const out = [];
+  const seen = new Set();
+  for (const raw of rawIds || []) {
+    const token = String(raw || '').trim();
+    if (!token) continue;
+
+    let item = BY_ID.get(token) || BY_ID.get(token.toLowerCase());
+    if (!item) {
+      const needle = token.toLowerCase();
+      item =
+        PRICING_CATALOG.find((row) => row.id.toLowerCase() === needle) ||
+        PRICING_CATALOG.find((row) => row.label.toLowerCase() === needle) ||
+        PRICING_CATALOG.find((row) => needle.includes(row.id.toLowerCase()) && row.id.length >= 6) ||
+        null;
+    }
+    if (!item || seen.has(item.id)) continue;
+    seen.add(item.id);
+    out.push(item.id);
+  }
+  return out;
 }
 
 export function catalogForPrompt() {

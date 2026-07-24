@@ -2,6 +2,9 @@ import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'rea
 import ShellHeader from './nerd/components/ShellHeader';
 import ShellFooter from './nerd/components/ShellFooter';
 import VerticalBookCTA from './nerd/components/VerticalBookCTA';
+import { BookCallProvider } from './nerd/components/bookCall/BookCallContext';
+import BookCallModal from './nerd/components/bookCall/BookCallModal';
+import BookCallPrompt from './nerd/components/bookCall/BookCallPrompt';
 import ScrollTopFab from './nerd/components/ScrollTopFab';
 import SmoothScroll from './nerd/components/SmoothScroll';
 import CursorGlow from './nerd/components/CursorGlow';
@@ -122,14 +125,18 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <div className="ndx-app">
-        <SmoothScroll />
-        <CursorGlow />
-        <BootSplash />
-        <AppRoutes />
-        <VerticalBookCTA />
-        <ScrollTopFab />
-      </div>
+      <BookCallProvider>
+        <div className="ndx-app">
+          <SmoothScroll />
+          <CursorGlow />
+          <BootSplash />
+          <AppRoutes />
+          <VerticalBookCTA />
+          <BookCallModal />
+          <BookCallPrompt />
+          <ScrollTopFab />
+        </div>
+      </BookCallProvider>
     </Router>
   );
 }

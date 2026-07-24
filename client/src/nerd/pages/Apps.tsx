@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import { motion, useReducedMotion } from "framer-motion";
 import type { IconType } from "react-icons";
 import { SiAndroid, SiFlutter, SiReact, SiSwift } from "react-icons/si";
@@ -597,9 +598,7 @@ export default function AppsPage() {
             </p>
           </div>
           <div className="ndx-hero-btns">
-            <Link to="/contact" className="ndx-btn ndx-btn-primary">
-              Book a call →
-            </Link>
+            <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
             <Link to="/estimate" className="ndx-btn">
               Get estimate
             </Link>

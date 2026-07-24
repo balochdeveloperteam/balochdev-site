@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useBookCall } from './bookCall/BookCallContext';
 
 const STORAGE_Y = 'balochdev-vcta-y';
 const STORAGE_OPEN = 'balochdev-vcta-open';
@@ -10,6 +10,7 @@ function clamp(n, min, max) {
 
 /** Collapsible vertical “Book a call” rail: drag vertically, persist Y; chevrons expand/collapse. */
 export default function VerticalBookCTA() {
+  const { openBookCall } = useBookCall();
   const [open, setOpen] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_OPEN) !== '0';
@@ -106,9 +107,9 @@ export default function VerticalBookCTA() {
       </div>
 
       {open ? (
-        <Link to="/contact" className="ndx-vcta__link">
+        <button type="button" className="ndx-vcta__link" onClick={openBookCall}>
           Book a 30-minute call
-        </Link>
+        </button>
       ) : null}
 
       <button type="button" className="ndx-vcta__toggle" onClick={onOpenToggle} aria-expanded={open}>

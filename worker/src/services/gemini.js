@@ -1,4 +1,10 @@
-import { catalogForPrompt, recomputeFromIds } from '../data/pricing.js';
+import { catalogForPrompt, recomputeFromIds, resolveCatalogIds } from '../data/pricing.js';
+
+function stripInventedPrices(text) {
+  return String(text || '')
+    .replace(/\$\s?\d[\d,]*(?:\.\d+)?(?:\s*[-–—]\s*\$?\s?\d[\d,]*(?:\.\d+)?)?/g, '[catalog price]')
+    .replace(/\bUSD\s?\d[\d,]*/gi, '[catalog price]');
+}
 
 const NARRATIVE_SCHEMA_HINT = `{
   "selectedIds": [string],
@@ -18,31 +24,42 @@ const NARRATIVE_SCHEMA_HINT = `{
   "nextStep": { "title": string, "detail": string, "ctaLabel": string }
 }`;
 
-function buildPrompt({ name, company, budget, timeline, brief, projectType }) {
+function buildPrompt({ name, company, budget, timeline, brief, projectType, fileContext }) {
   const clientLines = [
     name ? `Client name: ${name}` : null,
     company ? `Company: ${company}` : null,
-    budget ? `Budget range: ${budget}` : null,
+    budget ? `Budget range (IMPORTANT): ${budget}` : null,
     timeline ? `Target timeline: ${timeline}` : null,
     projectType ? `Stated project type: ${projectType}` : null,
   ]
     .filter(Boolean)
     .join('\n');
 
+  const filesBlock = fileContext
+    ? `\nCLIENT FILE NOTES (ephemeral chat context — read carefully and use requirements/features mentioned):\n${fileContext}\n`
+    : '';
+
   return `You are a senior software consultant at BalochDev (balochdev.com).
 
-Select 1–4 package ids from the PRICE CATALOG that best match the brief. Prefer the smallest coherent set (discovery + build when useful). Do NOT invent prices, currency amounts, or catalog ids — only pick from the list.
+PRICING RULES (mandatory):
+1) Select 1–4 package ids from PRICE CATALOG only. Never invent ids or dollar amounts. Totals come only from our catalog bands.
+2) Studio entry work starts around $300 (starter-* packages). Prefer starter / discovery packages when the brief or budget is small.
+3) If a budget is given, choose packages whose combined catalog LOW–HIGH band is compatible with that budget. If budget is below a large build, pick starter/discovery first and say a full build needs a scoping call — do NOT invent custom prices.
+4) Do NOT write USD prices, ranges, or totals in summary, recommendations, or nextStep — the server fills prices from the catalog after you return selectedIds.
+5) Prefer the smallest coherent set (e.g. discovery + build, or a single starter package).
+6) If CLIENT FILE NOTES are present, treat them as part of the brief (features, scope, stack) when picking catalog ids.
 
 Fill narrative fields only. market.macroSeries must be 3–5 items with numeric value on a relative 0–100 scale (complexity / effort share or market signal), each with a short label. recommendations: 3–5 concrete {title, detail} objects. nextStep: one clear follow-up with ctaLabel (e.g. "Book a scoping call").
 
 Return ONLY valid minified JSON — no markdown, no code fences — matching EXACTLY this schema:
 ${NARRATIVE_SCHEMA_HINT}
 
-PRICE CATALOG:
+PRICE CATALOG (authoritative — pick ids only):
 ${catalogForPrompt()}
 
 ${clientLines ? `${clientLines}\n` : ''}Project brief:
-${brief}`;
+${brief}
+${filesBlock}`;
 }
 
 function stripJsonFences(text) {
@@ -117,12 +134,18 @@ function normalizeRecommendations(list) {
 }
 
 function assembleReport(narrative, { name, email, phone, company, budget, timeline }) {
-  const priced = recomputeFromIds(narrative.selectedIds);
+  const resolvedIds = resolveCatalogIds(narrative.selectedIds);
+  const priced = recomputeFromIds(resolvedIds);
   if (!priced) return null;
 
   const platforms = Array.isArray(narrative.meta?.platforms)
     ? narrative.meta.platforms.map((p) => String(p).slice(0, 40)).filter(Boolean).slice(0, 8)
     : [];
+
+  const recommendations = normalizeRecommendations(narrative.recommendations).map((rec) => ({
+    title: stripInventedPrices(rec.title).slice(0, 120),
+    detail: stripInventedPrices(rec.detail).slice(0, 500),
+  }));
 
   return {
     meta: {
@@ -138,7 +161,7 @@ function assembleReport(narrative, { name, email, phone, company, budget, timeli
       selectedIds: priced.lineItems.map((i) => i.id),
       generatedAt: new Date().toISOString(),
     },
-    summary: String(narrative.summary || '').slice(0, 2000),
+    summary: stripInventedPrices(narrative.summary).slice(0, 2000),
     lineItems: priced.lineItems,
     totals: priced.totals,
     timeframe: priced.timeframe,
@@ -148,10 +171,10 @@ function assembleReport(narrative, { name, email, phone, company, budget, timeli
       monetization: String(narrative.market?.monetization || '').slice(0, 400),
       macroSeries: normalizeMacroSeries(narrative.market?.macroSeries),
     },
-    recommendations: normalizeRecommendations(narrative.recommendations),
+    recommendations,
     nextStep: {
-      title: String(narrative.nextStep?.title || 'Book a scoping call').slice(0, 120),
-      detail: String(narrative.nextStep?.detail || '').slice(0, 500),
+      title: stripInventedPrices(narrative.nextStep?.title || 'Book a scoping call').slice(0, 120),
+      detail: stripInventedPrices(narrative.nextStep?.detail || '').slice(0, 500),
       ctaLabel: String(narrative.nextStep?.ctaLabel || 'Contact BalochDev').slice(0, 80),
     },
   };
@@ -201,9 +224,10 @@ async function callGemini(env, model, prompt) {
 
 export async function generateEstimate(
   env,
-  { name, email, phone, company, budget, timeline, brief, projectType },
+  { name, email, phone, company, budget, timeline, brief, projectType, fileContext },
 ) {
   const truncatedBrief = String(brief || '').slice(0, 4000);
+  const truncatedFiles = String(fileContext || '').trim().slice(0, 8000);
   const prompt = buildPrompt({
     name,
     company,
@@ -211,6 +235,7 @@ export async function generateEstimate(
     timeline,
     brief: truncatedBrief,
     projectType,
+    fileContext: truncatedFiles || null,
   });
 
   const primary = env.GEMINI_MODEL || 'gemini-2.5-flash';

@@ -8,6 +8,7 @@ import { capDescription, metaTitleFromPublicBrief } from "../seo/seoFromData";
 import projects, { type Project } from "../data/projects";
 import portfolioVideo from "../../assets/BalochDevLogo/portfolio.mp4";
 import AiEstimatePromo from "../components/AiEstimatePromo";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import ImageLightbox from "../components/ImageLightbox";
 
 function ZoomIcon() {
@@ -671,7 +672,7 @@ export default function PortfolioPage() {
           <div className="ndx-rich-actions" style={{ justifyContent: "center" }}>
             <Link to="/proposal" className="ndx-btn ndx-btn-primary">Send a proposal</Link>
             <Link to="/estimate" className="ndx-btn">AI estimate</Link>
-            <Link to="/contact" className="ndx-btn">Get in touch</Link>
+            <BookCallButton className="ndx-btn">Book a call</BookCallButton>
           </div>
         </div>
 

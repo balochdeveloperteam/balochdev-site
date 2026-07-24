@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
 import ThemeToggle from './ThemeToggle';
 import SocialLinksRow from './SocialLinksRow';
+import BookCallButton from './bookCall/BookCallButton';
 
 const nav = [
   {
@@ -139,9 +140,7 @@ export default function ShellHeader() {
 
           <div className="ndx-header-right">
             <div className="ndx-nav-cta">
-              <NavLink to="/contact" className="ndx-btn">
-                Get in touch
-              </NavLink>
+              <BookCallButton className="ndx-btn">Book a call</BookCallButton>
               <NavLink to="/estimate" className="ndx-btn ndx-btn-primary">
                 AI estimate
               </NavLink>
@@ -214,9 +213,15 @@ export default function ShellHeader() {
         )}
 
         <div className="ndx-mobile-drawer__ctas">
+          <BookCallButton
+            className="ndx-btn ndx-btn-primary ndx-mobile-drawer__cta"
+            onClick={() => setOpen(false)}
+          >
+            Book a call
+          </BookCallButton>
           <NavLink
             to="/estimate"
-            className="ndx-btn ndx-btn-primary ndx-mobile-drawer__cta"
+            className="ndx-btn ndx-mobile-drawer__cta"
             onClick={() => setOpen(false)}
           >
             AI estimate

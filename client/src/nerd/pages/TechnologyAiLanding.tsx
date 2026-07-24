@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
+import BookCallButton from "../components/bookCall/BookCallButton";
 import type { IconType } from "react-icons";
 import RichSectionIntro from "../components/RichSectionIntro";
 import SelectedWorkGrid from "../components/SelectedWorkGrid";
@@ -433,9 +434,7 @@ export default function TechnologyAiLanding() {
             </h2>
           </div>
           <div className="ndx-hero-btns">
-            <Link to="/contact" className="ndx-btn ndx-btn-primary">
-              Book a call →
-            </Link>
+            <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
           </div>
         </div>
 
