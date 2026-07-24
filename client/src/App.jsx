@@ -10,6 +10,7 @@ import SmoothScroll from './nerd/components/SmoothScroll';
 import CursorGlow from './nerd/components/CursorGlow';
 import RouteNProgress from './nerd/components/RouteNProgress';
 import ScrollToTop from './nerd/components/ScrollToTop';
+import GoogleAnalytics from './nerd/components/GoogleAnalytics';
 import BootSplash from './nerd/components/BootSplash';
 import GlobalScrollReveal from './nerd/components/GlobalScrollReveal';
 import NHome from './nerd/pages/NHome';
@@ -61,6 +62,7 @@ function AppRoutes() {
   return (
     <>
       <ScrollToTop />
+      <GoogleAnalytics />
       <RouteNProgress />
       <div className="ndx-app-stack">
         <ShellHeader />

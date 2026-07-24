@@ -8883,7 +8883,10 @@ html[data-theme="dusk"] .ndx-home-record--about .ndx-home-record__kicker {
   z-index: 2147483000;
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: 1.25rem 1.75rem;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .ndx-book-modal__backdrop {
@@ -8901,7 +8904,8 @@ html[data-theme="dusk"] .ndx-home-record--about .ndx-home-record__kicker {
   position: relative;
   z-index: 1;
   width: min(920px, 100%);
-  height: min(860px, calc(100vh - 2rem));
+  height: min(860px, calc(100dvh - 2.5rem));
+  max-height: calc(100dvh - 2.5rem);
   display: flex;
   flex-direction: column;
   border-radius: 16px;
@@ -8909,6 +8913,7 @@ html[data-theme="dusk"] .ndx-home-record--about .ndx-home-record__kicker {
   background: var(--ndx-surface);
   border: 1px solid var(--ndx-border);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  margin-inline: auto;
 }
 
 .ndx-book-modal__head {
@@ -8976,9 +8981,19 @@ html[data-theme="dusk"] .ndx-home-record--about .ndx-home-record__kicker {
 }
 
 .ndx-book-modal__cal {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: #fff;
+  touch-action: pan-y;
+}
+
+.ndx-book-modal__cal iframe,
+.ndx-book-modal__cal > div {
+  width: 100% !important;
+  min-height: 100%;
 }
 
 .ndx-book-prompt {
@@ -9085,9 +9100,36 @@ html[data-theme="dusk"] .ndx-home-record--about .ndx-home-record__kicker {
     width: auto;
   }
 
+  .ndx-book-modal {
+    padding: 0;
+    align-items: stretch;
+    place-items: stretch;
+  }
+
   .ndx-book-modal__panel {
-    height: calc(100vh - 1rem);
-    border-radius: 12px;
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .ndx-book-modal__cal {
+    /* iOS: keep the Cal embed scrollable inside the sheet */
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (min-width: 641px) {
+  .ndx-book-modal {
+    padding: 1.5rem 2.25rem;
+  }
+
+  .ndx-book-modal__panel {
+    width: min(920px, calc(100% - 3rem));
   }
 }
 

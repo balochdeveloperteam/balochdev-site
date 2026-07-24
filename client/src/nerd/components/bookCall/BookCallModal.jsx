@@ -65,7 +65,7 @@ export default function BookCallModal() {
           <Cal
             namespace={CAL_NAMESPACE}
             calLink={CAL_LINK}
-            style={{ width: '100%', height: '100%', overflow: 'scroll' }}
+            style={{ width: '100%', height: '100%', minHeight: '100%', overflow: 'auto' }}
             config={{ layout: 'month_view', useSlotsViewOnSmallScreen: 'true' }}
           />
         </div>
