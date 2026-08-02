@@ -17,6 +17,16 @@ import { TEAM_MEMBERS } from '../data/team.js';
 /** Face stack for the “Why it works” team card (photos only). */
 const WHY_TEAM_FACES = TEAM_MEMBERS.filter((m) => m.image).slice(0, 8);
 
+/** Short alt for team photos — ~name + role, not full bios. */
+function teamPhotoAlt(name, role) {
+  const short = String(role || '')
+    .split(/[&/]/)[0]
+    .replace(/\(.*?\)/g, '')
+    .trim()
+    .toLowerCase();
+  return `${name} — ${short}, BalochDev`;
+}
+
 const HERO_WORDS = ['clarity.', 'speed.', 'craft.', 'trust.', 'impact.'];
 
 const HERO_AVATARS = [
@@ -313,7 +323,7 @@ export default function NHome() {
     <div className="ndx-home">
       <Seo
         title="BalochDev — AI, Web & Mobile Development Studio"
-        description="BalochDev builds AI-native products, web and mobile apps, RAG systems and chatbots for global clients — plus open Balochi language technology. One focused team, production-grade delivery."
+        description="BalochDev builds AI-native products, web and mobile apps, RAG systems and chatbots for global clients — plus open Balochi language technology."
         canonicalPath="/"
         jsonLd={[organizationJsonLd, faqPageJsonLd(HOME_FAQS)]}
       />
@@ -516,7 +526,7 @@ export default function NHome() {
                   {p.cover ? (
                     <img
                       src={p.cover}
-                      alt=""
+                      alt={`${p.title} — ${p.category}`}
                       loading="lazy"
                       decoding="async"
                       style={{ objectPosition: p.focus }}
@@ -575,6 +585,7 @@ export default function NHome() {
           <div className="ndx-home-why__grid">
             <article className="ndx-home-why-card ndx-home-why-card--team">
               <p className="ndx-home-why-card__label">01 · The whole team</p>
+              {/* aria-hidden: adjacent copy covers the team; avoid SR reading 8 names + “14”. Alts still clear Ahrefs. */}
               <div className="ndx-home-why-card__avatars" aria-hidden>
                 {WHY_TEAM_FACES.map((m, i) => (
                   <span
@@ -583,7 +594,12 @@ export default function NHome() {
                     style={{ zIndex: WHY_TEAM_FACES.length - i }}
                     title={m.name}
                   >
-                    <img src={m.image} alt="" loading="lazy" decoding="async" />
+                    <img
+                      src={m.image}
+                      alt={teamPhotoAlt(m.name, m.role)}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </span>
                 ))}
                 <span className="ndx-home-why-card__avatar ndx-home-why-card__avatar--more">14</span>

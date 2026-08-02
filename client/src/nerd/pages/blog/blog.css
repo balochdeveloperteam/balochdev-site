@@ -314,6 +314,13 @@
 
 .ndx-blog-article__main {
   min-width: 0;
+  /* Comfortable reading measure — avoid full-bleed prose next to sidebar */
+  max-width: 40rem;
+}
+
+.ndx-blog-article__header,
+.ndx-blog-article__actions {
+  max-width: 40rem;
 }
 
 .ndx-blog-article__sidebar {
@@ -535,7 +542,7 @@
 }
 
 .ndx-blog-prose--in-main {
-  max-width: none;
+  max-width: 40rem;
   margin: 0;
 }
 

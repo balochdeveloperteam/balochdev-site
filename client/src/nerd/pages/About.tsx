@@ -128,7 +128,15 @@ const stackPillars = [
   },
 ];
 
-function TeamPhoto({ name, image }: { name: string; image: string | null }) {
+function shortTeamRole(role: string) {
+  return role
+    .split(/[&/]/)[0]
+    .replace(/\(.*?\)/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function TeamPhoto({ name, role, image }: { name: string; role: string; image: string | null }) {
   const initials = name
     .split(" ")
     .slice(0, 2)
@@ -139,7 +147,12 @@ function TeamPhoto({ name, image }: { name: string; image: string | null }) {
   if (image) {
     return (
       <div className="ndx-about-team-photo">
-        <img src={image} alt="" loading="lazy" decoding="async" />
+        <img
+          src={image}
+          alt={`${name} — ${shortTeamRole(role)}, BalochDev`}
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     );
   }
@@ -403,7 +416,7 @@ export default function AboutPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduced ? 0 : 0.38, delay: reduced ? 0 : 0.03 * i }}
                 >
-                  <TeamPhoto name={m.name} image={m.image} />
+                  <TeamPhoto name={m.name} role={m.role} image={m.image} />
                   <div className="ndx-about-team-card__body">
                     <h3>{m.name}</h3>
                     <p className="ndx-about-team-card__role">{m.role}</p>

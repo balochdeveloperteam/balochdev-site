@@ -36,7 +36,7 @@ export default function SelectedWorkGrid({
             {item.cover ? (
               <img
                 src={item.cover}
-                alt=""
+                alt={`${item.title} — ${item.tag}`}
                 loading="lazy"
                 style={{
                   width: "100%",

@@ -14,9 +14,9 @@ export const BLOG_CATEGORIES = [
   'Web Development',
 ];
 
-/** Link to the main blog feed filtered by category (?category=). */
+/** Link to the main blog feed filtered by category (?category=). Trailing slash before query. */
 export function blogCategoryUrl(category) {
   const cat = String(category || '').trim();
-  if (!cat) return '/blog';
-  return `/blog?category=${encodeURIComponent(cat)}`;
+  if (!cat) return '/blog/';
+  return `/blog/?category=${encodeURIComponent(cat)}`;
 }

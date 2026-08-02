@@ -107,7 +107,7 @@ export default function NBlog() {
       <Seo
         title={category ? `${category} — Blog — BalochDev` : 'Blog — BalochDev'}
         description="Notes from BalochDev on AI, web and mobile development, Supabase backends, and Balochi language technology."
-        canonicalPath={category ? `/blog?category=${encodeURIComponent(category)}` : '/blog'}
+        canonicalPath={category ? `/blog/?category=${encodeURIComponent(category)}` : '/blog/'}
         type="website"
       />
       <div className="ndx-container">

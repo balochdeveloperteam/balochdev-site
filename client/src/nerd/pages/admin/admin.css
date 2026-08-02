@@ -1635,6 +1635,83 @@ html[data-theme='dark'] .ndx-admin-sidebar {
   box-sizing: border-box;
 }
 
+/* Mobile admin (&lt;786px): contain form overflow in ads + shared fields */
+@media (max-width: 786px) {
+  .ndx-admin-ad-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ndx-admin-ad-card {
+    padding: 1rem;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .ndx-admin-ad-card__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .ndx-admin-ad-toggle {
+    align-self: flex-start;
+  }
+
+  .ndx-admin-ad-card .ndx-admin-input,
+  .ndx-admin-ad-card .ndx-admin-textarea,
+  .ndx-admin-ad-card .ndx-admin-input--datetime,
+  .ndx-admin-ad-card input[type='file'] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .ndx-admin-ad-card__actions {
+    flex-direction: column;
+  }
+
+  .ndx-admin-ad-card__actions .ndx-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ndx-admin-page-head__actions {
+    width: 100%;
+  }
+
+  .ndx-admin-page-head__actions .ndx-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .ndx-admin-input,
+  .ndx-admin-textarea,
+  .ndx-admin-select {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .ndx-admin-editor-chrome-row--primary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ndx-admin-editor-chrome-actions {
+    width: 100%;
+  }
+
+  .ndx-admin-editor-chrome-actions .ndx-btn {
+    flex: 1 1 calc(50% - 0.25rem);
+    justify-content: center;
+  }
+
+  .ndx-admin-editor-status {
+    white-space: normal;
+  }
+}
+
 .ndx-admin-save-ok {
   color: var(--ndx-accent);
   font-size: 0.875rem;

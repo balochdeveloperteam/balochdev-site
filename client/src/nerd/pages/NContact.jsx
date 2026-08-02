@@ -29,6 +29,15 @@ const CONTACT_FACES = ['Adeel Baloch', 'Jaber Baloch', 'Makhdoom Baloch', 'Tayaa
   .map((name) => TEAM_MEMBERS.find((m) => m.name === name))
   .filter(Boolean);
 
+function teamPhotoAlt(name, role) {
+  const short = String(role || '')
+    .split(/[&/]/)[0]
+    .replace(/\(.*?\)/g, '')
+    .trim()
+    .toLowerCase();
+  return `${name} — ${short}, BalochDev`;
+}
+
 const CONTACT_REPLY_TEAM = [
   {
     member: CONTACT_FACES[0],
@@ -220,10 +229,18 @@ export default function NContact() {
           </p>
 
           <div className="ndx-contact-faces" aria-label="Who you may speak with">
+            {/* aria-hidden: names are in the caption below; alts clear Ahrefs empty-alt flags. */}
             <div className="ndx-contact-faces__stack" aria-hidden>
               {CONTACT_FACES.map((m) => (
                 <span key={m.name} className="ndx-contact-faces__avatar" title={m.name}>
-                  {m.image ? <img src={m.image} alt="" loading="lazy" decoding="async" /> : null}
+                  {m.image ? (
+                    <img
+                      src={m.image}
+                      alt={teamPhotoAlt(m.name, m.role)}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
                 </span>
               ))}
             </div>
@@ -361,7 +378,12 @@ export default function NContact() {
               <article key={member.name} className="ndx-contact-reply-card">
                 <div className="ndx-contact-reply-card__media">
                   {member.image ? (
-                    <img src={member.image} alt="" loading="lazy" decoding="async" />
+                    <img
+                      src={member.image}
+                      alt={teamPhotoAlt(member.name, member.role)}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : null}
                 </div>
                 <div className="ndx-contact-reply-card__body">

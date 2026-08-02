@@ -162,6 +162,9 @@ export default function AdminLogin() {
               placeholder="Email"
               required
               style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                maxWidth: '100%',
                 padding: '0.85rem 1rem',
                 borderRadius: 10,
                 border: '1px solid var(--ndx-border)',
@@ -176,6 +179,9 @@ export default function AdminLogin() {
               placeholder="Password"
               required
               style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                maxWidth: '100%',
                 padding: '0.85rem 1rem',
                 borderRadius: 10,
                 border: '1px solid var(--ndx-border)',

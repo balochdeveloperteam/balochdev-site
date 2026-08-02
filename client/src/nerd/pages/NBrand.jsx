@@ -134,7 +134,7 @@ export default function NBrand() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '0.75rem 0' }}>
-                  <img src={L.file} alt="" width={72} height={72} draggable={false} />
+                  <img src={L.file} alt={`BalochDev logo — ${L.title}`} width={72} height={72} draggable={false} />
                 </div>
                 <figcaption
                   style={{

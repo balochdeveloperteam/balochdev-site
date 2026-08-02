@@ -105,11 +105,51 @@ function statusLabel(status) {
   return 'Draft';
 }
 
+const LOCAL_DRAFT_PREFIX = 'balochdev:admin-post-draft:';
+
+function draftStorageKey(postKey) {
+  return `${LOCAL_DRAFT_PREFIX}${postKey}`;
+}
+
+function readLocalDraft(postKey) {
+  try {
+    const raw = localStorage.getItem(draftStorageKey(postKey));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.form || typeof parsed.form !== 'object') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalDraft(postKey, form) {
+  try {
+    localStorage.setItem(
+      draftStorageKey(postKey),
+      JSON.stringify({ savedAt: Date.now(), form }),
+    );
+  } catch {
+    /* quota / private mode — ignore */
+  }
+}
+
+function clearLocalDraft(postKey) {
+  try {
+    localStorage.removeItem(draftStorageKey(postKey));
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function AdminPostEditor() {
   const { id } = useParams();
   const isNew = !id || id === 'new';
+  const postKey = isNew ? 'new' : String(id);
   const navigate = useNavigate();
   const { authFetch, token } = useAdmin();
+  const authFetchRef = useRef(authFetch);
+  authFetchRef.current = authFetch;
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -117,9 +157,13 @@ export default function AdminPostEditor() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
+  const [localDraftAt, setLocalDraftAt] = useState(null);
   const slugTouched = useRef(false);
   const baselineRef = useRef(snapshotForm(emptyForm()));
   const [baselineReady, setBaselineReady] = useState(isNew);
+  const formRef = useRef(form);
+  formRef.current = form;
+  const loadedKeyRef = useRef(null);
 
   const editor = useBlogBlockEditor({
     contentHtml: form.content_html,
@@ -129,15 +173,28 @@ export default function AdminPostEditor() {
 
   useEffect(() => {
     if (!isNew) return undefined;
+    if (loadedKeyRef.current === 'new') return undefined;
+    const draft = readLocalDraft('new');
+    if (draft?.form) {
+      setForm(draft.form);
+      setLocalDraftAt(draft.savedAt || Date.now());
+      if (draft.form.slug) slugTouched.current = true;
+    } else {
+      setForm(emptyForm());
+    }
     baselineRef.current = snapshotForm(emptyForm());
     setBaselineReady(true);
+    loadedKeyRef.current = 'new';
     return undefined;
   }, [isNew]);
 
   useEffect(() => {
     if (isNew) return undefined;
+    // Only load each post id once — authFetch/session refresh must not wipe in-progress edits.
+    if (loadedKeyRef.current === String(id)) return undefined;
     let cancelled = false;
-    authFetch(`/api/blog/admin/posts/${id}`)
+    authFetchRef
+      .current(`/api/blog/admin/posts/${id}`)
       .then(async (res) => {
         if (!res.ok) throw new Error('Post not found');
         return res.json();
@@ -145,9 +202,19 @@ export default function AdminPostEditor() {
       .then((data) => {
         if (cancelled) return;
         const next = postToForm(data.post);
-        setForm(next);
         baselineRef.current = snapshotForm(next);
+        const draft = readLocalDraft(String(id));
+        if (draft?.form && snapshotForm(draft.form) !== snapshotForm(next)) {
+          setForm(draft.form);
+          setLocalDraftAt(draft.savedAt || Date.now());
+          if (draft.form.slug) slugTouched.current = true;
+        } else {
+          setForm(next);
+          clearLocalDraft(String(id));
+          setLocalDraftAt(null);
+        }
         setBaselineReady(true);
+        loadedKeyRef.current = String(id);
       })
       .catch((e) => {
         if (!cancelled) setErr(e.message || 'Failed to load post');
@@ -158,19 +225,54 @@ export default function AdminPostEditor() {
     return () => {
       cancelled = true;
     };
-  }, [authFetch, id, isNew]);
+  }, [id, isNew]);
 
   const isDirty = baselineReady && snapshotForm(form) !== baselineRef.current;
+
+  // Persist unsaved work to localStorage (debounced) so leaving the tab/window never loses copy/paste work.
+  useEffect(() => {
+    if (!baselineReady || loading || saving) return undefined;
+    if (!isDirty) {
+      clearLocalDraft(postKey);
+      setLocalDraftAt(null);
+      return undefined;
+    }
+    const t = window.setTimeout(() => {
+      writeLocalDraft(postKey, formRef.current);
+      setLocalDraftAt(Date.now());
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [form, isDirty, baselineReady, loading, saving, postKey]);
+
+  // Flush draft immediately when the tab is hidden (switch to Docs / another window).
+  useEffect(() => {
+    const flush = () => {
+      if (!baselineReady || saving) return;
+      if (snapshotForm(formRef.current) === baselineRef.current) return;
+      writeLocalDraft(postKey, formRef.current);
+      setLocalDraftAt(Date.now());
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [baselineReady, saving, postKey]);
 
   useEffect(() => {
     const onBeforeUnload = (event) => {
       if (!isDirty || saving) return;
+      writeLocalDraft(postKey, formRef.current);
       event.preventDefault();
       event.returnValue = '';
     };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
-  }, [isDirty, saving]);
+  }, [isDirty, saving, postKey]);
 
   const confirmLeaveIfDirty = (event) => {
     if (!isDirty || saving) return;
@@ -265,6 +367,12 @@ export default function AdminPostEditor() {
         setForm((p) => ({ ...p, status: statusOverride }));
       }
       baselineRef.current = snapshotForm(savedForm);
+      clearLocalDraft(postKey);
+      setLocalDraftAt(null);
+      if (isNew && data?.post?.id) {
+        clearLocalDraft('new');
+        loadedKeyRef.current = String(data.post.id);
+      }
       if (navigateAway) {
         navigate('/admin/posts', { replace: !isNew });
       }
@@ -361,7 +469,9 @@ export default function AdminPostEditor() {
               {saving
                 ? 'Saving…'
                 : isDirty
-                  ? 'Unsaved changes'
+                  ? localDraftAt
+                    ? 'Unsaved — kept in this browser'
+                    : 'Unsaved changes'
                   : lastSavedAt
                     ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                     : statusLabel(form.status)}

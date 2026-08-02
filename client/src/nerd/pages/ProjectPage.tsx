@@ -368,7 +368,7 @@ export default function ProjectPage() {
               <div style={{ width: "100%", borderRadius: "var(--ndx-radius-lg)", overflow: "hidden", border: "1px solid var(--ndx-border)", background: "transparent" }}>
                 <img
                   src={project.cover}
-                  alt={project.title}
+                  alt={`${project.title} — ${(project.industry.split("·")[0] || project.industry).trim()}`}
                   style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
                 />
               </div>
@@ -433,7 +433,7 @@ export default function ProjectPage() {
               >
                 <img
                   src={panel.image}
-                  alt=""
+                  alt={`${project.title} — ${panel.heading || "product screenshot"}`}
                   loading="lazy"
                   style={{
                     width: "100%",
@@ -719,7 +719,7 @@ export default function ProjectPage() {
                   >
                     <img
                       src={p.cover!}
-                      alt=""
+                      alt={`${p.title} — ${(p.industry.split("·")[0] || p.industry).trim()}`}
                       loading="lazy"
                       style={{
                         width: "100%",

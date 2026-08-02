@@ -39,3 +39,9 @@ http://balochdev.com/* https://balochdev.com/:splat 301
 /projects/soroz-ai/  /projects/soroz/  301
 /projects/doch.com  /projects/doch/  301
 /projects/doch.com/  /projects/doch/  301
+
+# Fresh crawl 404s (Aug 2026)
+/blogs  /blog/  301
+/blogs/  /blog/  301
+/blog/why-ai-can-t-see-your-website-and-how-to-fix-it-in-5-minutes  /blog/  301
+/blog/why-ai-can-t-see-your-website-and-how-to-fix-it-in-5-minutes/  /blog/  301

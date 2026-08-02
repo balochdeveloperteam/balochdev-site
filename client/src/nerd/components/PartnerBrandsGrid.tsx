@@ -20,7 +20,7 @@ export default function PartnerBrandsGrid({ className = "" }: Props) {
           <span className="ndx-partner-tile__imgWrap">
             <img
               src={b.src}
-              alt=""
+              alt={b.alt || `${b.name} logo`}
               width={200}
               height={80}
               decoding="async"

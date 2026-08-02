@@ -51,7 +51,7 @@ function BalochMark({ src }) {
     <img
       className="ndx-recog__brand"
       src={src}
-      alt=""
+      alt="BalochDev logo"
       width={40}
       height={40}
       draggable={false}

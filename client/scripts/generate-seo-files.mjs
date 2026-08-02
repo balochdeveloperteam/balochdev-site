@@ -190,6 +190,8 @@ function buildRobotsTxt() {
     'Allow: /',
     '# Disallow private admin + team workspace surfaces',
     ...disallowRoots.map((d) => `Disallow: ${d}`),
+    '# Cloudflare email-protection / cdn-cgi artifacts (404 in GSC if crawled)',
+    'Disallow: /cdn-cgi/',
     '',
     'User-agent: Googlebot',
     'Allow: /',
