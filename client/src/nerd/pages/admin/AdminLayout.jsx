@@ -40,7 +40,7 @@ function NavItems({ className, itemClassName, crossLinkClassName, showTeamLink }
         ),
       )}
       {showTeamLink && (
-        <Link to="/team" className={`${crossLinkClassName || itemClassName} ndx-workspace-cross-link`}>
+        <Link to="/team/" className={`${crossLinkClassName || itemClassName} ndx-workspace-cross-link`}>
           Go to Team workspace →
         </Link>
       )}

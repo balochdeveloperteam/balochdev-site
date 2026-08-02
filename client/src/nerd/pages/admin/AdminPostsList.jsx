@@ -70,7 +70,7 @@ export default function AdminPostsList() {
           <h2 className="ndx-h2">All posts</h2>
         </div>
         <div className="ndx-admin-page-head-actions">
-          <Link to="/admin/posts/new" className="ndx-btn ndx-btn-primary">
+          <Link to="/admin/posts/new/" className="ndx-btn ndx-btn-primary">
             New post
           </Link>
         </div>
@@ -84,7 +84,7 @@ export default function AdminPostsList() {
           <p className="ndx-admin-empty-text">
             Create your first article or image-caption post to publish on BalochDev.
           </p>
-          <Link to="/admin/posts/new" className="ndx-btn ndx-btn-primary">
+          <Link to="/admin/posts/new/" className="ndx-btn ndx-btn-primary">
             Create post
           </Link>
         </div>
@@ -124,7 +124,7 @@ export default function AdminPostsList() {
                     <td>{post.view_count ?? 0}</td>
                     <td>
                       <div className="ndx-admin-actions">
-                        <Link to={`/admin/posts/${post.id}/edit`} className="ndx-btn">
+                        <Link to={`/admin/posts/${post.id}/edit/`} className="ndx-btn">
                           Edit
                         </Link>
                         <button

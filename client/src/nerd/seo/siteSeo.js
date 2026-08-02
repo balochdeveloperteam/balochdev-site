@@ -23,7 +23,8 @@ function isUnderRoot(pathname, root) {
 
 /** `true` when `pathname` must never appear in a public crawl/sitemap listing. */
 export function isPrivateSitePath(pathname) {
-  const p = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  let p = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
   if (p === PRIVATE_ROUTES.ADMIN_LOGIN) return true;
   return isUnderRoot(p, PRIVATE_ROUTES.ADMIN_ROOT) || isUnderRoot(p, PRIVATE_ROUTES.TEAM_ROOT);
 }
@@ -61,13 +62,13 @@ export const organizationJsonLd = {
     'https://x.com/BalochDev404',
     'https://www.instagram.com/balochdev_',
     'https://medium.com/@balochdev',
-    'https://www.facebook.com/share/18QuFjdbMm/',
+    'https://www.facebook.com/Balochdev/',
   ],
 };
 
 /** About page markup: references Organization by @id instead of repeating the full home node. */
 export function aboutPageJsonLd({ headline, description }) {
-  const pageUrl = `${SITE_URL}/about`;
+  const pageUrl = `${SITE_URL}/about/`;
   const pageId = `${pageUrl}#aboutpage`;
   return {
     '@context': 'https://schema.org',
@@ -76,7 +77,7 @@ export function aboutPageJsonLd({ headline, description }) {
     name: headline,
     description,
     url: pageUrl,
-    isPartOf: { '@type': 'WebSite', url: SITE_URL, name: 'BalochDev' },
+    isPartOf: { '@type': 'WebSite', url: `${SITE_URL}/`, name: 'BalochDev' },
     publisher: { '@id': ORGANIZATION_GRAPH_ID },
     about: { '@id': ORGANIZATION_GRAPH_ID },
     mainEntity: { '@id': ORGANIZATION_GRAPH_ID },

@@ -117,7 +117,7 @@ function buildBootstrapScript(post) {
 }
 
 function notFoundHtml(slug) {
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Post not found — BalochDev</title><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="${SITE_URL}/blog"></head><body><h1>Post not found</h1><p>The post <code>${escapeHtml(slug)}</code> doesn't exist or hasn't been published.</p><p><a href="/blog">All posts</a></p></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Post not found — BalochDev</title><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="${SITE_URL}/blog/"></head><body><h1>Post not found</h1><p>The post <code>${escapeHtml(slug)}</code> doesn't exist or hasn't been published.</p><p><a href="/blog/">All posts</a></p></body></html>`;
 }
 
 /** Prefer bare Vite shell; never use prerendered homepage index.html as the template. */

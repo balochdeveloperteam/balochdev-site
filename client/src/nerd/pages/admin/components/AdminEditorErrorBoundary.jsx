@@ -35,7 +35,7 @@ export default class AdminEditorErrorBoundary extends Component {
             >
               Try again
             </button>
-            <Link to="/admin/posts" className="ndx-btn">
+            <Link to="/admin/posts/" className="ndx-btn">
               Back to posts
             </Link>
           </div>

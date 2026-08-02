@@ -34,7 +34,7 @@ function NavLinks({ className, itemClassName, showAdminLink }) {
         </NavLink>
       ))}
       {showAdminLink && (
-        <Link to="/admin/overview" className={`${itemClassName} ndx-workspace-cross-link`}>
+        <Link to="/admin/overview/" className={`${itemClassName} ndx-workspace-cross-link`}>
           Go to Admin →
         </Link>
       )}

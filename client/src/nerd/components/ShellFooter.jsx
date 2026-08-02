@@ -102,10 +102,10 @@ export default function ShellFooter() {
           © {new Date().getFullYear()} BalochDev · All rights reserved
         </span>
         <span className="ndx-footer-legal">
-          <NavLink to="/privacy">Privacy</NavLink>
-          <NavLink to="/terms">Terms</NavLink>
-          <NavLink to="/refund">Refund</NavLink>
-          <NavLink to="/fulfilment">Fulfilment</NavLink>
+          <NavLink to="/privacy/">Privacy</NavLink>
+          <NavLink to="/terms/">Terms</NavLink>
+          <NavLink to="/refund/">Refund</NavLink>
+          <NavLink to="/fulfilment/">Fulfilment</NavLink>
           <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">Sitemap</a>
         </span>
       </div>

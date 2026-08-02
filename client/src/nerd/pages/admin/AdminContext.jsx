@@ -46,7 +46,7 @@ export function AdminProvider({ children }) {
 
   /**
    * Bootstrap session — never imperatively navigate from here. AdminGate handles
-   * the declarative redirect (<Navigate to="/login">) once loading flips
+   * the declarative redirect (<Navigate to="/login/">) once loading flips
    * to false. Two simultaneous redirects (imperative here + declarative in Gate)
    * can race in some browsers and land on the wrong route.
    */

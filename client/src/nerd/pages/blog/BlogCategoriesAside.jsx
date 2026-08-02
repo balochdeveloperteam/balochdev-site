@@ -17,7 +17,7 @@ export default function BlogCategoriesAside({
       <ul className="ndx-blog-aside-cats">
         <li>
           <Link
-            to="/blog"
+            to="/blog/"
             className={`ndx-blog-aside-cats__link${!activeCategory ? ' is-active' : ''}`}
           >
             All posts

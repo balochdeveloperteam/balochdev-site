@@ -63,18 +63,39 @@ async function copyToClipboard(text) {
 }
 
 function MediaTile({ asset, onEdit, onDelete, onCopy }) {
-  const [showActions, setShowActions] = useState(false);
-
   return (
-    <article
-      className="ndx-admin-media-tile ndx-glass-section"
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
-      onFocus={() => setShowActions(true)}
-      onBlur={() => setShowActions(false)}
-    >
+    <article className="ndx-admin-media-tile ndx-glass-section">
       <div className="ndx-admin-media-tile__thumb">
         <img src={asset.secure_url} alt={asset.alt || ''} loading="lazy" />
+        <div className="ndx-admin-media-tile__actions">
+          <button
+            type="button"
+            className="ndx-admin-media-icon-btn"
+            onClick={() => onCopy(asset)}
+            title="Copy URL"
+            aria-label="Copy URL"
+          >
+            <TbCopy aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="ndx-admin-media-icon-btn"
+            onClick={() => onEdit(asset)}
+            title="Edit alt + caption"
+            aria-label="Edit alt and caption"
+          >
+            <TbPencil aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="ndx-admin-media-icon-btn ndx-admin-media-icon-btn--danger"
+            onClick={() => onDelete(asset)}
+            title="Delete image"
+            aria-label="Delete image"
+          >
+            <TbTrash aria-hidden />
+          </button>
+        </div>
       </div>
       <div className="ndx-admin-media-tile__meta">
         <p className="ndx-admin-media-tile__alt" title={asset.alt}>
@@ -83,22 +104,6 @@ function MediaTile({ asset, onEdit, onDelete, onCopy }) {
         <p className="ndx-admin-media-tile__url" title={asset.secure_url}>
           {asset.secure_url}
         </p>
-      </div>
-      <div className={`ndx-admin-media-tile__actions${showActions ? ' is-visible' : ''}`}>
-        <button type="button" className="ndx-btn ndx-btn--xs" onClick={() => onCopy(asset)} title="Copy URL">
-          <TbCopy aria-hidden /> Copy URL
-        </button>
-        <button type="button" className="ndx-btn ndx-btn--xs" onClick={() => onEdit(asset)} title="Edit alt + caption">
-          <TbPencil aria-hidden /> Edit
-        </button>
-        <button
-          type="button"
-          className="ndx-btn ndx-btn--xs ndx-btn--danger"
-          onClick={() => onDelete(asset)}
-          title="Delete image"
-        >
-          <TbTrash aria-hidden /> Delete
-        </button>
       </div>
     </article>
   );

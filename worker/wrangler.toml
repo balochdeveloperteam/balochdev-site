@@ -6,6 +6,13 @@ compatibility_flags = ["nodejs_compat"]
 # Workers free tier handles 100k requests/day. For 10k visitors/month
 # you have ~330 requests/day so this is comfortable headroom.
 
+# CRITICAL: Without this, `wrangler deploy` deletes plain-text Variables that
+# exist in the Cloudflare dashboard but are NOT listed under [vars] below.
+# That is why SUPABASE_URL / TELEGRAM_CHAT_ID / CLOUDINARY_CLOUD_NAME seemed
+# to "disappear" after every deploy. Encrypted Secrets are never deleted by
+# deploy — but values entered as plain Variables are.
+keep_vars = true
+
 [observability]
 enabled = true
 
@@ -16,17 +23,20 @@ CLOUDFLARE_PAGES_PROJECT_NAME = "balochdev-site"
 ESTIMATE_DAILY_LIMIT = "3"
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash-lite"
+# Non-secret config (safe in git). Always re-applied on deploy so they cannot vanish.
+SUPABASE_URL = "https://oecelogcouzffghjrvry.supabase.co"
+CLOUDINARY_CLOUD_NAME = "durazkwc0"
 
-# Secrets (set via `wrangler secret put <NAME>` or the Cloudflare dashboard):
-#   SUPABASE_URL
+# Encrypted Secrets — set via `wrangler secret put <NAME>` or Cloudflare dashboard
+# → Workers → balochdev-api → Settings → Variables and Secrets → Secret.
+# Do NOT put these in [vars] (plain text) or they can be wiped/overwritten oddly.
 #   SUPABASE_SERVICE_ROLE_KEY
 #   GEMINI_API_KEY
-#   CLOUDINARY_CLOUD_NAME
 #   CLOUDINARY_API_KEY
 #   CLOUDINARY_API_SECRET
 #   IP_HASH_SECRET
 #   TELEGRAM_BOT_TOKEN          (optional)
-#   TELEGRAM_CHAT_ID            (optional)
+#   TELEGRAM_CHAT_ID            (optional — prefer Secret, not plain Variable)
 #   GOOGLE_SHEETS_SPREADSHEET_ID (optional)
 #   GOOGLE_SHEETS_TAB_NAME       (optional)
 #   GOOGLE_SERVICE_ACCOUNT_JSON  (optional — paste service account JSON contents)

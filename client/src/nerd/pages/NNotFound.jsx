@@ -46,28 +46,28 @@ export default function NNotFound() {
           <Link to="/" className="ndx-btn ndx-btn-primary">
             Go home
           </Link>
-          <Link to="/services" className="ndx-btn">
+          <Link to="/services/" className="ndx-btn">
             Browse services
           </Link>
-          <Link to="/contact" className="ndx-btn">
+          <Link to="/contact/" className="ndx-btn">
             Contact us
           </Link>
         </div>
 
         <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', textAlign: 'left' }}>
-          <Link to="/portfolio" className="ndx-card" style={{ padding: '1rem' }}>
+          <Link to="/portfolio/" className="ndx-card" style={{ padding: '1rem' }}>
             <strong>Portfolio</strong>
             <p className="ndx-tech-blurb" style={{ marginTop: '0.25rem' }}>See selected work</p>
           </Link>
-          <Link to="/blog" className="ndx-card" style={{ padding: '1rem' }}>
+          <Link to="/blog/" className="ndx-card" style={{ padding: '1rem' }}>
             <strong>Blog</strong>
             <p className="ndx-tech-blurb" style={{ marginTop: '0.25rem' }}>Notes and updates</p>
           </Link>
-          <Link to="/about" className="ndx-card" style={{ padding: '1rem' }}>
+          <Link to="/about/" className="ndx-card" style={{ padding: '1rem' }}>
             <strong>About</strong>
             <p className="ndx-tech-blurb" style={{ marginTop: '0.25rem' }}>Who we are</p>
           </Link>
-          <Link to="/estimate" className="ndx-card" style={{ padding: '1rem' }}>
+          <Link to="/estimate/" className="ndx-card" style={{ padding: '1rem' }}>
             <strong>AI estimate</strong>
             <p className="ndx-tech-blurb" style={{ marginTop: '0.25rem' }}>Get a quick quote</p>
           </Link>

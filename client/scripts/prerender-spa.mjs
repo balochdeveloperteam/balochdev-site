@@ -77,12 +77,19 @@ async function allocatePreviewPortFallback() {
   });
 }
 
-/** Mirrors client SEO base URL normalization (canonical / og:url). */
+/**
+ * Canonical key for prerender head cleanup — trailing-slash form
+ * (matches Seo.jsx / Cloudflare Pages …/index.html URLs).
+ */
 function canonUrlKey(u) {
   try {
     const x = new URL(u);
-    if (x.pathname === '/' || x.pathname === '') return x.origin;
-    return x.origin + x.pathname.replace(/\/+$/, '');
+    let p = x.pathname || '/';
+    if (p !== '/' && !p.endsWith('/') && !/\.[a-z0-9]{1,12}$/i.test(p.split('/').pop() || '')) {
+      p = `${p}/`;
+    }
+    if (p === '/' || p === '') return `${x.origin}/`;
+    return `${x.origin}${p}`;
   } catch {
     return '';
   }
@@ -101,8 +108,12 @@ async function stabilizeHeadTags(page, pageAbsoluteUrl) {
       function canon(u) {
         try {
           const x = new URL(u);
-          if (x.pathname === '/' || x.pathname === '') return x.origin;
-          return x.origin + x.pathname.replace(/\/+$/, '');
+          let p = x.pathname || '/';
+          if (p !== '/' && !p.endsWith('/') && !/\.[a-z0-9]{1,12}$/i.test(p.split('/').pop() || '')) {
+            p = `${p}/`;
+          }
+          if (p === '/' || p === '') return `${x.origin}/`;
+          return `${x.origin}${p}`;
         } catch {
           return '';
         }

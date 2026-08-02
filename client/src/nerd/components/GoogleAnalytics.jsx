@@ -1,21 +1,21 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const GA_MEASUREMENT_ID = 'G-PB4XH55BPP';
-
 /**
- * SPA page views for Google Analytics (gtag.js is loaded from index.html).
- * Initial page_view comes from gtag('config'); this fires on client route changes.
+ * SPA page views via Cloudflare Zaraz.
+ * GA4 itself is installed in Zaraz (not gtag in HTML) so Consent Management can gate it.
  */
 export default function GoogleAnalytics() {
   const location = useLocation();
 
   useEffect(() => {
-    if (typeof window.gtag !== 'function') return;
+    if (typeof window.zaraz?.track !== 'function') return;
+
     const pagePath = `${location.pathname}${location.search}${location.hash}`;
-    window.gtag('config', GA_MEASUREMENT_ID, {
+    window.zaraz.track('Pageview', {
       page_path: pagePath,
       page_title: document.title,
+      page_url: window.location.href,
     });
   }, [location.pathname, location.search, location.hash]);
 

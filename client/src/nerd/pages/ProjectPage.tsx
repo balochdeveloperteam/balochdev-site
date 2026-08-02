@@ -228,7 +228,7 @@ export default function ProjectPage() {
     return { title, description, canonicalPath, jsonLd };
   }, [project]);
 
-  if (!project) return <Navigate to="/portfolio" replace />;
+  if (!project) return <Navigate to="/portfolio/" replace />;
 
   const clientReviews = reviewsForProject(project.slug);
 
@@ -247,7 +247,7 @@ export default function ProjectPage() {
           style={{ marginBottom: "1.25rem" }}
         >
           <Link
-            to="/portfolio"
+            to="/portfolio/"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -348,10 +348,10 @@ export default function ProjectPage() {
                   Open live preview →
                 </a>
               ) : (
-                <Link to="/proposal" className="ndx-btn ndx-btn-primary">Build something similar →</Link>
+                <Link to="/proposal/" className="ndx-btn ndx-btn-primary">Build something similar →</Link>
               )}
               {project.liveUrl ? (
-                <Link to="/proposal" className="ndx-btn">Build something similar →</Link>
+                <Link to="/proposal/" className="ndx-btn">Build something similar →</Link>
               ) : null}
               <BookCallButton className="ndx-btn">Book a call</BookCallButton>
             </motion.div>
@@ -702,7 +702,7 @@ export default function ProjectPage() {
               .map((p) => (
                 <Link
                   key={p.slug}
-                  to={`/projects/${p.slug}`}
+                  to={`/projects/${p.slug}/`}
                   className="ndx-card ndx-card-link"
                   style={{ overflow: "hidden", padding: 0, display: "block", textDecoration: "none" }}
                 >
@@ -771,9 +771,9 @@ export default function ProjectPage() {
             Tell us what you need to build. We will tell you honestly what it would take — and whether we are the right team to build it.
           </p>
           <div className="ndx-rich-actions" style={{ justifyContent: "center" }}>
-            <Link to="/proposal" className="ndx-btn ndx-btn-primary">Send a proposal</Link>
-            <Link to="/estimate" className="ndx-btn">AI estimate</Link>
-            <Link to="/portfolio" className="ndx-btn">All projects</Link>
+            <Link to="/proposal/" className="ndx-btn ndx-btn-primary">Send a proposal</Link>
+            <Link to="/estimate/" className="ndx-btn">AI estimate</Link>
+            <Link to="/portfolio/" className="ndx-btn">All projects</Link>
           </div>
         </div>
 

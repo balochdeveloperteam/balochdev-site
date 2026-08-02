@@ -105,7 +105,7 @@ export default function NAdvertise() {
             <a href="mailto:team@balochdev.com" className="ndx-btn ndx-btn-primary">
               Email team@balochdev.com
             </a>
-            <Link to="/blog" className="ndx-btn">
+            <Link to="/blog/" className="ndx-btn">
               View the blog
             </Link>
           </div>

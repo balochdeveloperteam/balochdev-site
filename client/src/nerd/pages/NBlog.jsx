@@ -184,7 +184,7 @@ export default function NBlog() {
               <p className="ndx-blog-feed__active-filter">
                 Showing posts in <strong>{category}</strong>
                 {' · '}
-                <Link to="/blog">Clear filter</Link>
+                <Link to="/blog/">Clear filter</Link>
               </p>
             ) : null}
 

@@ -708,7 +708,7 @@ function HeroSurface({ reduced }: { reduced: boolean }) {
 
 function PracticeLink({ practice }: { practice: Practice }) {
   return (
-    <Link to={`/services/practice/${practice.id}`} className="ndx-practice-link">
+    <Link to={`/services/practice/${practice.id}/`} className="ndx-practice-link">
       <div>
         <div className="ndx-practice-link__meta">
           {practice.number} · {practice.count}
@@ -756,7 +756,7 @@ function ServiceCard({ service }: { service: ServiceItem }) {
         <span className="ndx-tech-meta" style={{ marginBottom: 0 }}>
           Final numbers after a short brief
         </span>
-        <Link to={`/services/${service.slug}`} className="ndx-service-card-cta">
+        <Link to={`/services/${service.slug}/`} className="ndx-service-card-cta">
           View page<span aria-hidden> →</span>
         </Link>
       </div>
@@ -936,7 +936,7 @@ export default function ServicesPage() {
               <strong>AI, Build, Automate, Design</strong> — seventeen scoped offerings, one team, weekly demos, and a handoff you can run.
             </motion.p>
             <motion.div className="ndx-rich-actions" initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.16 }}>
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+              <Link to="/contact/" className="ndx-btn ndx-btn-primary">
                 Start a project →
               </Link>
               <a href="#capabilities" className="ndx-btn">
@@ -1113,7 +1113,7 @@ export default function ServicesPage() {
             Real client and BalochDev builds — open a case study for the full story.
           </RichSectionIntro>
           <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-            <Link to="/portfolio" className="ndx-btn">
+            <Link to="/portfolio/" className="ndx-btn">
               Full portfolio →
             </Link>
           </div>
@@ -1160,7 +1160,7 @@ export default function ServicesPage() {
           </div>
           <div className="ndx-hero-btns">
             <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
-            <Link to="/estimate" className="ndx-btn">
+            <Link to="/estimate/" className="ndx-btn">
               Get AI estimate
             </Link>
           </div>

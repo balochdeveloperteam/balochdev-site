@@ -29,6 +29,15 @@ export default function NPrivacy() {
           </p>
         </div>
         <div className="ndx-card" style={{ marginBottom: '1rem' }}>
+          <h3>Cookies &amp; consent</h3>
+          <p style={{ marginTop: '0.5rem', color: 'var(--ndx-muted)' }}>
+            We use Cloudflare Zaraz to manage third-party tools on balochdev.com. Non-essential analytics (Google Analytics 4)
+            load only after you accept analytics cookies in the consent banner. You can reject analytics cookies; essential site
+            cookies needed for security and preferences may still apply. Consent choices are stored in a cookie named{' '}
+            <code>zaraz-consent</code>.
+          </p>
+        </div>
+        <div className="ndx-card" style={{ marginBottom: '1rem' }}>
           <h3>Why we use it</h3>
           <p style={{ marginTop: '0.5rem', color: 'var(--ndx-muted)' }}>
             To reply to leads, deliver projects, secure our systems, and improve performance. With your consent where required, we

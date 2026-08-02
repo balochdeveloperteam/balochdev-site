@@ -63,7 +63,7 @@ export default function ClientStories() {
                           {r.role} — {r.company}
                         </span>
                         <Link
-                          to={`/projects/${r.projectSlug}`}
+                          to={`/projects/${r.projectSlug}/`}
                           className="ndx-home-reviews__project"
                           tabIndex={active ? 0 : -1}
                         >

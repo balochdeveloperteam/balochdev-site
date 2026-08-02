@@ -16,7 +16,7 @@ export default function BlogCard({ post }) {
 
   return (
     <Link
-      to={`/blog/${post.slug}`}
+      to={`/blog/${post.slug}/`}
       className={`ndx-blog-card${isImagePost ? ' ndx-blog-card--image' : ''}`}
     >
       {post.cover_image_url ? (

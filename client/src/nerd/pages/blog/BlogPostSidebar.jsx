@@ -31,7 +31,7 @@ export default function BlogPostSidebar({
           <ul className="ndx-blog-aside-related">
             {relatedPosts.map((r) => (
               <li key={r.slug}>
-                <Link to={`/blog/${r.slug}`} className="ndx-blog-aside-related__link">
+                <Link to={`/blog/${r.slug}/`} className="ndx-blog-aside-related__link">
                   {r.title}
                 </Link>
               </li>

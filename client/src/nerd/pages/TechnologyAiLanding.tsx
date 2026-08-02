@@ -247,7 +247,7 @@ export default function TechnologyAiLanding() {
           <p className="ndx-lead" style={{ marginTop: "0.75rem" }}>
             This technology detail page does not exist — check the URL or browse all stack disciplines.
           </p>
-          <Link to="/technologies" className="ndx-btn ndx-btn-primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
+          <Link to="/technologies/" className="ndx-btn ndx-btn-primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
             All technologies
           </Link>
         </div>
@@ -263,7 +263,7 @@ export default function TechnologyAiLanding() {
       {seoHead ? <Seo title={seoHead.title} description={seoHead.description} canonicalPath={seoHead.canonicalPath} /> : null}
       <div className="ndx-container">
         <nav className="ndx-tech-landing__crumb" aria-label="Breadcrumb">
-          <Link to="/technologies">Technologies</Link>
+          <Link to="/technologies/">Technologies</Link>
           <span aria-hidden className="ndx-tech-landing__crumb-sep">
             /
           </span>
@@ -280,10 +280,10 @@ export default function TechnologyAiLanding() {
             <h1 className="ndx-h1 ndx-tech-landing__h1">{page.metaTitle.replace(/\s—\sBalochDev$/, "")}</h1>
             <p className="ndx-lead ndx-tech-landing__lead">{page.heroLead}</p>
             <div className="ndx-hero-btns ndx-tech-landing__hero-actions">
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+              <Link to="/contact/" className="ndx-btn ndx-btn-primary">
                 Discuss this stack →
               </Link>
-              <Link to="/estimate" className="ndx-btn">
+              <Link to="/estimate/" className="ndx-btn">
                 {category === "ai" ? "AI estimate" : "Project estimate"}
               </Link>
             </div>
@@ -419,7 +419,7 @@ export default function TechnologyAiLanding() {
               <PortfolioDraftCard key={item.title} Icon={item.Icon} role={item.role} title={item.title} blurb={item.blurb} />
             ))}
           </div>
-          <Link to="/portfolio" className="ndx-btn ndx-btn-primary ndx-tech-landing__portfolio-cta">
+          <Link to="/portfolio/" className="ndx-btn ndx-btn-primary ndx-tech-landing__portfolio-cta">
             View portfolio →
           </Link>
         </section>
@@ -439,7 +439,7 @@ export default function TechnologyAiLanding() {
         </div>
 
         <p className="ndx-tech-landing__back">
-          <Link to="/technologies">← Back to all technologies</Link>
+          <Link to="/technologies/">← Back to all technologies</Link>
         </p>
       </div>
     </section>

@@ -68,11 +68,11 @@ export default function FaqPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.12 }}
             >
-              <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+              <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
                 Get AI estimate
               </Link>
               <BookCallButton className="ndx-btn">Book a call</BookCallButton>
-              <Link to="/about" className="ndx-btn">
+              <Link to="/about/" className="ndx-btn">
                 About us
               </Link>
             </motion.div>
@@ -133,7 +133,7 @@ export default function FaqPage() {
             </h2>
             <p>Or tell us what you want to ship — we will say whether we are the right fit.</p>
             <div className="ndx-faq-hero__actions">
-              <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+              <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
                 Get AI estimate
               </Link>
               <BookCallButton className="ndx-btn">Book a call</BookCallButton>

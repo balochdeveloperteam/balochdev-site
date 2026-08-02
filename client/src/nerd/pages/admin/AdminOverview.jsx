@@ -48,7 +48,7 @@ export default function AdminOverview() {
           <h2 className="ndx-h2">Welcome, {firstName}</h2>
         </div>
         <div className="ndx-admin-page-head-actions">
-          <Link to="/admin/posts/new" className="ndx-btn ndx-btn-primary">
+          <Link to="/admin/posts/new/" className="ndx-btn ndx-btn-primary">
             New post
           </Link>
         </div>

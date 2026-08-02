@@ -1,11 +1,11 @@
 import { Helmet } from 'react-helmet-async';
+import { absoluteCanonicalUrl } from './canonicalUrl';
 import { DEFAULT_OG_IMAGE, SITE_URL } from './siteSeo';
 
 /**
- * Canonical and og:url always use SITE_URL + path (currently https://balochdev.com).
- * OG/Twitter images: absolute DEFAULT_OG_IMAGE unless ogImage overrides (full URL or site-relative path).
- *
- * Builds absolute OG image URLs from SITE_URL + path or preserves absolute http(s) URLs.
+ * Canonical and og:url always use apex SITE_URL + trailing-slash path
+ * (Cloudflare Pages serves `about/index.html` as `/about/`).
+ * OG/Twitter images: absolute DEFAULT_OG_IMAGE unless ogImage overrides.
  */
 function resolveOgImage(img) {
   if (!img) return DEFAULT_OG_IMAGE;
@@ -19,7 +19,7 @@ function resolveOgImage(img) {
  * @param {object} props
  * @param {string} props.title
  * @param {string} props.description
- * @param {string} props.canonicalPath — path only, e.g. `/` or `/blog/my-slug`
+ * @param {string} props.canonicalPath — path only, e.g. `/` or `/blog/my-slug` (slash normalized)
  * @param {string} [props.ogImage]
  * @param {string} [props.type='website'] — forwarded to og:type
  * @param {boolean} [props.noindex=false]
@@ -34,8 +34,7 @@ export default function Seo({
   noindex = false,
   jsonLd,
 }) {
-  const path = canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`;
-  const canonical = `${SITE_URL}${path}`;
+  const canonical = absoluteCanonicalUrl(canonicalPath || '/');
   const imageAbsolute = resolveOgImage(ogImage);
   const ldPayload =
     jsonLd !== undefined && jsonLd !== null ? jsonLd : null;

@@ -163,12 +163,37 @@ export default function PostMetaPanel({
 
       <div className="ndx-admin-field">
         <label>Cover image</label>
-        {form.cover_image_url && (
+        {form.cover_image_url ? (
           <img src={form.cover_image_url} alt="" className="ndx-admin-cover-preview" />
+        ) : (
+          <div className="ndx-admin-cover-placeholder" aria-hidden>
+            No cover image yet
+          </div>
         )}
-        <button type="button" className="ndx-btn" onClick={onUploadCover}>
-          {form.cover_image_url ? 'Replace cover' : 'Upload cover'}
-        </button>
+        <div className="ndx-admin-cover-actions">
+          <button type="button" className="ndx-btn" onClick={onUploadCover}>
+            {form.cover_image_url ? 'Upload new' : 'Upload cover'}
+          </button>
+          {form.cover_image_url ? (
+            <button type="button" className="ndx-btn" onClick={() => setField('cover_image_url', '')}>
+              Remove
+            </button>
+          ) : null}
+        </div>
+        <label htmlFor="cover-url" className="ndx-admin-field-sublabel">
+          Or paste image URL
+        </label>
+        <input
+          id="cover-url"
+          className="ndx-admin-input"
+          type="url"
+          value={form.cover_image_url || ''}
+          onChange={(e) => setField('cover_image_url', e.target.value.trim())}
+          placeholder="https://res.cloudinary.com/... or any https image link"
+        />
+        <span className="ndx-admin-field-hint">
+          Upload from disk, or paste a Media library / external https image URL.
+        </span>
       </div>
 
       <div className="ndx-admin-field">

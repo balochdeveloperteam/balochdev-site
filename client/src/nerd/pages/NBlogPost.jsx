@@ -121,7 +121,7 @@ export default function NBlogPost() {
       <section className="ndx-section ndx-blog-article">
         <div className="ndx-container ndx-blog-article__wrap">
           <h1 className="ndx-h1">Post not found</h1>
-          <Link to="/blog" className="ndx-btn">← All posts</Link>
+          <Link to="/blog/" className="ndx-btn">← All posts</Link>
         </div>
       </section>
     );
@@ -244,13 +244,13 @@ export default function NBlogPost() {
 
         <nav className="ndx-blog-nav" aria-label="Post navigation">
           {post.prev_slug ? (
-            <Link to={`/blog/${post.prev_slug}`}>← Previous</Link>
+            <Link to={`/blog/${post.prev_slug}/`}>← Previous</Link>
           ) : (
             <span />
           )}
-          <Link to="/blog">All posts</Link>
+          <Link to="/blog/">All posts</Link>
           {post.next_slug ? (
-            <Link to={`/blog/${post.next_slug}`} style={{ textAlign: 'right' }}>
+            <Link to={`/blog/${post.next_slug}/`} style={{ textAlign: 'right' }}>
               Next →
             </Link>
           ) : (

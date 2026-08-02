@@ -266,7 +266,7 @@ export default function NBrand() {
         </div>
 
         <div className="ndx-hero-btns">
-          <Link to="/contact" className="ndx-btn ndx-btn-primary">
+          <Link to="/contact/" className="ndx-btn ndx-btn-primary">
             Licensing and usage enquiries
           </Link>
           <Link to="/" className="ndx-btn">

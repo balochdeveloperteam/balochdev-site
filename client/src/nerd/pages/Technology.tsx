@@ -534,7 +534,7 @@ export default function TechnologiesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: calmHeroMotion ? 0 : 0.6, delay: calmHeroMotion ? 0 : 0.22 }}
             >
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+              <Link to="/contact/" className="ndx-btn ndx-btn-primary">
                 Get in touch →
               </Link>
               <a href="#tech-stack" className="ndx-btn">
@@ -710,7 +710,7 @@ export default function TechnologiesPage() {
             Real client and BalochDev builds — open a case study for the full story.
           </RichSectionIntro>
           <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-            <Link to="/portfolio" className="ndx-btn">
+            <Link to="/portfolio/" className="ndx-btn">
               Full portfolio →
             </Link>
           </div>
@@ -762,7 +762,7 @@ export default function TechnologiesPage() {
           </div>
           <div className="ndx-hero-btns" style={{ position: "relative", zIndex: 1 }}>
             <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
-            <Link to="/services" className="ndx-btn">
+            <Link to="/services/" className="ndx-btn">
               View services
             </Link>
           </div>

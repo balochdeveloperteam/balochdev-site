@@ -33,13 +33,29 @@ cd worker
 npx wrangler deploy
 ```
 
-## One-time secrets (set in the Cloudflare dashboard or via CLI)
+## Why env vars used to disappear after deploy
+
+By default Wrangler treats `wrangler.toml` `[vars]` as the source of truth for
+**plain-text Variables**. On each `wrangler deploy` it removes dashboard
+Variables that are not listed there.
+
+That is why `SUPABASE_URL`, `CLOUDINARY_CLOUD_NAME`, and `TELEGRAM_CHAT_ID`
+vanished after CI/deploy if they were entered as plain Variables in the
+dashboard.
+
+**Fix in this repo:**
+- `keep_vars = true` in `wrangler.toml` (and `deploy --keep-vars` in CI)
+- Non-secret values (`SUPABASE_URL`, `CLOUDINARY_CLOUD_NAME`) live in `[vars]`
+- Real secrets must be **Secrets** (encrypted), not plain Variables
+
+## One-time secrets (Cloudflare dashboard or CLI)
+
+`SUPABASE_URL` and `CLOUDINARY_CLOUD_NAME` are already in `wrangler.toml` `[vars]`.
+Set the rest as **Secrets** (encrypted):
 
 ```bash
-npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put GEMINI_API_KEY
-npx wrangler secret put CLOUDINARY_CLOUD_NAME
 npx wrangler secret put CLOUDINARY_API_KEY
 npx wrangler secret put CLOUDINARY_API_SECRET
 npx wrangler secret put IP_HASH_SECRET
@@ -51,6 +67,9 @@ npx wrangler secret put GOOGLE_SHEETS_SPREADSHEET_ID
 npx wrangler secret put GOOGLE_SHEETS_TAB_NAME
 npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_JSON   # paste full JSON contents
 ```
+
+If a value was previously a plain Variable and still goes missing, delete the
+plain Variable in the dashboard and re-add it as a **Secret** with the same name.
 
 ## Notable porting decisions
 

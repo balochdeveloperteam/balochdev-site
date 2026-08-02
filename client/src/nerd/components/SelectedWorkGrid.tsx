@@ -18,7 +18,7 @@ export default function SelectedWorkGrid({
       {items.map((item, index) => (
         <Link
           key={item.slug}
-          to={`/projects/${item.slug}`}
+          to={`/projects/${item.slug}/`}
           className="ndx-card ndx-card-link"
           style={{ overflow: "hidden", padding: 0, display: "block", textDecoration: "none" }}
         >

@@ -213,13 +213,13 @@ export default function AboutPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.13 }}
                 >
-                  <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+                  <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
                     Get AI estimate
                   </Link>
-                  <Link to="/contact" className="ndx-btn">
+                  <Link to="/contact/" className="ndx-btn">
                     Get in touch
                   </Link>
-                  <Link to="/portfolio" className="ndx-btn">
+                  <Link to="/portfolio/" className="ndx-btn">
                     View our work
                   </Link>
                 </motion.div>
@@ -310,7 +310,7 @@ export default function AboutPage() {
                   Claude Code, agents, and modern frameworks on every build — so a focused senior team ships
                   like a large one, with review and ownership intact.
                 </p>
-                <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+                <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
                   Try the AI estimate
                 </Link>
               </div>
@@ -559,10 +559,10 @@ export default function AboutPage() {
               ))}
             </div>
             <div className="ndx-rich-actions ndx-about-stack-actions">
-              <Link to="/technologies" className="ndx-btn">
+              <Link to="/technologies/" className="ndx-btn">
                 View technologies
               </Link>
-              <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+              <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
                 Get AI estimate
               </Link>
             </div>
@@ -585,7 +585,7 @@ export default function AboutPage() {
               <FaqAccordion items={ABOUT_FAQ_TEASER} />
             </div>
             <p className="ndx-about-faq__more-wrap">
-              <Link to="/faq" className="ndx-about-faq-more">
+              <Link to="/faq/" className="ndx-about-faq-more">
                 Browse all FAQs →
               </Link>
             </p>
@@ -618,7 +618,7 @@ export default function AboutPage() {
               <h2 className="ndx-about-cta-card__title">
                 Get in touch with the founder, or run our AI Estimate tool first.
               </h2>
-              <Link to="/estimate" className="ndx-about-cta-card__btn ndx-about-cta-card__btn--ghost">
+              <Link to="/estimate/" className="ndx-about-cta-card__btn ndx-about-cta-card__btn--ghost">
                 Get AI Estimate →
               </Link>
             </motion.article>

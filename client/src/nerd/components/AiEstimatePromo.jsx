@@ -28,7 +28,7 @@ export default function AiEstimatePromo({ className = '' }) {
             </p>
           </div>
 
-          <Link to="/estimate" className="ndx-btn ndx-btn-primary ndx-ai-promo__cta">
+          <Link to="/estimate/" className="ndx-btn ndx-btn-primary ndx-ai-promo__cta">
             Start estimate
           </Link>
         </div>

@@ -26,7 +26,7 @@ export default function NResourcePage() {
       <section className="ndx-section" style={{ paddingTop: '3rem' }}>
         <div className="ndx-container">
           <h1 className="ndx-h1">Resource not found</h1>
-          <Link to="/technologies" className="ndx-btn ndx-btn-primary" style={{ marginTop: '1rem' }}>
+          <Link to="/technologies/" className="ndx-btn ndx-btn-primary" style={{ marginTop: '1rem' }}>
             Technologies
           </Link>
         </div>
@@ -44,10 +44,10 @@ export default function NResourcePage() {
         <h1 className="ndx-h1">{page.title}</h1>
         <p className="ndx-lead">{page.blurb}</p>
         <div className="ndx-hero-btns" style={{ marginTop: '2rem' }}>
-          <Link to="/estimate" className="ndx-btn ndx-btn-primary">
+          <Link to="/estimate/" className="ndx-btn ndx-btn-primary">
             AI estimate
           </Link>
-          <Link to="/contact" className="ndx-btn">
+          <Link to="/contact/" className="ndx-btn">
             Talk to us
           </Link>
         </div>

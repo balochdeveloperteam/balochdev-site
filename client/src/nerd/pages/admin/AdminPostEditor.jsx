@@ -9,6 +9,14 @@ import AdminEditorErrorBoundary from './components/AdminEditorErrorBoundary';
 import PostMetaDrawer from './components/PostMetaDrawer';
 import { slugifyTitle } from './components/PostMetaPanel';
 
+function snapshotForm(form) {
+  try {
+    return JSON.stringify(form);
+  } catch {
+    return '';
+  }
+}
+
 function computeReadingTime(html) {
   const text = String(html || '')
     .replace(/<[^>]+>/g, ' ')
@@ -110,12 +118,21 @@ export default function AdminPostEditor() {
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const slugTouched = useRef(false);
+  const baselineRef = useRef(snapshotForm(emptyForm()));
+  const [baselineReady, setBaselineReady] = useState(isNew);
 
   const editor = useBlogBlockEditor({
     contentHtml: form.content_html,
     onChange: (html) => setForm((p) => ({ ...p, content_html: html })),
     disabled: saving || form.post_type === 'image_caption',
   });
+
+  useEffect(() => {
+    if (!isNew) return undefined;
+    baselineRef.current = snapshotForm(emptyForm());
+    setBaselineReady(true);
+    return undefined;
+  }, [isNew]);
 
   useEffect(() => {
     if (isNew) return undefined;
@@ -126,7 +143,11 @@ export default function AdminPostEditor() {
         return res.json();
       })
       .then((data) => {
-        if (!cancelled) setForm(postToForm(data.post));
+        if (cancelled) return;
+        const next = postToForm(data.post);
+        setForm(next);
+        baselineRef.current = snapshotForm(next);
+        setBaselineReady(true);
       })
       .catch((e) => {
         if (!cancelled) setErr(e.message || 'Failed to load post');
@@ -138,6 +159,26 @@ export default function AdminPostEditor() {
       cancelled = true;
     };
   }, [authFetch, id, isNew]);
+
+  const isDirty = baselineReady && snapshotForm(form) !== baselineRef.current;
+
+  useEffect(() => {
+    const onBeforeUnload = (event) => {
+      if (!isDirty || saving) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isDirty, saving]);
+
+  const confirmLeaveIfDirty = (event) => {
+    if (!isDirty || saving) return;
+    const leave = window.confirm(
+      'You have unsaved changes. Leave this page without saving? Your edits will be lost.',
+    );
+    if (!leave) event.preventDefault();
+  };
 
   const readingTime = useMemo(() => {
     if (form.post_type === 'image_caption') return 1;
@@ -219,9 +260,11 @@ export default function AdminPostEditor() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Save failed');
       setLastSavedAt(new Date());
+      const savedForm = statusOverride ? { ...form, status: statusOverride } : form;
       if (statusOverride) {
         setForm((p) => ({ ...p, status: statusOverride }));
       }
+      baselineRef.current = snapshotForm(savedForm);
       if (navigateAway) {
         navigate('/admin/posts', { replace: !isNew });
       }
@@ -310,12 +353,18 @@ export default function AdminPostEditor() {
       <div className="ndx-admin-editor-chrome">
         <div className="ndx-admin-editor-chrome-row ndx-admin-editor-chrome-row--primary">
           <div className="ndx-admin-editor-chrome-left">
-            <Link to="/admin/posts" className="ndx-admin-editor-back">
+            <Link to="/admin/posts/" className="ndx-admin-editor-back" onClick={confirmLeaveIfDirty}>
               <TbArrowLeft aria-hidden />
               <span>Posts</span>
             </Link>
             <span className="ndx-admin-editor-status" aria-live="polite">
-              {saving ? 'Saving…' : lastSavedAt ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : statusLabel(form.status)}
+              {saving
+                ? 'Saving…'
+                : isDirty
+                  ? 'Unsaved changes'
+                  : lastSavedAt
+                    ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : statusLabel(form.status)}
             </span>
           </div>
           <div className="ndx-admin-editor-chrome-actions">
@@ -370,12 +419,29 @@ export default function AdminPostEditor() {
             <div className="ndx-admin-caption-compose ndx-glass-section">
               <div className="ndx-admin-field">
                 <label>Image</label>
-                {form.caption_image_url && (
+                {form.caption_image_url ? (
                   <img src={form.caption_image_url} alt="" className="ndx-admin-cover-preview" />
+                ) : (
+                  <div className="ndx-admin-cover-placeholder" aria-hidden>
+                    No image yet
+                  </div>
                 )}
-                <button type="button" className="ndx-btn" onClick={uploadCaptionImage}>
-                  {form.caption_image_url ? 'Replace image' : 'Upload image'}
-                </button>
+                <div className="ndx-admin-cover-actions">
+                  <button type="button" className="ndx-btn" onClick={uploadCaptionImage}>
+                    {form.caption_image_url ? 'Upload new' : 'Upload image'}
+                  </button>
+                </div>
+                <label htmlFor="caption-image-url" className="ndx-admin-field-sublabel">
+                  Or paste image URL
+                </label>
+                <input
+                  id="caption-image-url"
+                  className="ndx-admin-input"
+                  type="url"
+                  value={form.caption_image_url || ''}
+                  onChange={(e) => setForm((p) => ({ ...p, caption_image_url: e.target.value.trim() }))}
+                  placeholder="https://… image link"
+                />
               </div>
               <div className="ndx-admin-field">
                 <label htmlFor="caption-alt">Image alt text</label>

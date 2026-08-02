@@ -177,7 +177,7 @@ function CommentForm({ slug, parentId = null, onSuccess, onCancel, compact = fal
       {!compact ? (
         <p className="ndx-blog-comment-legal">
           By posting, you agree to our{' '}
-          <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+          <Link to="/terms/">Terms</Link> and <Link to="/privacy/">Privacy Policy</Link>.
         </p>
       ) : null}
     </form>

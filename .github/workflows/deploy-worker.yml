@@ -1,6 +1,9 @@
 # Production: deploy the Cloudflare Workers API on every push to main.
-# Secrets (SUPABASE_*, GEMINI_API_KEY, CLOUDINARY_*, etc.) are managed in
-# the Cloudflare dashboard, NOT here — never commit them.
+#
+# Plain-text dashboard Variables are preserved via `keep_vars = true` in
+# worker/wrangler.toml (Wrangler otherwise deletes vars not listed in [vars]).
+# Encrypted Secrets must still be set once in the Cloudflare dashboard
+# (or `wrangler secret put`) — deploy never deletes Secrets.
 
 name: Deploy Worker (API)
 
@@ -48,4 +51,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
-          command: deploy
+          # --keep-vars: do not wipe dashboard plain-text Variables on deploy
+          command: deploy --keep-vars

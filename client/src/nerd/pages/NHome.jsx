@@ -336,11 +336,11 @@ export default function NHome() {
             communication, production patterns borrowed from the best global products.
           </p>
           <div className="ndx-home-hero__actions">
-            <Link to="/estimate" className="ndx-btn ndx-btn-primary ndx-home-hero__btn">
+            <Link to="/estimate/" className="ndx-btn ndx-btn-primary ndx-home-hero__btn">
               AI estimate
             </Link>
             <BookCallButton className="ndx-btn ndx-home-hero__btn">Book a call</BookCallButton>
-            <Link to="/portfolio" className="ndx-btn ndx-home-hero__btn ndx-home-hero__btn--ghost">
+            <Link to="/portfolio/" className="ndx-btn ndx-home-hero__btn ndx-home-hero__btn--ghost">
               View work
             </Link>
           </div>
@@ -422,7 +422,7 @@ export default function NHome() {
                 Apps, web, commerce, agents, and cultural AI — scoped with the same rigor as top product orgs.
               </p>
             </div>
-            <Link to="/services" className="ndx-btn ndx-btn-primary">
+            <Link to="/services/" className="ndx-btn ndx-btn-primary">
               All services
             </Link>
           </div>
@@ -452,7 +452,7 @@ export default function NHome() {
           </div>
           <p className="ndx-home-services__foot">
             This is a snapshot — not the full catalogue.{' '}
-            <Link to="/services">See every service we offer →</Link>
+            <Link to="/services/">See every service we offer →</Link>
           </p>
         </div>
       </section>
@@ -507,7 +507,7 @@ export default function NHome() {
             {RECENT_WORK.map((p) => (
               <Link
                 key={p.slug}
-                to={`/projects/${p.slug}`}
+                to={`/projects/${p.slug}/`}
                 className={`ndx-home-recent-card ndx-home-recent-card--${p.size} ndx-home-recent-card--${p.slug}`}
               >
                 <div
@@ -548,7 +548,7 @@ export default function NHome() {
           </div>
 
           <div className="ndx-home-recent__foot">
-            <Link to="/portfolio" className="ndx-btn">
+            <Link to="/portfolio/" className="ndx-btn">
               View all work
             </Link>
           </div>
@@ -654,7 +654,7 @@ export default function NHome() {
           </div>
 
           <div className="ndx-home-why__foot">
-            <Link to="/about" className="ndx-btn ndx-btn-primary">
+            <Link to="/about/" className="ndx-btn ndx-btn-primary">
               Full about us
             </Link>
           </div>
@@ -712,10 +712,10 @@ export default function NHome() {
             </p>
           </div>
           <div className="ndx-home-about-cta__actions">
-            <Link to="/proposal" className="ndx-btn ndx-btn-primary">
+            <Link to="/proposal/" className="ndx-btn ndx-btn-primary">
               Send proposal
             </Link>
-            <Link to="/technologies" className="ndx-btn">
+            <Link to="/technologies/" className="ndx-btn">
               Our stack
             </Link>
           </div>

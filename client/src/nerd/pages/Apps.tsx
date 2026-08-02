@@ -320,10 +320,10 @@ export default function AppsPage() {
               <strong>Flutter</strong> or <strong>React Native</strong> — plus the <strong>APIs</strong>, auth, and store releases those clients need in the real world.
             </motion.p>
             <motion.div className="ndx-rich-actions" initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.12 }}>
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+              <Link to="/contact/" className="ndx-btn ndx-btn-primary">
                 Start a project →
               </Link>
-              <Link to="/estimate" className="ndx-btn">
+              <Link to="/estimate/" className="ndx-btn">
                 AI estimate
               </Link>
               <a href="#what-we-build" className="ndx-btn">
@@ -374,23 +374,23 @@ export default function AppsPage() {
             <span aria-hidden className="ndx-apps-wayfinding-sep">
               ·
             </span>
-            <Link to="/services">Services</Link>
+            <Link to="/services/">Services</Link>
             <span aria-hidden className="ndx-apps-wayfinding-sep">
               ·
             </span>
-            <Link to="/technologies">Technologies</Link>
+            <Link to="/technologies/">Technologies</Link>
             <span aria-hidden className="ndx-apps-wayfinding-sep">
               ·
             </span>
-            <Link to="/portfolio">Portfolio</Link>
+            <Link to="/portfolio/">Portfolio</Link>
             <span aria-hidden className="ndx-apps-wayfinding-sep">
               ·
             </span>
-            <Link to="/contact">Contact</Link>
+            <Link to="/contact/">Contact</Link>
             <span aria-hidden className="ndx-apps-wayfinding-sep">
               ·
             </span>
-            <Link to="/estimate">AI estimate</Link>
+            <Link to="/estimate/">AI estimate</Link>
           </nav>
         </div>
 
@@ -458,12 +458,12 @@ export default function AppsPage() {
           </RichSectionIntro>
           <div style={{ marginTop: "1.25rem", display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
             {["Kotlin", "Jetpack Compose", "Swift", "SwiftUI", "Flutter", "Dart", "React Native", "TypeScript", "Firebase", "Supabase", "PostgreSQL"].map((t) => (
-              <Link key={t} to="/technologies" className="ndx-pill" style={{ textDecoration: "none", color: "inherit", fontWeight: 600 }}>
+              <Link key={t} to="/technologies/" className="ndx-pill" style={{ textDecoration: "none", color: "inherit", fontWeight: 600 }}>
                 {t}
               </Link>
             ))}
           </div>
-          <Link to="/technologies" className="ndx-btn" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
+          <Link to="/technologies/" className="ndx-btn" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
             Browse technologies →
           </Link>
         </div>
@@ -473,10 +473,10 @@ export default function AppsPage() {
             Compliance, logistics, and operations vary — our industry hub ties mobile work to how your sector actually runs.
           </RichSectionIntro>
           <div className="ndx-hero-btns" style={{ marginTop: "1rem", flexWrap: "wrap" }}>
-            <Link to="/services" className="ndx-btn ndx-btn-primary">
+            <Link to="/services/" className="ndx-btn ndx-btn-primary">
               View services →
             </Link>
-            <Link to="/services/practice/build" className="ndx-btn">
+            <Link to="/services/practice/build/" className="ndx-btn">
               Build practice →
             </Link>
           </div>
@@ -559,10 +559,10 @@ export default function AppsPage() {
             Real client and BalochDev builds — open a case study for the full story.
           </RichSectionIntro>
           <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-            <Link to="/portfolio" className="ndx-btn">
+            <Link to="/portfolio/" className="ndx-btn">
               Full portfolio →
             </Link>
-            <Link to="/contact" className="ndx-btn">
+            <Link to="/contact/" className="ndx-btn">
               Discuss yours →
             </Link>
           </div>
@@ -579,7 +579,7 @@ export default function AppsPage() {
             </h2>
             <p className="ndx-tech-blurb" style={{ marginTop: "0.65rem", maxWidth: "50ch", lineHeight: 1.55 }}>
               Start from{" "}
-              <Link to="/services/android-app-development" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
+              <Link to="/services/android-app-development/" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
                 Android
               </Link>
               ,{" "}
@@ -591,7 +591,7 @@ export default function AppsPage() {
                 React Native
               </Link>{" "}
               — or go straight to{" "}
-              <Link to="/contact" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
+              <Link to="/contact/" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
                 contact
               </Link>{" "}
               if you need native iOS and a single proposal across both stores.
@@ -599,7 +599,7 @@ export default function AppsPage() {
           </div>
           <div className="ndx-hero-btns">
             <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
-            <Link to="/estimate" className="ndx-btn">
+            <Link to="/estimate/" className="ndx-btn">
               Get estimate
             </Link>
           </div>

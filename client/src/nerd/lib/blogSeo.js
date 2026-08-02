@@ -1,3 +1,4 @@
+import { absoluteCanonicalUrl } from '../seo/canonicalUrl';
 import { DEFAULT_OG_IMAGE, ORGANIZATION_GRAPH_ID, SITE_URL } from '../seo/siteSeo';
 
 function absImage(url) {
@@ -12,7 +13,7 @@ function plainDescription(post) {
 }
 
 export function buildBlogArticleJsonLd(post, comments = []) {
-  const pageUrl = `${SITE_URL}/blog/${post.slug}`;
+  const pageUrl = absoluteCanonicalUrl(`/blog/${post.slug}`);
   const headline = (post.meta_title || post.title || '').trim();
   const description = plainDescription(post);
   const image = absImage(post.og_image_url || post.cover_image_url);
@@ -66,20 +67,21 @@ export function buildBlogArticleJsonLd(post, comments = []) {
 }
 
 export function buildBlogBreadcrumbJsonLd(post) {
-  const pageUrl = `${SITE_URL}/blog/${post.slug}`;
+  const pageUrl = absoluteCanonicalUrl(`/blog/${post.slug}`);
   /** @type {object[]} */
   const itemListElement = [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-    { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: absoluteCanonicalUrl('/blog') },
   ];
 
   const category = String(post.category || '').trim();
   if (category) {
+    // Category filters are non-canonical; point crumb at /blog/ (query stripped from SEO).
     itemListElement.push({
       '@type': 'ListItem',
       position: 3,
       name: category,
-      item: `${SITE_URL}/blog?category=${encodeURIComponent(category)}`,
+      item: absoluteCanonicalUrl('/blog'),
     });
     itemListElement.push({
       '@type': 'ListItem',
@@ -162,7 +164,7 @@ function escapeJsonForScript(value) {
 export function buildBlogHeadHtml(post) {
   const title = blogSeoTitle(post);
   const description = blogSeoDescription(post);
-  const canonical = `${SITE_URL}/blog/${post.slug}`;
+  const canonical = absoluteCanonicalUrl(`/blog/${post.slug}`);
   const ogImage = absImage(post.og_image_url || post.cover_image_url);
   const articleLd = buildBlogArticleJsonLd(post, []);
   const breadcrumbLd = buildBlogBreadcrumbJsonLd(post);

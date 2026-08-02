@@ -29,7 +29,7 @@ export default function NIndustries() {
             </div>
           ))}
         </div>
-        <Link to="/contact" className="ndx-btn ndx-btn-primary" style={{ marginTop: '2rem' }}>
+        <Link to="/contact/" className="ndx-btn ndx-btn-primary" style={{ marginTop: '2rem' }}>
           Talk industry fit
         </Link>
       </div>

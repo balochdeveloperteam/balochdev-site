@@ -978,6 +978,63 @@
   display: none !important;
 }
 
+.ndx-estimate-report--pdf .ndx-estimate-stat,
+.ndx-estimate-report--pdf .ndx-estimate-market-cell,
+.ndx-estimate-report--pdf .ndx-estimate-next,
+.ndx-estimate-report--pdf .ndx-estimate-table-wrap {
+  background: #ffffff !important;
+  border-color: rgba(11, 19, 64, 0.12) !important;
+}
+
+.ndx-estimate-pdf-alert {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(8, 10, 18, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.ndx-estimate-pdf-alert__panel {
+  width: min(100%, 420px);
+  padding: 1.35rem 1.4rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid var(--ndx-border);
+  background: var(--ndx-bg-elev, #111);
+  color: var(--ndx-text);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.ndx-estimate-pdf-alert__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ndx-dim);
+  font-family: var(--ndx-font-mono, monospace);
+}
+
+.ndx-estimate-pdf-alert__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.ndx-estimate-pdf-alert__body {
+  margin: 0 0 1.15rem;
+  color: var(--ndx-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.ndx-estimate-pdf-alert__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 640px) {
   .ndx-estimate-page {
     padding-left: 0 !important;

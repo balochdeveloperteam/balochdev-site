@@ -13,6 +13,7 @@ import fsPromises from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { absoluteCanonicalUrl, normalizeCanonicalPath } from '../src/nerd/seo/canonicalUrl.js';
 import { isPrivateSitePath, PRIVATE_ROUTES, SITE_URL } from '../src/nerd/seo/siteSeo.js';
 
 import { tryCreateSupabaseBuildClient } from './lib/supabaseBuildClient.mjs';
@@ -51,16 +52,15 @@ function hydrateProcessEnvFromClientDotEnv() {
 
 function pathnameFromAbsoluteUrl(abs) {
   try {
-    let p = new URL(abs).pathname;
-    if (p.endsWith('/') && p.length > 1) p = p.slice(0, -1);
-    return p || '/';
+    return normalizeCanonicalPath(new URL(abs).pathname || '/');
   } catch {
     return '/';
   }
 }
 
 function blogSlugFromPathname(p) {
-  const m = /^\/blog\/([^/?#]+)$/.exec(p);
+  const bare = String(p || '').replace(/\/+$/, '') || '/';
+  const m = /^\/blog\/([^/?#]+)$/.exec(bare);
   return m ? decodeURIComponent(m[1]) : null;
 }
 
@@ -231,23 +231,23 @@ Statements above are factual product and scope summaries for retrieval and citat
 ## Key URLs
 
 - [Home](${SITE_URL}/) — Studio overview, services, and recent work.
-- [Services](${SITE_URL}/services) — Web, mobile, AI, automation, and integration services.
-- [Technologies](${SITE_URL}/technologies) — Stack we work with (React, Next.js, Node, Supabase, AI tooling).
-- [Portfolio](${SITE_URL}/portfolio) — Selected client and partner projects.
-- [Apps](${SITE_URL}/apps) — BalochDev-built apps and tools.
-- [About](${SITE_URL}/about) — Who we are.
-- [FAQ](${SITE_URL}/faq) — Common questions about services, pricing, and process.
-- [Blog](${SITE_URL}/blog) — Articles, notes, and updates.
-- [Advertise](${SITE_URL}/advertise) — Reach the BalochDev audience.
-- [Estimate](${SITE_URL}/estimate) — AI-assisted project estimate.
-- [Contact](${SITE_URL}/contact) — Get in touch.
+- [Services](${absoluteCanonicalUrl('/services')}) — Web, mobile, AI, automation, and integration services.
+- [Technologies](${absoluteCanonicalUrl('/technologies')}) — Stack we work with (React, Next.js, Node, Supabase, AI tooling).
+- [Portfolio](${absoluteCanonicalUrl('/portfolio')}) — Selected client and partner projects.
+- [Apps](${absoluteCanonicalUrl('/apps')}) — BalochDev-built apps and tools.
+- [About](${absoluteCanonicalUrl('/about')}) — Who we are.
+- [FAQ](${absoluteCanonicalUrl('/faq')}) — Common questions about services, pricing, and process.
+- [Blog](${absoluteCanonicalUrl('/blog')}) — Articles, notes, and updates.
+- [Advertise](${absoluteCanonicalUrl('/advertise')}) — Reach the BalochDev audience.
+- [Estimate](${absoluteCanonicalUrl('/estimate')}) — AI-assisted project estimate.
+- [Contact](${absoluteCanonicalUrl('/contact')}) — Get in touch.
 `;
 
   if (!blogPosts.length) return header;
 
   const lines = [header, '## Articles', ''];
   for (const post of blogPosts) {
-    const url = `${SITE_URL}/blog/${post.slug}`;
+    const url = absoluteCanonicalUrl(`/blog/${post.slug}`);
     const summary = post.summary ? ` — ${post.summary}` : '';
     lines.push(`- [${post.title}](${url})${summary}`);
   }
@@ -282,9 +282,11 @@ async function main() {
 
   for (const abs of manifestUrls) {
     const pathname = pathnameFromAbsoluteUrl(abs);
-    if (pathname === '/404') continue;
-    if (isPrivateSitePath(pathname)) continue;
-    publicUrls.push(abs);
+    const barePrivate = pathname.replace(/\/+$/, '') || '/';
+    if (pathname === '/404' || pathname === '/404/') continue;
+    if (isPrivateSitePath(barePrivate)) continue;
+    const canonicalAbs = absoluteCanonicalUrl(pathname);
+    publicUrls.push(canonicalAbs);
     publicPaths.push(pathname);
   }
 

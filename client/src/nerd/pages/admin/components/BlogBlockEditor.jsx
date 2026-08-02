@@ -183,16 +183,24 @@ function HtmlEmbedModalFields({ htmlInput, onHtmlInputChange }) {
   return (
     <>
       <p className="ndx-admin-field-hint" style={{ marginTop: 0 }}>
-        Paste HTML that will be sanitized on save. It is displayed as an embed block, not executed as a script.
+        Paste HTML for custom sections. Scripts and external stylesheets are blocked. You can use{' '}
+        <strong>inline styles</strong> and a single embedded <code>&lt;style&gt;</code> block (no{' '}
+        <code>@import</code>, no <code>url()</code>).
       </p>
       <label className="ndx-admin-field">
-        <span>HTML</span>
+        <span>HTML + optional CSS</span>
         <textarea
           className="ndx-admin-textarea ndx-admin-textarea--mono"
-          rows={8}
+          rows={10}
           value={htmlInput}
           onChange={(e) => onHtmlInputChange(e.target.value)}
-          placeholder="<div>…</div>"
+          placeholder={`<style>
+.feature-box { padding: 1.25rem; border-radius: 12px; background: #0b1340; color: #fff; }
+</style>
+<section class="feature-box">
+  <h2 style="margin:0 0 0.5rem;color:#2dd4bf">Custom section</h2>
+  <p style="margin:0">Styled with embedded CSS + inline styles.</p>
+</section>`}
           autoFocus
         />
       </label>

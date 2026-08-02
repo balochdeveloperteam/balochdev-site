@@ -318,7 +318,7 @@ function ProjectCard({
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem", alignItems: "center", marginTop: "auto" }}>
           {p.slug ? (
-            <Link to={`/projects/${p.slug}`} className="ndx-btn ndx-btn-primary" style={{ fontSize: "0.8125rem", alignSelf: "flex-start" }}>
+            <Link to={`/projects/${p.slug}/`} className="ndx-btn ndx-btn-primary" style={{ fontSize: "0.8125rem", alignSelf: "flex-start" }}>
               View case study →
             </Link>
           ) : (
@@ -423,8 +423,8 @@ export default function PortfolioPage() {
               Client deliveries, partner language-technology initiatives, and internal BalochDev products — all shipped, all in production. Honest case studies with measurable outcomes.
             </motion.p>
             <motion.div className="ndx-rich-actions" initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.14 }}>
-              <Link to="/proposal" className="ndx-btn ndx-btn-primary">Start a project →</Link>
-              <Link to="/estimate" className="ndx-btn">AI estimate</Link>
+              <Link to="/proposal/" className="ndx-btn ndx-btn-primary">Start a project →</Link>
+              <Link to="/estimate/" className="ndx-btn">AI estimate</Link>
             </motion.div>
           </div>
 
@@ -670,8 +670,8 @@ export default function PortfolioPage() {
             Tell us what you need to build. We will tell you honestly whether we are the right team — and what it would realistically take.
           </p>
           <div className="ndx-rich-actions" style={{ justifyContent: "center" }}>
-            <Link to="/proposal" className="ndx-btn ndx-btn-primary">Send a proposal</Link>
-            <Link to="/estimate" className="ndx-btn">AI estimate</Link>
+            <Link to="/proposal/" className="ndx-btn ndx-btn-primary">Send a proposal</Link>
+            <Link to="/estimate/" className="ndx-btn">AI estimate</Link>
             <BookCallButton className="ndx-btn">Book a call</BookCallButton>
           </div>
         </div>

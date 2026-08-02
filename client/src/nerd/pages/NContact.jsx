@@ -255,7 +255,7 @@ export default function NContact() {
                 <p className="ndx-lead">We will follow up shortly from {CONTACT_EMAIL}.</p>
                 <div className="ndx-contact-card__actions">
                   <BookCallButton className="ndx-btn ndx-btn-primary">Book a call anyway</BookCallButton>
-                  <Link to="/estimate" className="ndx-btn">
+                  <Link to="/estimate/" className="ndx-btn">
                     AI estimate
                   </Link>
                 </div>
@@ -316,7 +316,7 @@ export default function NContact() {
                   <BookCallButton className="ndx-btn" type="button">
                     Book a call →
                   </BookCallButton>
-                  <Link to="/estimate" className="ndx-btn ndx-contact-card__ghost">
+                  <Link to="/estimate/" className="ndx-btn ndx-contact-card__ghost">
                     Instant AI estimate
                   </Link>
                 </div>

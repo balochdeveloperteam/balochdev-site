@@ -28,7 +28,7 @@ function AdminGate() {
   }
 
   if (!session || denied) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login/" replace state={{ from: location.pathname }} />;
   }
 
   return (

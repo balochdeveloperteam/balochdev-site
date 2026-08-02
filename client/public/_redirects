@@ -2,11 +2,40 @@
 # Do NOT rewrite private routes to .html files — Cloudflare Pages 308-strips .html targets.
 # ABSOLUTELY NO global /* rule — unknown public URLs fall through to 404.html (HTTP 404).
 
+# www → apex (GSC "Page with redirect" / soft-404 cleanup). Order matters: host rules first.
+https://www.balochdev.com/* https://balochdev.com/:splat 301
+http://www.balochdev.com/* https://balochdev.com/:splat 301
+http://balochdev.com/* https://balochdev.com/:splat 301
+
+# Legacy / GSC 404 + soft-404 orphans → live trailing-slash URLs
+/index.php  /  301
+/blog/BalochDevBlogs/  /blog/  301
+/blog/BalochDevBlogs  /blog/  301
+/contact-us/  /contact/  301
+/contact-us  /contact/  301
+/about-us/  /about/  301
+/about-us  /about/  301
+/privacy-policy/  /privacy/  301
+/privacy-policy  /privacy/  301
+/privacy.html  /privacy/  301
+/terms-and-conditions/  /terms/  301
+/terms-and-conditions  /terms/  301
+/disclaimer/  /privacy/  301
+/disclaimer  /privacy/  301
+/sitemap.html  /sitemap.xml  301
+
 # GSC / legacy orphans → canonical public pages
-/projects  /portfolio  301
-/industries  /services  301
-/projects/shbash  /projects/shabash  301
-/projects/mango  /projects/mango-restaurant  301
-/projects/toledo  /projects/toledo-locks  301
-/projects/soroz-ai  /projects/soroz  301
-/projects/doch.com  /projects/doch  301
+/projects  /portfolio/  301
+/projects/  /portfolio/  301
+/industries  /services/  301
+/industries/  /services/  301
+/projects/shbash  /projects/shabash/  301
+/projects/shbash/  /projects/shabash/  301
+/projects/mango  /projects/mango-restaurant/  301
+/projects/mango/  /projects/mango-restaurant/  301
+/projects/toledo  /projects/toledo-locks/  301
+/projects/toledo/  /projects/toledo-locks/  301
+/projects/soroz-ai  /projects/soroz/  301
+/projects/soroz-ai/  /projects/soroz/  301
+/projects/doch.com  /projects/doch/  301
+/projects/doch.com/  /projects/doch/  301

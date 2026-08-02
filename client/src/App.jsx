@@ -10,6 +10,7 @@ import SmoothScroll from './nerd/components/SmoothScroll';
 import CursorGlow from './nerd/components/CursorGlow';
 import RouteNProgress from './nerd/components/RouteNProgress';
 import ScrollToTop from './nerd/components/ScrollToTop';
+import PreferTrailingSlash from './nerd/components/PreferTrailingSlash';
 import GoogleAnalytics from './nerd/components/GoogleAnalytics';
 import BootSplash from './nerd/components/BootSplash';
 import GlobalScrollReveal from './nerd/components/GlobalScrollReveal';
@@ -61,6 +62,7 @@ function NBlogPostRoute() {
 function AppRoutes() {
   return (
     <>
+      <PreferTrailingSlash />
       <ScrollToTop />
       <GoogleAnalytics />
       <RouteNProgress />
@@ -69,31 +71,55 @@ function AppRoutes() {
         <main className="ndx-main">
           <Routes>
             <Route path="/" element={<NHome />} />
-            <Route path="/services" element={<NServices />} />
+            {/* Trailing-slash public routes (match Cloudflare Pages …/index.html URLs) */}
+            <Route path="/services/" element={<NServices />} />
+            <Route path="/services" element={<Navigate to="/services/" replace />} />
+            <Route path="/services/practice/:practiceId/" element={<ServicePracticeLanding />} />
             <Route path="/services/practice/:practiceId" element={<ServicePracticeLanding />} />
+            <Route path="/services/:slug/" element={<NServicePage />} />
             <Route path="/services/:slug" element={<NServicePage />} />
-            <Route path="/brand" element={<NBrand />} />
+            <Route path="/brand/" element={<NBrand />} />
+            <Route path="/brand" element={<Navigate to="/brand/" replace />} />
+            <Route path="/resources/:slug/" element={<NResourcePage />} />
             <Route path="/resources/:slug" element={<NResourcePage />} />
+            <Route path="/technologies/:category/:slug/" element={<TechnologyAiLanding />} />
             <Route path="/technologies/:category/:slug" element={<TechnologyAiLanding />} />
-            <Route path="/technologies" element={<NTechnologies />} />
-            <Route path="/apps" element={<NApps />} />
-            {/* <Route path="/industries" element={<NIndustries />} /> */}{/* hidden for now */}
-            <Route path="/portfolio" element={<NPortfolio />} />
-            <Route path="/projects" element={<Navigate to="/portfolio" replace />} />
+            <Route path="/technologies/" element={<NTechnologies />} />
+            <Route path="/technologies" element={<Navigate to="/technologies/" replace />} />
+            <Route path="/apps/" element={<NApps />} />
+            <Route path="/apps" element={<Navigate to="/apps/" replace />} />
+            <Route path="/portfolio/" element={<NPortfolio />} />
+            <Route path="/portfolio" element={<Navigate to="/portfolio/" replace />} />
+            <Route path="/projects/" element={<Navigate to="/portfolio/" replace />} />
+            <Route path="/projects" element={<Navigate to="/portfolio/" replace />} />
+            <Route path="/projects/:slug/" element={<NProjectPage />} />
             <Route path="/projects/:slug" element={<NProjectPage />} />
-            <Route path="/industries" element={<Navigate to="/services" replace />} />
-            <Route path="/about" element={<NAbout />} />
-            <Route path="/faq" element={<NFaq />} />
-            <Route path="/blog" element={<NBlog />} />
+            <Route path="/industries/" element={<Navigate to="/services/" replace />} />
+            <Route path="/industries" element={<Navigate to="/services/" replace />} />
+            <Route path="/about/" element={<NAbout />} />
+            <Route path="/about" element={<Navigate to="/about/" replace />} />
+            <Route path="/faq/" element={<NFaq />} />
+            <Route path="/faq" element={<Navigate to="/faq/" replace />} />
+            <Route path="/blog/" element={<NBlog />} />
+            <Route path="/blog" element={<Navigate to="/blog/" replace />} />
+            <Route path="/blog/:slug/" element={<NBlogPostRoute />} />
             <Route path="/blog/:slug" element={<NBlogPostRoute />} />
-            <Route path="/advertise" element={<NAdvertise />} />
-            <Route path="/contact" element={<NContact />} />
-            <Route path="/estimate" element={<NEstimate />} />
-            <Route path="/proposal" element={<NProposal />} />
-            <Route path="/privacy" element={<NPrivacy />} />
-            <Route path="/terms" element={<NTerms />} />
-            <Route path="/refund" element={<NRefund />} />
-            <Route path="/fulfilment" element={<NFulfilment />} />
+            <Route path="/advertise/" element={<NAdvertise />} />
+            <Route path="/advertise" element={<Navigate to="/advertise/" replace />} />
+            <Route path="/contact/" element={<NContact />} />
+            <Route path="/contact" element={<Navigate to="/contact/" replace />} />
+            <Route path="/estimate/" element={<NEstimate />} />
+            <Route path="/estimate" element={<Navigate to="/estimate/" replace />} />
+            <Route path="/proposal/" element={<NProposal />} />
+            <Route path="/proposal" element={<Navigate to="/proposal/" replace />} />
+            <Route path="/privacy/" element={<NPrivacy />} />
+            <Route path="/privacy" element={<Navigate to="/privacy/" replace />} />
+            <Route path="/terms/" element={<NTerms />} />
+            <Route path="/terms" element={<Navigate to="/terms/" replace />} />
+            <Route path="/refund/" element={<NRefund />} />
+            <Route path="/refund" element={<Navigate to="/refund/" replace />} />
+            <Route path="/fulfilment/" element={<NFulfilment />} />
+            <Route path="/fulfilment" element={<Navigate to="/fulfilment/" replace />} />
             <Route path="/login" element={<AdminLogin />} />
             <Route path="/admin/login" element={<Navigate to="/login" replace />} />
             <Route path="/admin" element={<AdminGuard />}>

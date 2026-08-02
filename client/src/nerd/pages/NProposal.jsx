@@ -52,7 +52,12 @@ export default function NProposal() {
 
   return (
     <>
-      <Seo title={seoTitle} description={seoDescription} canonicalPath={PROPOSAL_SEO.canonicalPath} />
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={PROPOSAL_SEO.canonicalPath}
+        noindex
+      />
       <section className="ndx-section" style={{ paddingTop: '3rem' }}>
       <div className="ndx-container" style={{ maxWidth: '640px' }}>
         <p className="ndx-eyebrow">Proposal</p>
@@ -100,7 +105,7 @@ export default function NProposal() {
               </a>
               .
             </p>
-            <Link to="/services" className="ndx-btn" style={{ marginTop: '1rem' }}>
+            <Link to="/services/" className="ndx-btn" style={{ marginTop: '1rem' }}>
               Explore services
             </Link>
           </>

@@ -1,4 +1,5 @@
-import { forwardRef, useCallback } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import botLogo from '../../assets/BalochDevLogo/botlogo.webp';
 import './estimate.css';
@@ -134,14 +135,13 @@ async function assetToDataUrl(url) {
 function waitForImages(root) {
   const imgs = Array.from(root.querySelectorAll('img'));
   return Promise.all(
-    imgs.map(
-      (img) =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise((resolve) => {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }),
+    imgs.map((img) =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise((resolve) => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          }),
     ),
   );
 }
@@ -155,22 +155,124 @@ function formatDocDate(iso) {
   }
 }
 
+/** html2canvas cannot parse modern CSS color() / color-mix / oklch values. */
+function isHtml2CanvasSafeColor(value) {
+  if (!value || typeof value !== 'string') return false;
+  const v = value.trim().toLowerCase();
+  if (v === 'transparent' || v === 'currentcolor' || v === 'inherit' || v === 'initial') return false;
+  if (/color-mix\(|oklch\(|oklab\(|lab\(|lch\(|color\(|hwb\(/i.test(v)) return false;
+  return /^#([0-9a-f]{3,8})$/i.test(v) || /^rgba?\(/i.test(v);
+}
+
+let pdfColorCtx = null;
+function toHtml2CanvasColor(value, fallback = null) {
+  if (!value || typeof value !== 'string') return fallback;
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === 'transparent' || trimmed === 'rgba(0, 0, 0, 0)') return fallback;
+  if (isHtml2CanvasSafeColor(trimmed)) return trimmed;
+
+  try {
+    if (!pdfColorCtx) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      pdfColorCtx = canvas.getContext('2d', { willReadFrequently: true });
+    }
+    const ctx = pdfColorCtx;
+    ctx.clearRect(0, 0, 1, 1);
+    ctx.fillStyle = '#000000';
+    ctx.fillStyle = trimmed;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+    if (a === 0) return fallback;
+    if (a === 255) return `rgb(${r}, ${g}, ${b})`;
+    return `rgba(${r}, ${g}, ${b}, ${Number((a / 255).toFixed(3))})`;
+  } catch {
+    return fallback;
+  }
+}
+
+function flattenPdfColors(root) {
+  const nodes = [root, ...root.querySelectorAll('*')];
+  nodes.forEach((nodeEl) => {
+    if (!(nodeEl instanceof HTMLElement)) return;
+    const cs = window.getComputedStyle(nodeEl);
+
+    nodeEl.style.backgroundImage = 'none';
+    nodeEl.style.boxShadow = 'none';
+    nodeEl.style.textShadow = 'none';
+    nodeEl.style.filter = 'none';
+    nodeEl.style.backdropFilter = 'none';
+    nodeEl.style.webkitBackdropFilter = 'none';
+    nodeEl.style.outlineColor = 'transparent';
+
+    const color = toHtml2CanvasColor(cs.color, '#0b1340');
+    if (color) nodeEl.style.color = color;
+
+    const bg = toHtml2CanvasColor(cs.backgroundColor, null);
+    nodeEl.style.backgroundColor = bg || 'transparent';
+
+    const borderColor = toHtml2CanvasColor(cs.borderColor, 'rgba(11, 19, 64, 0.16)');
+    if (borderColor) {
+      nodeEl.style.borderTopColor = borderColor;
+      nodeEl.style.borderRightColor = borderColor;
+      nodeEl.style.borderBottomColor = borderColor;
+      nodeEl.style.borderLeftColor = borderColor;
+    }
+
+    const caret = toHtml2CanvasColor(cs.caretColor, null);
+    if (caret) nodeEl.style.caretColor = caret;
+  });
+}
+
+function PdfAlertModal({ open, message, onClose }) {
+  if (!open || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="ndx-estimate-pdf-alert" role="presentation" onClick={onClose}>
+      <div
+        className="ndx-estimate-pdf-alert__panel"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="ndx-estimate-pdf-alert-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="ndx-estimate-pdf-alert__eyebrow">PDF export</p>
+        <h3 id="ndx-estimate-pdf-alert-title" className="ndx-estimate-pdf-alert__title">
+          Could not generate the PDF
+        </h3>
+        <p className="ndx-estimate-pdf-alert__body">{message}</p>
+        <div className="ndx-estimate-pdf-alert__actions">
+          <button type="button" className="ndx-btn ndx-btn-primary" onClick={onClose}>
+            OK
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 /**
  * Document-style estimate report (invoice / proposal cost-breakdown layout).
  */
 const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadStart, onDownloadEnd }, ref) {
   const data = normalizeReport(report);
-  if (!data) return null;
+  const [pdfError, setPdfError] = useState('');
+  const [pdfBusy, setPdfBusy] = useState(false);
 
-  const timeframeLabel =
-    data.timeframe?.label ||
-    (data.timeframe?.calendarDaysLow != null
-      ? `${data.timeframe.calendarDaysLow}–${data.timeframe.calendarDaysHigh} calendar days`
-      : '—');
+  const timeframeLabel = data
+    ? data.timeframe?.label ||
+      (data.timeframe?.calendarDaysLow != null
+        ? `${data.timeframe.calendarDaysLow}–${data.timeframe.calendarDaysHigh} calendar days`
+        : '—')
+    : '—';
 
   const handleDownloadPdf = useCallback(async () => {
     const node = ref?.current;
-    if (!node) return;
+    if (!data || !node || pdfBusy) return;
+    setPdfError('');
+    setPdfBusy(true);
     onDownloadStart?.();
     let wrapper = null;
     try {
@@ -211,19 +313,12 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
           img.remove();
         });
       }
-      // Force solid printable colors (html2canvas struggles with color-mix / theme vars).
-      clone.querySelectorAll('*').forEach((nodeEl) => {
-        if (!(nodeEl instanceof HTMLElement)) return;
-        nodeEl.style.backgroundImage = 'none';
-        nodeEl.style.boxShadow = 'none';
-        nodeEl.style.backdropFilter = 'none';
-        nodeEl.style.webkitBackdropFilter = 'none';
-        nodeEl.style.filter = 'none';
-        nodeEl.style.textShadow = 'none';
-      });
+
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
       await waitForImages(wrapper);
+      // Flatten modern CSS colors to rgb()/hex before html2canvas parses them.
+      flattenPdfColors(clone);
 
       const canvas = await html2canvas(wrapper, {
         scale: Math.min(2, window.devicePixelRatio || 1.5),
@@ -236,20 +331,7 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
         onclone: (_doc, el) => {
           el.style.background = '#ffffff';
           el.style.color = '#0b1340';
-          el.querySelectorAll('*').forEach((nodeEl) => {
-            if (!(nodeEl instanceof HTMLElement)) return;
-            const cs = window.getComputedStyle(nodeEl);
-            nodeEl.style.backgroundImage = 'none';
-            nodeEl.style.boxShadow = 'none';
-            nodeEl.style.backdropFilter = 'none';
-            nodeEl.style.webkitBackdropFilter = 'none';
-            nodeEl.style.filter = 'none';
-            if (cs.color) nodeEl.style.color = cs.color;
-            if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-              nodeEl.style.backgroundColor = cs.backgroundColor;
-            }
-            if (cs.borderColor) nodeEl.style.borderColor = cs.borderColor;
-          });
+          flattenPdfColors(el);
         },
       });
 
@@ -284,177 +366,195 @@ const EstimateReport = forwardRef(function EstimateReport({ report, onDownloadSt
       pdf.save(`BalochDev-Estimate-${slugifyFilename(data.projectTitle)}.pdf`);
     } catch (err) {
       console.error('[estimate PDF]', err);
-      window.alert(
-        `Could not generate the PDF${err?.message ? ` (${err.message})` : ''}. Try again, or use the browser print dialog.`,
+      setPdfError(
+        err?.message
+          ? `${err.message}. Try again, or use your browser’s print dialog (Save as PDF).`
+          : 'Try again, or use your browser’s print dialog (Save as PDF).',
       );
     } finally {
       if (wrapper?.parentNode) wrapper.parentNode.removeChild(wrapper);
+      setPdfBusy(false);
       onDownloadEnd?.();
     }
-  }, [data.projectTitle, onDownloadEnd, onDownloadStart, ref]);
+  }, [data, onDownloadEnd, onDownloadStart, pdfBusy, ref]);
+
+  if (!data) return null;
 
   return (
-    <article ref={ref} className="ndx-estimate-report">
-      <header className="ndx-estimate-report__doc-head">
-        <div className="ndx-estimate-report__brand">
-          <img src={botLogo} alt="" width={44} height={44} decoding="async" />
-          <p className="ndx-estimate-report__brand-meta">
-            <strong>BalochDev</strong>
-            <span>Project estimate</span>
-          </p>
-        </div>
-        <p className="ndx-estimate-report__doc-label">
-          Document
-          <br />
-          {formatDocDate(data.generatedAt)}
-        </p>
-      </header>
-
-      <div className="ndx-estimate-report__body">
-        <h2 className="ndx-estimate-report__title">{data.projectTitle}</h2>
-        <div>
-          {data.projectType ? <span className="ndx-estimate-pill">{data.projectType}</span> : null}
-          {data.platforms.map((p) => (
-            <span key={p} className="ndx-estimate-pill">
-              {p}
-            </span>
-          ))}
-        </div>
-        <p className="ndx-lead" style={{ marginTop: '1rem', marginBottom: 0 }}>
-          {data.summary}
-        </p>
-
-        <section className="ndx-estimate-report__section">
-          <h3 className="ndx-estimate-report__section-title">At a glance</h3>
-          <div className="ndx-estimate-stat-grid">
-            <div className="ndx-estimate-stat">
-              <span className="ndx-estimate-stat__label">Low</span>
-              <span className="ndx-estimate-stat__value">{formatUsd(data.totals?.low)}</span>
-            </div>
-            <div className="ndx-estimate-stat">
-              <span className="ndx-estimate-stat__label">High</span>
-              <span className="ndx-estimate-stat__value ndx-estimate-stat__value--accent">{formatUsd(data.totals?.high)}</span>
-            </div>
-            <div className="ndx-estimate-stat">
-              <span className="ndx-estimate-stat__label">Timeframe</span>
-              <span className="ndx-estimate-stat__value" style={{ fontSize: '0.95rem' }}>
-                {timeframeLabel}
-              </span>
-            </div>
-          </div>
-          <CostRangeChart low={data.totals?.low} high={data.totals?.high} />
-          {data.totals?.notes ? <p className="ndx-estimate-stat__hint" style={{ marginTop: '0.85rem' }}>{data.totals.notes}</p> : null}
-          {data.totals?.requiresCall ? (
-            <p className="ndx-estimate-stat__hint" style={{ color: 'var(--ndx-accent)' }}>
-              Scope likely needs a scoping call before a firm quote.
+    <>
+      <article ref={ref} className="ndx-estimate-report">
+        <header className="ndx-estimate-report__doc-head">
+          <div className="ndx-estimate-report__brand">
+            <img src={botLogo} alt="" width={44} height={44} decoding="async" />
+            <p className="ndx-estimate-report__brand-meta">
+              <strong>BalochDev</strong>
+              <span>Project estimate</span>
             </p>
-          ) : null}
-        </section>
+          </div>
+          <p className="ndx-estimate-report__doc-label">
+            Document
+            <br />
+            {formatDocDate(data.generatedAt)}
+          </p>
+        </header>
 
-        {data.lineItems.length > 0 ? (
+        <div className="ndx-estimate-report__body">
+          <h2 className="ndx-estimate-report__title">{data.projectTitle}</h2>
+          <div>
+            {data.projectType ? <span className="ndx-estimate-pill">{data.projectType}</span> : null}
+            {data.platforms.map((p) => (
+              <span key={p} className="ndx-estimate-pill">
+                {p}
+              </span>
+            ))}
+          </div>
+          <p className="ndx-lead" style={{ marginTop: '1rem', marginBottom: 0 }}>
+            {data.summary}
+          </p>
+
           <section className="ndx-estimate-report__section">
-            <h3 className="ndx-estimate-report__section-title">Line items</h3>
-            <div className="ndx-estimate-table-wrap">
-              <table className="ndx-estimate-table">
-                <thead>
-                  <tr>
-                    <th>Package</th>
-                    <th>Low</th>
-                    <th>High</th>
-                    <th>Timeline</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.lineItems.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong>{item.label}</strong>
-                        {item.billing === 'monthly' ? <span className="ndx-estimate-table__hint"> / mo</span> : null}
-                      </td>
-                      <td>{formatUsd(item.low)}</td>
-                      <td>{formatUsd(item.high)}</td>
-                      <td>
-                        {item.calendarDaysLow != null && item.calendarDaysHigh != null
-                          ? `${item.calendarDaysLow}–${item.calendarDaysHigh}d`
-                          : item.billing === 'monthly'
-                            ? 'Monthly'
-                            : '—'}
-                      </td>
+            <h3 className="ndx-estimate-report__section-title">At a glance</h3>
+            <div className="ndx-estimate-stat-grid">
+              <div className="ndx-estimate-stat">
+                <span className="ndx-estimate-stat__label">Low</span>
+                <span className="ndx-estimate-stat__value">{formatUsd(data.totals?.low)}</span>
+              </div>
+              <div className="ndx-estimate-stat">
+                <span className="ndx-estimate-stat__label">High</span>
+                <span className="ndx-estimate-stat__value ndx-estimate-stat__value--accent">{formatUsd(data.totals?.high)}</span>
+              </div>
+              <div className="ndx-estimate-stat">
+                <span className="ndx-estimate-stat__label">Timeframe</span>
+                <span className="ndx-estimate-stat__value" style={{ fontSize: '0.95rem' }}>
+                  {timeframeLabel}
+                </span>
+              </div>
+            </div>
+            <CostRangeChart low={data.totals?.low} high={data.totals?.high} />
+            {data.totals?.notes ? (
+              <p className="ndx-estimate-stat__hint" style={{ marginTop: '0.85rem' }}>
+                {data.totals.notes}
+              </p>
+            ) : null}
+            {data.totals?.requiresCall ? (
+              <p className="ndx-estimate-stat__hint" style={{ color: 'var(--ndx-accent)' }}>
+                Scope likely needs a scoping call before a firm quote.
+              </p>
+            ) : null}
+          </section>
+
+          {data.lineItems.length > 0 ? (
+            <section className="ndx-estimate-report__section">
+              <h3 className="ndx-estimate-report__section-title">Line items</h3>
+              <div className="ndx-estimate-table-wrap">
+                <table className="ndx-estimate-table">
+                  <thead>
+                    <tr>
+                      <th>Package</th>
+                      <th>Low</th>
+                      <th>High</th>
+                      <th>Timeline</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        ) : null}
+                  </thead>
+                  <tbody>
+                    {data.lineItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <strong>{item.label}</strong>
+                          {item.billing === 'monthly' ? <span className="ndx-estimate-table__hint"> / mo</span> : null}
+                        </td>
+                        <td>{formatUsd(item.low)}</td>
+                        <td>{formatUsd(item.high)}</td>
+                        <td>
+                          {item.calendarDaysLow != null && item.calendarDaysHigh != null
+                            ? `${item.calendarDaysLow}–${item.calendarDaysHigh}d`
+                            : item.billing === 'monthly'
+                              ? 'Monthly'
+                              : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          ) : null}
 
-        {(data.market?.sizeNote || data.market?.audience || data.market?.monetization) && (
-          <section className="ndx-estimate-report__section">
-            <h3 className="ndx-estimate-report__section-title">Market</h3>
-            <div className="ndx-estimate-market-grid">
-              {data.market.sizeNote ? (
-                <div className="ndx-estimate-market-cell">
-                  <strong>Size</strong>
-                  {data.market.sizeNote}
-                </div>
-              ) : null}
-              {data.market.audience ? (
-                <div className="ndx-estimate-market-cell">
-                  <strong>Audience</strong>
-                  {data.market.audience}
-                </div>
-              ) : null}
-              {data.market.monetization ? (
-                <div className="ndx-estimate-market-cell">
-                  <strong>Monetization</strong>
-                  {data.market.monetization}
-                </div>
-              ) : null}
-            </div>
-          </section>
-        )}
+          {(data.market?.sizeNote || data.market?.audience || data.market?.monetization) && (
+            <section className="ndx-estimate-report__section">
+              <h3 className="ndx-estimate-report__section-title">Market</h3>
+              <div className="ndx-estimate-market-grid">
+                {data.market.sizeNote ? (
+                  <div className="ndx-estimate-market-cell">
+                    <strong>Size</strong>
+                    {data.market.sizeNote}
+                  </div>
+                ) : null}
+                {data.market.audience ? (
+                  <div className="ndx-estimate-market-cell">
+                    <strong>Audience</strong>
+                    {data.market.audience}
+                  </div>
+                ) : null}
+                {data.market.monetization ? (
+                  <div className="ndx-estimate-market-cell">
+                    <strong>Monetization</strong>
+                    {data.market.monetization}
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          )}
 
-        {Array.isArray(data.market?.macroSeries) && data.market.macroSeries.length > 0 ? (
-          <section className="ndx-estimate-report__section">
-            <h3 className="ndx-estimate-report__section-title">Signals</h3>
-            <MacroSeriesChart series={data.market.macroSeries} />
-          </section>
-        ) : null}
+          {Array.isArray(data.market?.macroSeries) && data.market.macroSeries.length > 0 ? (
+            <section className="ndx-estimate-report__section">
+              <h3 className="ndx-estimate-report__section-title">Signals</h3>
+              <MacroSeriesChart series={data.market.macroSeries} />
+            </section>
+          ) : null}
 
-        {data.recommendations.length > 0 ? (
-          <section className="ndx-estimate-report__section">
-            <h3 className="ndx-estimate-report__section-title">Recommendations</h3>
-            <ul className="ndx-estimate-list ndx-estimate-list--recs">
-              {data.recommendations.map((rec) => (
-                <li key={rec.title}>
-                  <strong style={{ color: 'var(--ndx-text)' }}>{rec.title}</strong>
-                  {rec.detail ? <span> — {rec.detail}</span> : null}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+          {data.recommendations.length > 0 ? (
+            <section className="ndx-estimate-report__section">
+              <h3 className="ndx-estimate-report__section-title">Recommendations</h3>
+              <ul className="ndx-estimate-list ndx-estimate-list--recs">
+                {data.recommendations.map((rec) => (
+                  <li key={rec.title}>
+                    <strong style={{ color: 'var(--ndx-text)' }}>{rec.title}</strong>
+                    {rec.detail ? <span> — {rec.detail}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
-        {data.nextStep ? (
-          <section className="ndx-estimate-report__section" style={{ borderTop: 'none', paddingTop: 0 }}>
-            <div className="ndx-estimate-next">
-              <h3 className="ndx-estimate-report__section-title">Next step</h3>
-              <p className="ndx-estimate-next__title">{data.nextStep.title}</p>
-              {data.nextStep.detail ? <p className="ndx-estimate-next__detail">{data.nextStep.detail}</p> : null}
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
-                {data.nextStep.ctaLabel || 'Contact BalochDev'}
-              </Link>
-            </div>
-          </section>
-        ) : null}
+          {data.nextStep ? (
+            <section className="ndx-estimate-report__section" style={{ borderTop: 'none', paddingTop: 0 }}>
+              <div className="ndx-estimate-next">
+                <h3 className="ndx-estimate-report__section-title">Next step</h3>
+                <p className="ndx-estimate-next__title">{data.nextStep.title}</p>
+                {data.nextStep.detail ? <p className="ndx-estimate-next__detail">{data.nextStep.detail}</p> : null}
+                <Link to="/contact/" className="ndx-btn ndx-btn-primary">
+                  {data.nextStep.ctaLabel || 'Contact BalochDev'}
+                </Link>
+              </div>
+            </section>
+          ) : null}
 
-        <div className="ndx-estimate-report__actions">
-          <button type="button" className="ndx-btn ndx-btn-primary" onClick={handleDownloadPdf}>
-            Download report (PDF)
-          </button>
+          <div className="ndx-estimate-report__actions">
+            <button
+              type="button"
+              className="ndx-btn ndx-btn-primary"
+              onClick={handleDownloadPdf}
+              disabled={pdfBusy}
+            >
+              {pdfBusy ? 'Preparing PDF…' : 'Download report (PDF)'}
+            </button>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+
+      <PdfAlertModal open={!!pdfError} message={pdfError} onClose={() => setPdfError('')} />
+    </>
   );
 });
 

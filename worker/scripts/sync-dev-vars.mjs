@@ -22,7 +22,7 @@ for (const line of raw.split(/\r?\n/)) {
   map[m[1]] = v;
 }
 
-const keys = [
+const required = [
   'SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
   'GEMINI_API_KEY',
@@ -30,7 +30,7 @@ const keys = [
   'CLOUDINARY_API_KEY',
   'CLOUDINARY_API_SECRET',
 ];
-const missing = keys.filter((k) => !map[k]);
+const missing = required.filter((k) => !map[k]);
 if (missing.length) {
   console.error('Missing keys in server/.env:', missing.join(', '));
   process.exit(1);
@@ -38,6 +38,17 @@ if (missing.length) {
 
 const ip = map.IP_HASH_SECRET || 'local-dev-ip-hash-secret-change-me-32';
 const escape = (v) => String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+const optionalLines = [];
+for (const key of [
+  'TELEGRAM_BOT_TOKEN',
+  'TELEGRAM_CHAT_ID',
+  'GOOGLE_SHEETS_SPREADSHEET_ID',
+  'GOOGLE_SHEETS_TAB_NAME',
+  'GOOGLE_SERVICE_ACCOUNT_JSON',
+]) {
+  if (map[key]) optionalLines.push(`${key}="${escape(map[key])}"`);
+}
 
 const out = [
   `SUPABASE_URL="${escape(map.SUPABASE_URL)}"`,
@@ -49,6 +60,7 @@ const out = [
   `IP_HASH_SECRET="${escape(ip)}"`,
   'NODE_ENV="development"',
   'CORS_ALLOWED_ORIGINS="http://localhost:5173,http://localhost:5174,https://balochdev.com,https://www.balochdev.com"',
+  ...optionalLines,
   '',
 ].join('\n');
 

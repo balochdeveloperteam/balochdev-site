@@ -128,7 +128,7 @@ export default function ServicePracticeLanding() {
           <p className="ndx-lead" style={{ marginTop: "0.75rem" }}>
             This services practice page does not exist — browse all offerings on the main services page.
           </p>
-          <Link to="/services" className="ndx-btn ndx-btn-primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
+          <Link to="/services/" className="ndx-btn ndx-btn-primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
             All services
           </Link>
         </div>
@@ -143,7 +143,7 @@ export default function ServicePracticeLanding() {
       ) : null}
       <div className="ndx-container">
         <nav className="ndx-tech-landing__crumb" aria-label="Breadcrumb">
-          <Link to="/services">Services</Link>
+          <Link to="/services/">Services</Link>
           <span aria-hidden className="ndx-tech-landing__crumb-sep">
             /
           </span>
@@ -159,13 +159,13 @@ export default function ServicePracticeLanding() {
             <h1 className="ndx-h1 ndx-tech-landing__h1">{page.metaTitle.replace(/\s\|\sBalochDev$/, "").replace(/\s—\sBalochDev$/, "")}</h1>
             <p className="ndx-lead ndx-tech-landing__lead">{page.heroLead}</p>
             <div className="ndx-hero-btns ndx-tech-landing__hero-actions">
-              <Link to="/contact" className="ndx-btn ndx-btn-primary">
+              <Link to="/contact/" className="ndx-btn ndx-btn-primary">
                 Discuss this practice →
               </Link>
-              <Link to="/estimate" className="ndx-btn">
+              <Link to="/estimate/" className="ndx-btn">
                 AI estimate
               </Link>
-              <Link to={`/services#${page.id}`} className="ndx-btn">
+              <Link to={`/services#${page.id}/`} className="ndx-btn">
                 View cards on services →
               </Link>
             </div>
@@ -281,7 +281,7 @@ export default function ServicePracticeLanding() {
           </p>
           <div className="ndx-rich-service-grid" style={{ marginTop: "1.25rem" }}>
             {page.offerings.map((o) => (
-              <Link key={o.slug} to={`/services/${o.slug}`} className="ndx-card ndx-card-link" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+              <Link key={o.slug} to={`/services/${o.slug}/`} className="ndx-card ndx-card-link" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
                 <h3 className="ndx-tech-name" style={{ fontSize: "1.05rem", marginBottom: "0.35rem" }}>
                   {o.title}
                 </h3>
@@ -331,7 +331,7 @@ export default function ServicePracticeLanding() {
 
         <p className="ndx-group-sub ndx-tech-landing__prose-tight" style={{ marginTop: "2rem" }}>
           For shipped work and credits, see the{" "}
-          <Link to="/portfolio" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
+          <Link to="/portfolio/" style={{ color: "var(--ndx-accent)", fontWeight: 600 }}>
             portfolio
           </Link>
           .
@@ -346,14 +346,14 @@ export default function ServicePracticeLanding() {
           </div>
           <div className="ndx-hero-btns">
             <BookCallButton className="ndx-btn ndx-btn-primary">Book a call →</BookCallButton>
-            <Link to="/estimate" className="ndx-btn">
+            <Link to="/estimate/" className="ndx-btn">
               Get estimate
             </Link>
           </div>
         </div>
 
         <p className="ndx-tech-landing__back" style={{ marginTop: "1.5rem" }}>
-          <Link to="/services">← Back to all services</Link>
+          <Link to="/services/">← Back to all services</Link>
         </p>
       </div>
     </section>

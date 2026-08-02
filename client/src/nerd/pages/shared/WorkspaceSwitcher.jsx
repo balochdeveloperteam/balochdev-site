@@ -36,7 +36,7 @@ export default function WorkspaceSwitcher({ current, showAdmin, showTeam }) {
         <div className="ndx-workspace-switcher-menu ndx-glass-section" role="listbox">
           {showAdmin && (
             <Link
-              to="/admin/overview"
+              to="/admin/overview/"
               className={`ndx-workspace-switcher-option${current === 'admin' ? ' is-current' : ''}`}
               role="option"
               aria-selected={current === 'admin'}
@@ -47,7 +47,7 @@ export default function WorkspaceSwitcher({ current, showAdmin, showTeam }) {
           )}
           {showTeam && (
             <Link
-              to="/team"
+              to="/team/"
               className={`ndx-workspace-switcher-option${current === 'team' ? ' is-current' : ''}`}
               role="option"
               aria-selected={current === 'team'}

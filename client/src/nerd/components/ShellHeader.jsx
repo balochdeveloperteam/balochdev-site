@@ -7,63 +7,63 @@ import BookCallButton from './bookCall/BookCallButton';
 
 const nav = [
   {
-    to: '/services',
+    to: '/services/',
     label: 'Services',
     children: [
-      { to: '/services/practice/ai', label: 'AI & Intelligence' },
-      { to: '/services/practice/build', label: 'Build · Product' },
-      { to: '/services/practice/automate', label: 'Automate · Ops' },
-      { to: '/services/practice/design', label: 'Design · Craft' },
-      { to: '/services', label: 'View all services', viewAll: true },
+      { to: '/services/practice/ai/', label: 'AI & Intelligence' },
+      { to: '/services/practice/build/', label: 'Build · Product' },
+      { to: '/services/practice/automate/', label: 'Automate · Ops' },
+      { to: '/services/practice/design/', label: 'Design · Craft' },
+      { to: '/services/', label: 'View all services', viewAll: true },
     ],
   },
   {
-    to: '/technologies',
+    to: '/technologies/',
     label: 'Technologies',
     children: [
-      { to: '/technologies#ai', label: 'AI & Intelligence' },
-      { to: '/technologies#frontend', label: 'Frontend' },
-      { to: '/technologies#backend', label: 'Backends & APIs' },
-      { to: '/technologies#data', label: 'Databases' },
-      { to: '/technologies#ops', label: 'Deploy & Ops' },
-      { to: '/technologies', label: 'View all technologies', viewAll: true },
+      { to: '/technologies/#ai', label: 'AI & Intelligence' },
+      { to: '/technologies/#frontend', label: 'Frontend' },
+      { to: '/technologies/#backend', label: 'Backends & APIs' },
+      { to: '/technologies/#data', label: 'Databases' },
+      { to: '/technologies/#ops', label: 'Deploy & Ops' },
+      { to: '/technologies/', label: 'View all technologies', viewAll: true },
     ],
   },
   {
-    to: '/apps',
+    to: '/apps/',
     label: 'Apps',
     children: [
-      { to: '/apps', label: 'Mobile apps overview' },
-      { to: '/services/android-app-development', label: 'Android development' },
-      { to: '/services/mvp-development', label: 'MVP builds' },
-      { to: '/apps', label: 'View all apps', viewAll: true },
+      { to: '/apps/', label: 'Mobile apps overview' },
+      { to: '/services/android-app-development/', label: 'Android development' },
+      { to: '/services/mvp-development/', label: 'MVP builds' },
+      { to: '/apps/', label: 'View all apps', viewAll: true },
     ],
   },
   {
-    to: '/portfolio',
+    to: '/portfolio/',
     label: 'Portfolio',
     children: [
-      { to: '/projects/soroz', label: 'Soroz AI' },
-      { to: '/projects/mango-restaurant', label: 'ManGo Restaurant' },
-      { to: '/projects/theory-of-you', label: 'Theory of You' },
-      { to: '/projects/doch', label: 'DOCH' },
-      { to: '/projects/iinta', label: 'iinta.ca' },
-      { to: '/projects/toledo-locks', label: 'Toledo & Co.' },
-      { to: '/projects/shabash', label: 'Shbash' },
-      { to: '/portfolio', label: 'View all portfolio', viewAll: true },
+      { to: '/projects/soroz/', label: 'Soroz AI' },
+      { to: '/projects/mango-restaurant/', label: 'ManGo Restaurant' },
+      { to: '/projects/theory-of-you/', label: 'Theory of You' },
+      { to: '/projects/doch/', label: 'DOCH' },
+      { to: '/projects/iinta/', label: 'iinta.ca' },
+      { to: '/projects/toledo-locks/', label: 'Toledo & Co.' },
+      { to: '/projects/shabash/', label: 'Shbash' },
+      { to: '/portfolio/', label: 'View all portfolio', viewAll: true },
     ],
   },
   {
-    to: '/about',
+    to: '/about/',
     label: 'About',
     children: [
-      { to: '/about', label: 'About us' },
-      { to: '/faq', label: 'FAQ' },
-      { to: '/contact', label: 'Contact us' },
-      { to: '/about', label: 'View all about', viewAll: true },
+      { to: '/about/', label: 'About us' },
+      { to: '/faq/', label: 'FAQ' },
+      { to: '/contact/', label: 'Contact us' },
+      { to: '/about/', label: 'View all about', viewAll: true },
     ],
   },
-  { to: '/blog', label: 'Blog' },
+  { to: '/blog/', label: 'Blog' },
 ];
 
 export default function ShellHeader() {
@@ -141,7 +141,7 @@ export default function ShellHeader() {
           <div className="ndx-header-right">
             <div className="ndx-nav-cta">
               <BookCallButton className="ndx-btn">Book a call</BookCallButton>
-              <NavLink to="/estimate" className="ndx-btn ndx-btn-primary">
+              <NavLink to="/estimate/" className="ndx-btn ndx-btn-primary">
                 AI estimate
               </NavLink>
               <button
@@ -220,14 +220,14 @@ export default function ShellHeader() {
             Book a call
           </BookCallButton>
           <NavLink
-            to="/estimate"
+            to="/estimate/"
             className="ndx-btn ndx-mobile-drawer__cta"
             onClick={() => setOpen(false)}
           >
             AI estimate
           </NavLink>
           <NavLink
-            to="/proposal"
+            to="/proposal/"
             className="ndx-btn ndx-mobile-drawer__cta"
             onClick={() => setOpen(false)}
           >
